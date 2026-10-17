@@ -1,0 +1,192 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Artist · Gesso</title>
+<meta name="description" content="An artist's wall on Gesso: their work, their chip, and the people who collect them.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wdth,wght@12..96,75..100,300..800&family=DM+Mono:wght@400;500&family=Permanent+Marker&display=swap">
+<link rel="stylesheet" href="gesso.css">
+<style>
+  .banner { height: clamp(170px, 26vw, 360px); background-size: cover; background-position: center; background-color: var(--c); border-bottom: 2px solid var(--ink); }
+  .prof { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: 14px 28px; align-items: end; }
+  .avatar { width: clamp(96px, 13vw, 148px); aspect-ratio: 1; margin-top: calc(-1 * clamp(48px, 6.5vw, 74px)); border: 6px solid var(--wall); background: var(--c) center / cover; box-shadow: var(--hang); }
+  .prof h1 { font-size: clamp(2.6rem, 8vw, 6rem); }
+  .prof .meta { display: flex; flex-wrap: wrap; gap: 6px 16px; color: var(--ink-2); font-size: var(--t-s); margin-top: 10px; }
+  .prof .meta a { color: var(--ink); font-weight: 600; }
+  .prof .actions { display: flex; gap: 10px; flex-wrap: wrap; }
+  @media (max-width: 760px) { .prof { grid-template-columns: minmax(0, 1fr); } .prof .actions .btn { flex: 1; } }
+
+  .about { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr); gap: clamp(28px, 5vw, 64px); padding-block: clamp(32px, 5vw, 56px); align-items: start; }
+  .about .bio { display: grid; gap: 20px; }
+  .about .quote { font-family: var(--hand); color: var(--marker); font-size: clamp(1.4rem, 3vw, 2rem); line-height: 1.15; transform: rotate(-2deg); transform-origin: left; }
+  .stats { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1px; background: var(--rule); border: 1px solid var(--rule); }
+  .stats div { background: var(--wall); padding: 14px 16px; display: grid; gap: 2px; }
+  .stats b { font-family: var(--mono); font-weight: 500; font-size: 1.35rem; }
+  .stats span { font-size: var(--t-xs); color: var(--ink-2); }
+
+  .chippanel { border: 2px solid var(--ink); background: var(--card); display: grid; grid-template-columns: 150px minmax(0, 1fr); }
+  .chippanel .sw { background: var(--c); color: var(--on); padding: 16px; display: grid; align-content: space-between; gap: 30px; position: relative; }
+  .chippanel .sw .tick { font-family: var(--display); font-weight: 800; font-size: 2rem; letter-spacing: -.04em; line-height: .9; font-variation-settings: "wdth" 75; word-break: break-all; }
+  .chippanel .sw small { font-family: var(--mono); font-size: 11px; text-transform: uppercase; letter-spacing: .08em; opacity: .9; }
+  .chippanel .body { padding: 18px 18px 14px; display: grid; gap: 10px; min-width: 0; }
+  .chippanel .pxrow { display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; }
+  .chippanel .pxrow .usd { font-family: var(--mono); font-size: 2.2rem; font-weight: 500; letter-spacing: -.03em; }
+  .chippanel svg { width: 100%; height: auto; display: block; overflow: visible; }
+  .chippanel .axis text { font: 10.5px var(--mono); fill: var(--ink-2); }
+  .chippanel .axis line { stroke: var(--rule); }
+  .chippanel .earnline { font-size: var(--t-s); padding: 10px 12px; background: var(--wall-2); }
+  .chippanel .earnline b { font-family: var(--mono); font-weight: 500; }
+  @media (max-width: 900px) { .about { grid-template-columns: minmax(0, 1fr); } }
+  @media (max-width: 520px) { .chippanel { grid-template-columns: minmax(0, 1fr); } .chippanel .sw { gap: 12px; } }
+
+  .panel { padding-top: clamp(28px, 4vw, 40px); }
+  .post { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr); gap: clamp(18px, 4vw, 40px); padding-block: 28px; border-bottom: 1px solid var(--rule); align-items: center; }
+  .post:first-child { padding-top: 0; }
+  .post .txt { display: grid; gap: 10px; }
+  .post .txt p { font-size: clamp(1.1rem, 2vw, 1.4rem); line-height: 1.35; letter-spacing: -.01em; font-weight: 500; }
+  .post .likes { display: flex; gap: 16px; font-family: var(--mono); font-size: var(--t-xs); color: var(--ink-2); }
+  @media (max-width: 700px) { .post { grid-template-columns: minmax(0, 1fr); } .post .art { order: -1; } }
+
+  .collectors { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; }
+  .coll { display: flex; align-items: center; gap: 10px; padding: 10px; background: var(--card); border: 1px solid var(--rule); min-width: 0; }
+  .coll .av { width: 36px; height: 36px; flex: none; display: grid; place-items: center; font-weight: 800; font-size: var(--t-s); color: #fff; }
+  .coll .nm { font-weight: 600; font-size: var(--t-s); line-height: 1.2; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .coll .no { font-family: var(--mono); font-size: 11px; color: var(--ink-2); }
+  .coll .no .f { color: var(--marker); }
+
+  .more { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 12px; }
+  @media (max-width: 1000px) { .more { display: flex; overflow-x: auto; margin-inline: calc(-1 * var(--gut)); padding-inline: var(--gut); padding-bottom: 12px; } .more .chip { flex: 0 0 168px; } }
+</style>
+</head>
+<body>
+<div id="chrome-top"></div>
+<main id="main"></main>
+<div id="chrome-bottom"></div>
+<script src="gesso.js"></script>
+<script>
+(function () {
+  G.chrome('');
+  const POSTS = {
+    hamel: [
+      ['Oct 14', 'New one drying on the floor. Eyes everywhere this week.', 'p1', 412],
+      ['Oct 2', "Mural study for a wall I can't talk about yet. The canvas version is up on my Gesso wall.", 'p2', 638],
+      ['Sep 21', 'Three hundred of you now. That means every chip went up again. KEEP GOING.', 'p3', 1204]
+    ],
+    _default: [
+      ['Oct 11', 'Two new pieces leave the studio next week. Founding collectors get first look.', 'p1', 188],
+      ['Sep 26', 'Process shot. Most of this layer will be painted over, which is the point.', 'p2', 241]
+    ]
+  };
+  const FIRST = ['Priya', 'Marcus', 'Lena', 'Dante', 'Sol', 'Imani', 'Theo', 'Rosa', 'Kenji', 'Aisha', 'Wes', 'Noor', 'Calla', 'Rafa', 'Bea', 'Omar', 'Jules', 'Tess', 'Ari', 'Mo'];
+
+  function render() {
+    const slug = G.artist(location.hash.slice(1)) ? location.hash.slice(1) : 'hamel';
+    const a = G.artist(slug), n = G.collectors(slug), p = G.price(n), works = G.worksBy(slug);
+    const avail = works.filter((w) => !G.isSold(w)), from = Math.min(...avail.map((w) => w.price));
+    const follows = G.store.get('follows', []) || [], following = follows.includes(slug);
+    document.title = a.name + ' · Gesso';
+    const r = G.rng(G.hash('coll' + slug));
+    const shown = Math.min(n, 40);
+    const colls = Array.from({ length: shown }, (_, i) => ({ no: i + 1, name: FIRST[Math.floor(r() * FIRST.length)] + ' ' + String.fromCharCode(65 + Math.floor(r() * 26)) + '.', c: G.artists[Math.floor(r() * G.artists.length)].color }));
+    const posts = POSTS[slug] || POSTS._default;
+
+    document.getElementById('main').innerHTML = `
+      <div class="banner" style="--c:${a.color}" data-artist-art="${slug},banner,1600,520" role="img" aria-label="Detail of a work by ${G.esc(a.name)}"></div>
+      <section class="wrap">
+        <div class="prof">
+          <div class="avatar" style="--c:${a.color}" data-artist-art="${slug},avatar,300,300"></div>
+          <div style="min-width:0">
+            <h1 class="display">${G.esc(a.name)}</h1>
+            <div class="meta">${a.city ? `<span>${G.esc(a.city)}</span>` : ''}<span>${G.esc(a.joined)}</span>${a.ig ? `<a href="${a.ig}" target="_blank" rel="noopener">${G.esc(a.handle)} ↗</a>` : '<span>Sample creator</span>'}</div>
+          </div>
+          <div class="actions">
+            <button class="btn" type="button" id="follow" aria-pressed="${following}">${following ? 'Following' : 'Follow'}</button>
+            <a class="btn primary" href="#works" id="collect">Collect from ${G.usd(from)}</a>
+          </div>
+        </div>
+
+        <div class="about">
+          <div class="bio">
+            <p class="quote">${G.esc(a.quote)}</p>
+            <p class="lede" style="color:var(--ink)">${G.esc(a.bio)}</p>
+            <div class="stats">
+              <div><b>${n.toLocaleString()}</b><span>collectors</span></div>
+              <div><b>${a.sold}</b><span>works collected</span></div>
+              <div><b>${avail.length}</b><span>available now</span></div>
+              <div><b>${Math.max(0, G.FOUNDING - n)}</b><span>founding seats left (2× chips)</span></div>
+            </div>
+          </div>
+          <div class="chippanel" style="--c:${a.color};--on:${a.on}">
+            <div class="sw"><div class="tick">$${a.ticker}</div><small>${G.esc(a.name)}<br>chip</small></div>
+            <div class="body">
+              <span class="eyebrow">Price per chip</span>
+              <div class="pxrow"><span class="usd">${G.usd(p, true)}</span><span class="mono ${G.change(slug) >= 0 ? 'up' : 'down'}">${G.pct(G.change(slug))} in 30 days</span></div>
+              <div id="pchart"></div>
+              <p class="earnline">A ${G.usd(500)} purchase today earns <b>${G.chips(G.chipsFor(500, n))} $${a.ticker}</b>, worth <b>${G.usd(G.chipsFor(500, n) * p, true)}</b>${G.isFounding(n) ? ' with the founding 2× bonus' : ''}.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="tabs" role="tablist" id="tabs">
+          <button role="tab" aria-selected="true" data-tab="works" id="works">Works <span class="n">${works.length}</span></button>
+          <button role="tab" aria-selected="false" data-tab="studio">Studio <span class="n">${posts.length}</span></button>
+          <button role="tab" aria-selected="false" data-tab="collectors">Collectors <span class="n">${n.toLocaleString()}</span></button>
+        </div>
+        <div class="panel" data-panel="works"><div class="salon">${works.map((w) => G.workCard(w)).join('')}</div></div>
+        <div class="panel" data-panel="studio" hidden>${posts.map(([d, t, k, likes]) => `
+          <article class="post"><div class="txt"><span class="eyebrow">${d}, 2026</span><p>${G.esc(t)}</p><div class="likes"><span>♥ ${likes}</span><span>Collectors only can reply</span></div></div>
+          <img class="art hung" style="--ar:4/3" data-artist-art="${slug},${k},800,600" alt="Studio photo stand-in"></article>`).join('')}</div>
+        <div class="panel" data-panel="collectors" hidden>
+          <p class="muted" style="margin-bottom:18px">Collector numbers are permanent. The first 25 are founding collectors and earn double chips from ${G.esc(a.name)} for good.</p>
+          <div class="collectors">${colls.map((c) => `<div class="coll"><span class="av" style="background:${c.c}">${c.name[0]}</span><div style="min-width:0"><div class="nm">${G.esc(c.name)}</div><div class="no">#${c.no}${c.no <= 25 ? ' · <span class="f">founding</span>' : ''}</div></div></div>`).join('')}</div>
+          ${n > shown ? `<p class="mono muted" style="margin-top:16px;font-size:var(--t-s)">+ ${(n - shown).toLocaleString()} more collectors</p>` : ''}
+        </div>
+      </section>
+
+      <section class="wrap section" aria-labelledby="more-h">
+        <div class="section-head"><div><p class="eyebrow">Keep going</p><h2 id="more-h">More artists on Gesso</h2></div></div>
+        <div class="more">${G.artists.filter((x) => x.slug !== slug).map((x) => G.chipCard(x.slug)).join('')}</div>
+      </section>`;
+
+    // price chart over 120 days
+    const hist = G.history(slug).map(G.price), Wd = 520, Hd = 160, L = 40, R = 8, T = 8, B = 22;
+    const min = Math.floor(Math.min(...hist) * 2) / 2, max = Math.ceil(Math.max(...hist) * 2) / 2 || 1;
+    const X = (i) => L + (i / (hist.length - 1)) * (Wd - L - R), Y = (v) => Hd - B - ((v - min) / (max - min || 1)) * (Hd - T - B);
+    let s = `<svg viewBox="0 0 ${Wd} ${Hd}" role="img" aria-label="Chip price over the last 120 days"><g class="axis">`;
+    const step = (max - min) / 2;
+    for (let k = 0; k <= 2; k++) { const v = min + step * k; s += `<line x1="${L}" x2="${Wd - R}" y1="${Y(v)}" y2="${Y(v)}"/><text x="${L - 6}" y="${Y(v) + 4}" text-anchor="end">$${v.toFixed(2)}</text>`; }
+    const end = new Date(2026, 9, 17);
+    [0, 40, 80, 119].forEach((i) => { const d = new Date(end); d.setDate(d.getDate() - (119 - i)); s += `<text x="${X(i)}" y="${Hd - 4}" text-anchor="${i === 0 ? 'start' : i === 119 ? 'end' : 'middle'}">${d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</text>`; });
+    s += '</g>';
+    const d = hist.map((v, i) => (i ? 'L' : 'M') + X(i).toFixed(1) + ' ' + Y(v).toFixed(1)).join(' ');
+    s += `<path d="${d} L ${X(hist.length - 1)} ${Hd - B} L ${L} ${Hd - B} Z" fill="var(--up)" fill-opacity=".12"/><path d="${d}" fill="none" stroke="var(--up)" stroke-width="2" stroke-linejoin="round"/>`;
+    s += `<circle cx="${X(hist.length - 1)}" cy="${Y(hist[hist.length - 1])}" r="4" fill="var(--up)" stroke="var(--card)" stroke-width="2"/></svg>`;
+    document.getElementById('pchart').innerHTML = s;
+
+    // tabs
+    const tabs = document.getElementById('tabs');
+    tabs.addEventListener('click', (e) => {
+      const b = e.target.closest('[data-tab]'); if (!b) return;
+      tabs.querySelectorAll('[data-tab]').forEach((x) => x.setAttribute('aria-selected', String(x === b)));
+      document.querySelectorAll('[data-panel]').forEach((p) => (p.hidden = p.dataset.panel !== b.dataset.tab));
+      G.hydrate();
+    });
+    document.getElementById('collect').addEventListener('click', (e) => { e.preventDefault(); tabs.querySelector('[data-tab="works"]').click(); tabs.scrollIntoView({ behavior: 'smooth' }); });
+    document.getElementById('follow').addEventListener('click', (e) => {
+      const f = G.store.get('follows', []) || []; const i = f.indexOf(slug);
+      i >= 0 ? f.splice(i, 1) : f.push(slug); G.store.set('follows', f);
+      e.currentTarget.setAttribute('aria-pressed', String(i < 0)); e.currentTarget.textContent = i < 0 ? 'Following' : 'Follow';
+      G.toast(i < 0 ? `Following ${G.esc(a.name)}. New work shows up in your collection feed.` : `Unfollowed ${G.esc(a.name)}`);
+    });
+    G.hydrate();
+    window.scrollTo(0, 0);
+  }
+  window.addEventListener('hashchange', render);
+  render();
+})();
+</script>
+</body>
+</html>

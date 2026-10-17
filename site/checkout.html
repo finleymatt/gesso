@@ -1,0 +1,299 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Checkout · Gesso</title>
+<meta name="description" content="Check out on Gesso: pay partly with chips and earn the artist's chips on every piece.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wdth,wght@12..96,75..100,300..800&family=DM+Mono:wght@400;500&family=Permanent+Marker&display=swap">
+<link rel="stylesheet" href="gesso.css">
+<style>
+  .co-head { display: flex; flex-wrap: wrap; align-items: end; justify-content: space-between; gap: 18px; padding-block: clamp(28px, 4vw, 48px) 22px; }
+  .stepper { display: flex; gap: 0; list-style: none; margin: 0; padding: 0; counter-reset: st; flex-wrap: wrap; }
+  .stepper li { display: flex; align-items: center; gap: 8px; font-size: var(--t-s); font-weight: 600; color: var(--ink-2); padding-right: 18px; }
+  .stepper li + li::before { content: ""; width: 22px; height: 1.5px; background: var(--rule); margin-right: 10px; }
+  .stepper li span { width: 24px; height: 24px; border-radius: 50%; display: grid; place-items: center; font: 500 12px var(--mono); border: 1.5px solid var(--rule); }
+  .stepper li[aria-current="step"] { color: var(--ink); }
+  .stepper li[aria-current="step"] span { background: var(--ink); color: var(--wall); border-color: var(--ink); }
+  .stepper li.done span { background: var(--cobalt); border-color: var(--cobalt); color: var(--on-cobalt); }
+  .stepper li.done { color: var(--ink); }
+
+  .co { display: grid; grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr); gap: clamp(24px, 4vw, 56px); align-items: start; }
+  .co-main { display: grid; gap: 28px; min-width: 0; }
+  .card { background: var(--card); border: 1px solid var(--rule); padding: clamp(18px, 3vw, 28px); display: grid; gap: 18px; }
+  .card > h2 { font-size: 1.6rem; }
+  .line { display: grid; grid-template-columns: 96px minmax(0, 1fr) auto; gap: 16px; align-items: start; padding-bottom: 18px; border-bottom: 1px solid var(--rule); }
+  .line:last-child { border-bottom: 0; padding-bottom: 0; }
+  .line .art { width: 96px; }
+  .line .t { display: grid; gap: 3px; font-size: var(--t-s); min-width: 0; }
+  .line .t b { font-size: var(--t-m); }
+  .line .t .chipline { font-family: var(--mono); font-size: var(--t-xs); color: var(--up); margin-top: 4px; }
+  .line .r { display: grid; gap: 8px; justify-items: end; }
+  .line .r .usd { font-family: var(--mono); font-weight: 500; }
+  .line .r button { background: none; border: 0; padding: 0; font-size: var(--t-xs); color: var(--ink-2); text-decoration: underline; cursor: pointer; }
+
+  .chipspend { border: 2px solid var(--ink); background: var(--card); }
+  .chipspend .hd { display: flex; align-items: center; justify-content: space-between; gap: 14px; padding: 16px 18px; }
+  .chipspend .hd b { font-size: var(--t-l); letter-spacing: -.01em; }
+  .chipspend .bd { padding: 0 18px 18px; display: grid; gap: 14px; }
+  .holding { display: grid; grid-template-columns: 30px minmax(0, 1fr) auto auto; gap: 12px; align-items: center; padding: 10px 0; border-top: 1px solid var(--rule); font-size: var(--t-s); }
+  .holding .sw { width: 30px; height: 38px; background: var(--c); position: relative; }
+  .holding .sw::after { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 30%; background: var(--card); opacity: .9; }
+  .holding .v { font-family: var(--mono); text-align: right; }
+  .holding input { width: 20px; height: 20px; accent-color: var(--cobalt); }
+  .slide-row { display: grid; gap: 6px; }
+  .slide-row .top { display: flex; justify-content: space-between; font-size: var(--t-s); font-weight: 600; gap: 10px; }
+  .slide-row output { font-family: var(--mono); color: var(--cobalt); }
+
+  .ship { display: grid; gap: 10px; }
+  .opt { display: grid; grid-template-columns: 22px minmax(0, 1fr) auto; gap: 12px; align-items: center; padding: 14px 16px; border: 1.5px solid var(--rule); cursor: pointer; background: var(--card); }
+  .opt:has(input:checked) { border-color: var(--ink); box-shadow: 3px 3px 0 var(--ink); }
+  .opt input { width: 18px; height: 18px; accent-color: var(--cobalt); margin: 0; }
+  .opt .d { font-size: var(--t-xs); color: var(--ink-2); }
+  .opt .p { font-family: var(--mono); font-size: var(--t-s); }
+  .applepay { background: var(--ink); color: var(--wall); border: 0; min-height: 52px; width: 100%; font-weight: 600; font-size: 1.1rem; display: flex; align-items: center; justify-content: center; gap: 6px; cursor: pointer; border-radius: 8px; }
+  .applepay svg { width: 20px; height: 20px; fill: currentColor; }
+  .or { display: flex; align-items: center; gap: 12px; color: var(--ink-2); font-size: var(--t-xs); font-family: var(--mono); text-transform: uppercase; letter-spacing: .1em; }
+  .or::before, .or::after { content: ""; flex: 1; height: 1px; background: var(--rule); }
+  .demo-note { font-size: var(--t-xs); color: var(--ink-2); font-family: var(--mono); }
+
+  .summary { position: sticky; top: calc(env(safe-area-inset-top, 0px) + 84px); display: grid; gap: 0; border: 2px solid var(--ink); background: var(--card); }
+  .summary .sec { padding: 18px 20px; display: grid; gap: 10px; }
+  .summary .sec + .sec { border-top: 1px solid var(--rule); }
+  .summary .row { display: flex; justify-content: space-between; gap: 12px; font-size: var(--t-s); }
+  .summary .row .num { font-family: var(--mono); }
+  .summary .row.total { font-size: var(--t-l); font-weight: 700; align-items: baseline; }
+  .summary .row.total .num { font-size: 1.6rem; font-weight: 500; }
+  .summary .row.chip .num { color: var(--cobalt); }
+  .summary .earn { background: var(--cobalt-soft); }
+  .summary .earn .row { font-size: var(--t-s); }
+  .summary .earn .row b { font-family: var(--mono); font-weight: 500; }
+  .summary .cta { padding: 18px 20px; border-top: 1px solid var(--rule); display: grid; gap: 10px; }
+  @media (max-width: 900px) {
+    .co { grid-template-columns: minmax(0, 1fr); }
+    .summary { position: static; }
+  }
+
+  /* success */
+  .done { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: clamp(28px, 5vw, 64px); align-items: center; padding-block: clamp(32px, 6vw, 72px); }
+  .done .copy { display: grid; gap: 20px; }
+  .jar { position: relative; height: 340px; border: 2px solid var(--ink); background: var(--card); overflow: hidden; }
+  .jar .fall { position: absolute; top: -60px; width: 46px; height: 58px; background: var(--c); border: 1.5px solid var(--ink); animation: fall 1.1s cubic-bezier(.5,0,.75,0) forwards, settle .5s 1.1s ease-out forwards; animation-delay: var(--d); box-shadow: 0 6px 12px -6px rgba(0,0,0,.5); }
+  .jar .fall::after { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 32%; background: var(--card); border-top: 1.5px solid var(--ink); }
+  @keyframes fall { to { top: var(--y); transform: rotate(var(--r)); } }
+  @keyframes settle { from { top: var(--y); transform: rotate(var(--r)); } to { top: var(--y); transform: rotate(var(--r)) translateY(-3px); } }
+  @media (prefers-reduced-motion: reduce) { .jar .fall { top: var(--y); transform: rotate(var(--r)); } }
+  .jar .label { position: absolute; left: 18px; top: 16px; display: grid; gap: 2px; z-index: 2; }
+  .jar .label b { font-family: var(--mono); font-size: 2rem; font-weight: 500; color: var(--up); }
+  .receipt { display: grid; gap: 0; border-top: 2px solid var(--ink); }
+  .receipt .row { display: flex; justify-content: space-between; gap: 12px; padding: 12px 0; border-bottom: 1px solid var(--rule); font-size: var(--t-s); }
+  .receipt .row .num { font-family: var(--mono); }
+  @media (max-width: 900px) { .done { grid-template-columns: minmax(0, 1fr); } .jar { height: 260px; } }
+</style>
+</head>
+<body>
+<div id="chrome-top"></div>
+<main class="wrap" id="main"></main>
+<div id="chrome-bottom"></div>
+<script src="gesso.js"></script>
+<script>
+(function () {
+  G.chrome('checkout');
+  const STEPS = ['Bag', 'Delivery', 'Payment'];
+  let step = 0, seeded = false;
+  let bag = G.bag();
+  if (!bag.length) { bag = ['mika-01']; G.setBag(bag); seeded = true; }
+  const wallet = G.wallet();
+  const use = Object.fromEntries(Object.keys(wallet.chips).map((k) => [k, true]));
+  let chipOn = true, chipUsd = null, shipping = 'crate';
+  const form = { name: 'Sample Collector', email: 'you@example.com', addr: '1200 Example Ave, Apt 3', city: 'Chicago', zip: '60607', card: '', exp: '', cvc: '' };
+
+  const items = () => bag.map(G.work).filter((w) => w && !G.isSold(w));
+  const subtotal = () => items().reduce((s, w) => s + w.price, 0);
+  const shipCost = () => (shipping === 'install' ? 95 : 0);
+  const usable = () => Object.entries(wallet.chips).filter(([k]) => use[k]).map(([k, c]) => ({ k, c, px: G.priceOf(k), v: c * G.priceOf(k) })).sort((a, b) => b.v - a.v);
+  const chipMax = () => Math.min(subtotal() * G.SPEND_CAP, usable().reduce((s, h) => s + h.v, 0));
+  const chipApplied = () => (chipOn ? Math.min(chipUsd == null ? chipMax() : chipUsd, chipMax()) : 0);
+  // draw chips from the most valuable holding first
+  const draw = () => { let left = chipApplied(); const out = []; for (const h of usable()) { if (left <= 0.004) break; const v = Math.min(left, h.v); out.push({ k: h.k, chips: v / h.px, v }); left -= v; } return out; };
+  // chips earned: per artist, at the collector count when you buy; you count once per artist
+  const earnings = () => {
+    const by = {};
+    items().forEach((w) => { (by[w.artist] = by[w.artist] || []).push(w); });
+    return Object.entries(by).map(([k, ws]) => {
+      const n = G.collectors(k), isNew = !wallet.collectorNo[k];
+      const chips = ws.reduce((s, w) => s + G.chipsFor(w.price, n), 0);
+      return { k, chips, n, isNew, pxNow: G.price(n), pxAfter: G.price(n + (isNew ? 1 : 0)) };
+    });
+  };
+
+  function summary(final) {
+    const sub = subtotal(), ch = chipApplied(), total = Math.max(0, sub - ch + shipCost());
+    const earn = earnings();
+    return `<aside class="summary" aria-label="Order summary">
+      <div class="sec"><p class="eyebrow">Order summary</p>
+        <div class="row"><span>${items().length} piece${items().length === 1 ? '' : 's'}</span><span class="num">${G.usd(sub, true)}</span></div>
+        <div class="row"><span>${shipping === 'install' ? 'White-glove install' : 'Crated, insured shipping'}</span><span class="num">${shipCost() ? G.usd(shipCost(), true) : 'Free'}</span></div>
+        ${ch > 0 ? `<div class="row chip"><span>Paid with chips</span><span class="num">−${G.usd(ch, true)}</span></div>` : ''}
+        <div class="row"><span>Estimated tax</span><span class="num muted">at payment</span></div>
+      </div>
+      <div class="sec"><div class="row total"><span>You pay</span><span class="num" id="total">${G.usd(total, true)}</span></div></div>
+      ${earn.length ? `<div class="sec earn"><p class="eyebrow" style="color:var(--cobalt)">You'll earn</p>
+        ${earn.map((e) => { const a = G.artist(e.k); return `<div class="row"><span><i class="dot" style="--c:${a.color}"></i> $${a.ticker}${G.isFounding(e.n) ? ' · 2× founding' : ''}</span><b>+${G.chips(e.chips)}</b></div>`; }).join('')}
+        <div class="row muted"><span>Worth today</span><span class="num">${G.usd(earn.reduce((s, e) => s + e.chips * e.pxAfter, 0), true)}</span></div></div>` : ''}
+      ${final ? '' : `<div class="cta"><button class="btn primary block" type="button" id="next" ${items().length ? '' : 'disabled'}>${step === 0 ? 'Continue to delivery' : step === 1 ? 'Continue to payment' : 'Place order · ' + G.usd(total, true)}</button>
+        ${step > 0 ? '<button class="btn block" type="button" id="back">Back</button>' : ''}
+        <span class="demo-note">Design preview: no card is charged and nothing ships.</span></div>`}
+    </aside>`;
+  }
+
+  function stepper() {
+    return `<ol class="stepper" aria-label="Checkout steps">${STEPS.map((s, i) => `<li class="${i < step ? 'done' : ''}" ${i === step ? 'aria-current="step"' : ''}><span>${i < step ? '✓' : i + 1}</span>${s}</li>`).join('')}</ol>`;
+  }
+
+  function bagStep() {
+    const its = items();
+    const hold = usable(), allHold = Object.entries(wallet.chips);
+    return `
+      <div class="card"><h2>Your bag</h2>
+        ${seeded ? '<p class="demo-note">We added a sample piece so you can try checkout.</p>' : ''}
+        ${its.length ? its.map((w) => { const a = G.artist(w.artist), n = G.collectors(w.artist); return `
+          <div class="line">${G.artImg(w, 220, 'art hung')}
+            <div class="t"><span class="muted"><i class="dot" style="--c:${a.color}"></i> ${G.esc(a.name)}</span><b>${G.esc(w.title)}, ${w.year}</b><span class="muted">${G.esc(w.medium)} · ${w.w} × ${w.h} in</span>
+              <span class="chipline">+${G.chips(G.chipsFor(w.price, n))} $${a.ticker} when you buy</span></div>
+            <div class="r"><span class="usd">${G.usd(w.price)}</span><button type="button" data-remove="${w.id}">Remove</button></div></div>`; }).join('')
+          : '<p class="muted">Your bag is empty. <a class="link" href="discover.html">Find something on the wall</a>.</p>'}
+      </div>
+      ${its.length ? `<div class="chipspend">
+        <div class="hd"><div style="display:grid;gap:2px"><b>Pay with chips</b><span class="muted" style="font-size:var(--t-s)">Up to half of this order, ${G.usd(subtotal() * G.SPEND_CAP, true)}</span></div>
+          <span class="switch"><input type="checkbox" id="chipOn" ${chipOn ? 'checked' : ''} aria-label="Pay with chips"><span></span></span></div>
+        <div class="bd" ${chipOn ? '' : 'hidden'}>
+          <div class="slide-row"><div class="top"><label for="chipAmt">Chips applied</label><output id="chipOut">${G.usd(chipApplied(), true)}</output></div>
+            <input type="range" id="chipAmt" min="0" max="${chipMax().toFixed(2)}" step="0.01" value="${chipApplied().toFixed(2)}"></div>
+          <div>${allHold.map(([k, c]) => { const a = G.artist(k), d = draw().find((x) => x.k === k); return `
+            <label class="holding"><span class="sw" style="--c:${a.color}"></span><span><b>$${a.ticker}</b><br><span class="muted">${G.chips(c)} chips · ${G.usd(c * G.priceOf(k), true)}</span></span>
+              <span class="v ${d ? 'up' : 'muted'}">${d ? '−' + G.chips(d.chips) : '—'}</span><input type="checkbox" data-use="${k}" ${use[k] ? 'checked' : ''} aria-label="Use $${a.ticker} chips"></label>`; }).join('')}</div>
+          <p class="demo-note">The reserve pays the artist the chip share in cash, so they're paid in full.</p>
+        </div></div>` : ''}`;
+  }
+
+  function deliveryStep() {
+    const f = (id, label, val, type = 'text', ac = '') => `<div class="field"><label for="${id}">${label}</label><input class="input" id="${id}" type="${type}" value="${G.esc(val)}" ${ac ? `autocomplete="${ac}"` : ''}></div>`;
+    return `<div class="card"><h2>Where's it going?</h2>
+      <p class="demo-note">Filled with example details for the preview.</p>
+      <div class="grid-2">${f('name', 'Full name', form.name, 'text', 'name')}${f('email', 'Email', form.email, 'email', 'email')}</div>
+      ${f('addr', 'Street address', form.addr, 'text', 'street-address')}
+      <div class="grid-2">${f('city', 'City', form.city, 'text', 'address-level2')}${f('zip', 'ZIP code', form.zip, 'text', 'postal-code')}</div></div>
+      <div class="card"><h2>Delivery</h2><div class="ship">
+        <label class="opt"><input type="radio" name="ship" value="crate" ${shipping === 'crate' ? 'checked' : ''}><span><b>Crated and insured</b><br><span class="d">Ships in 5 to 7 days, tracked to your door</span></span><span class="p">Free</span></label>
+        <label class="opt"><input type="radio" name="ship" value="install" ${shipping === 'install' ? 'checked' : ''}><span><b>White-glove install</b><br><span class="d">Delivered, unpacked and hung by an art handler</span></span><span class="p">$95</span></label>
+      </div></div>`;
+  }
+
+  function payStep() {
+    return `<div class="card"><h2>Payment</h2>
+      <button class="applepay" type="button" id="apay" aria-label="Pay with Apple Pay"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M16.4 12.6c0-2.4 2-3.5 2-3.6-1.1-1.6-2.8-1.8-3.4-1.8-1.4-.1-2.8.9-3.5.9s-1.9-.9-3.1-.8c-1.6 0-3 .9-3.8 2.3-1.6 2.8-.4 7 1.2 9.3.8 1.1 1.7 2.4 2.9 2.3 1.2 0 1.6-.7 3-.7s1.8.7 3.1.7c1.3 0 2.1-1.1 2.8-2.3.9-1.3 1.3-2.6 1.3-2.6s-2.5-1-2.5-3.7zM14.2 5.6c.6-.8 1.1-1.8 1-2.9-.9 0-2.1.6-2.7 1.4-.6.7-1.1 1.8-1 2.8 1 .1 2.1-.5 2.7-1.3z"/></svg>Pay</button>
+      <div class="or">or pay by card</div>
+      <div class="field"><label for="card">Card number</label><input class="input mono" id="card" inputmode="numeric" placeholder="1234 1234 1234 1234" autocomplete="off" value="${G.esc(form.card)}"></div>
+      <div class="grid-2"><div class="field"><label for="exp">Expiry</label><input class="input mono" id="exp" placeholder="MM / YY" autocomplete="off" value="${G.esc(form.exp)}"></div><div class="field"><label for="cvc">Security code</label><input class="input mono" id="cvc" placeholder="123" autocomplete="off" value="${G.esc(form.cvc)}"></div></div>
+      <p class="demo-note">Preview only. Leave these blank and place the order; nothing is charged.</p></div>
+      <div class="card"><h2>Review</h2>
+        <div style="display:grid;gap:6px;font-size:var(--t-s)"><span><b>${G.esc(form.name)}</b> · ${G.esc(form.email)}</span><span class="muted">${G.esc(form.addr)}, ${G.esc(form.city)} ${G.esc(form.zip)}</span><span class="muted">${shipping === 'install' ? 'White-glove install' : 'Crated and insured, free'}</span>
+        ${chipApplied() > 0 ? `<span class="muted">Chips: ${draw().map((d) => G.chips(d.chips) + ' $' + G.artist(d.k).ticker).join(' + ')}</span>` : ''}</div></div>`;
+  }
+
+  function render() {
+    const main = document.getElementById('main');
+    main.innerHTML = `
+      <div class="co-head"><div style="display:grid;gap:12px"><p class="eyebrow">Checkout</p><h1 class="display" style="font-size:clamp(2.4rem,6vw,4.2rem)">${['Your bag', 'Delivery', 'Payment'][step]}</h1></div>${stepper()}</div>
+      <div class="co"><div class="co-main">${[bagStep, deliveryStep, payStep][step]()}</div>${summary()}</div>`;
+    G.hydrate(main);
+    wire();
+  }
+
+  function refreshSummary() {
+    const old = document.querySelector('.summary'); if (!old) return;
+    old.outerHTML = summary(); wireSummary();
+    const out = document.getElementById('chipOut'); if (out) out.textContent = G.usd(chipApplied(), true);
+    document.querySelectorAll('.holding').forEach((el) => {
+      const k = el.querySelector('[data-use]').dataset.use, d = draw().find((x) => x.k === k), v = el.querySelector('.v');
+      v.textContent = d ? '−' + G.chips(d.chips) : '—'; v.className = 'v ' + (d ? 'up' : 'muted');
+    });
+  }
+
+  function saveForm() { ['name', 'email', 'addr', 'city', 'zip', 'card', 'exp', 'cvc'].forEach((k) => { const el = document.getElementById(k); if (el) form[k] = el.value; }); }
+
+  function wireSummary() {
+    const next = document.getElementById('next'), back = document.getElementById('back');
+    if (next) next.addEventListener('click', () => { saveForm(); if (step < 2) { step++; render(); window.scrollTo({ top: 0, behavior: 'smooth' }); } else place(); });
+    if (back) back.addEventListener('click', () => { saveForm(); step--; render(); });
+  }
+
+  function wire() {
+    wireSummary();
+    document.querySelectorAll('[data-remove]').forEach((b) => b.addEventListener('click', () => { bag = bag.filter((x) => x !== b.dataset.remove); G.setBag(bag); seeded = false; render(); }));
+    const on = document.getElementById('chipOn');
+    if (on) on.addEventListener('change', () => { chipOn = on.checked; document.querySelector('.chipspend .bd').hidden = !chipOn; refreshSummary(); });
+    const amt = document.getElementById('chipAmt');
+    if (amt) amt.addEventListener('input', () => { chipUsd = +amt.value; refreshSummary(); });
+    document.querySelectorAll('[data-use]').forEach((c) => c.addEventListener('change', () => {
+      use[c.dataset.use] = c.checked; chipUsd = null;
+      const a = document.getElementById('chipAmt'); a.max = chipMax().toFixed(2); a.value = chipApplied().toFixed(2);
+      refreshSummary();
+    }));
+    document.querySelectorAll('input[name="ship"]').forEach((r) => r.addEventListener('change', () => { shipping = r.value; refreshSummary(); }));
+    const ap = document.getElementById('apay'); if (ap) ap.addEventListener('click', place);
+  }
+
+  function place() {
+    const its = items(), earn = earnings(), spent = draw(), sub = subtotal(), ch = chipApplied(), total = Math.max(0, sub - ch + shipCost());
+    // update the preview wallet and artist counts
+    spent.forEach((d) => { wallet.chips[d.k] = Math.max(0, wallet.chips[d.k] - d.chips); if (wallet.chips[d.k] < 0.005) delete wallet.chips[d.k]; });
+    const firsts = [];
+    earn.forEach((e) => {
+      if (e.isNew) { wallet.collectorNo[e.k] = e.n + 1; G.addCollector(e.k); firsts.push(e); }
+      wallet.chips[e.k] = (wallet.chips[e.k] || 0) + e.chips;
+      wallet.basis[e.k] = (wallet.basis[e.k] || 0) + e.chips * e.pxNow;
+    });
+    its.forEach((w) => { if (!wallet.owned.includes(w.id)) wallet.owned.unshift(w.id); if (w.edition === 'Original') G.markSold(w.id); });
+    const today = '2026-10-17';
+    earn.forEach((e) => wallet.log.unshift({ t: today, text: `Collected ${its.filter((w) => w.artist === e.k).map((w) => w.title).join(', ')}`, chips: e.chips, a: e.k }));
+    if (spent.length) wallet.log.unshift({ t: today, text: `Spent ${spent.map((d) => G.chips(d.chips) + ' $' + G.artist(d.k).ticker).join(' + ')} at checkout`, chips: -spent.reduce((s, d) => s + d.chips, 0), a: spent[0].k });
+    wallet.sample = false;
+    G.saveWallet(wallet); G.setBag([]);
+
+    const lead = earn[0], la = G.artist(lead.k), totalChips = earn.reduce((s, e) => s + e.chips, 0);
+    const worth = earn.reduce((s, e) => s + e.chips * e.pxAfter, 0);
+    const r = G.rng(G.hash('jar' + Date.now()));
+    const pieces = Math.min(22, Math.max(8, Math.round(totalChips)));
+    const falls = Array.from({ length: pieces }, (_, i) => { const e = earn[i % earn.length], a = G.artist(e.k); return `<i class="fall" style="--c:${a.color};left:${6 + r() * 80}%;--y:${210 + r() * 70 - (i % 3) * 18}px;--r:${(r() - 0.5) * 70}deg;--d:${(i * 0.07).toFixed(2)}s"></i>`; }).join('');
+    document.getElementById('main').innerHTML = `
+      <section class="done">
+        <div class="copy">
+          <p class="eyebrow">Order placed · preview</p>
+          <h1 class="display" style="font-size:clamp(2.6rem,6.4vw,5rem)">It's yours.<br>Welcome to the wall.</h1>
+          ${firsts.length ? `<p class="lede">You're <b style="color:var(--ink)">${G.esc(G.artist(firsts[0].k).name)}'s collector #${firsts[0].n + 1}</b>. Joining pushed every $${G.artist(firsts[0].k).ticker} chip from ${G.usd(firsts[0].pxNow, true)} to ${G.usd(firsts[0].pxAfter, true)}, including the ones you just earned.</p>`
+            : `<p class="lede">You already collect ${G.esc(la.name)}, so your collector number stays the same. Your new chips are in your collection.</p>`}
+          <div class="receipt">
+            ${its.map((w) => `<div class="row"><span>${G.esc(w.title)}</span><span class="num">${G.usd(w.price, true)}</span></div>`).join('')}
+            ${ch > 0 ? `<div class="row"><span>Paid with chips</span><span class="num">−${G.usd(ch, true)}</span></div>` : ''}
+            <div class="row"><b>Charged</b><b class="num">${G.usd(total, true)}</b></div>
+          </div>
+          <div class="cta-row"><a class="btn primary" href="collection.html">See your collection</a><a class="btn" href="discover.html">Keep collecting</a></div>
+        </div>
+        <div class="jar" aria-label="Chips earned">
+          <div class="label"><span class="eyebrow">Chips earned</span><b>+${G.chips(totalChips)}</b><span class="muted" style="font-size:var(--t-s)">${earn.map((e) => '$' + G.artist(e.k).ticker).join(' · ')} · worth ${G.usd(worth, true)}</span></div>
+          ${falls}
+        </div>
+      </section>`;
+    G.refreshBadges();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  render();
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Collection · Gesso</title>
+<meta name="description" content="Your Gesso collection: the chips you hold, the art you own, and what your chips can buy.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wdth,wght@12..96,75..100,300..800&family=DM+Mono:wght@400;500&family=Permanent+Marker&display=swap">
+<link rel="stylesheet" href="gesso.css">
+<style>
+  .top { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 20px 40px; align-items: end; padding-block: clamp(32px, 5vw, 64px) clamp(24px, 4vw, 40px); }
+  .top .val { font-family: var(--display); font-weight: 800; font-size: clamp(3.4rem, 10vw, 7.5rem); line-height: .85; letter-spacing: -.05em; font-variation-settings: "wdth" 78; font-variant-numeric: tabular-nums; }
+  .top .sub { display: flex; flex-wrap: wrap; gap: 8px 20px; font-size: var(--t-s); color: var(--ink-2); margin-top: 14px; }
+  .sample { display: inline-flex; align-items: center; gap: 8px; font-family: var(--mono); font-size: var(--t-xs); padding: 4px 10px; border: 1.5px dashed var(--ink-2); color: var(--ink-2); }
+  @media (max-width: 700px) { .top { grid-template-columns: minmax(0, 1fr); } }
+
+  .holds { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 16px; }
+  .hold { display: grid; grid-template-rows: auto 1fr; border: 1px solid var(--rule); background: var(--card); text-decoration: none; box-shadow: 0 10px 24px -16px rgba(0,0,0,.5); transition: transform .25s; min-width: 0; }
+  .hold:hover { transform: translateY(-4px); }
+  .hold .sw { background: var(--c); color: var(--on); padding: 16px; display: grid; gap: 34px; position: relative; }
+  .hold .sw .tick { font-family: var(--display); font-weight: 800; font-size: 2.2rem; letter-spacing: -.04em; line-height: .9; font-variation-settings: "wdth" 75; }
+  .hold .sw .cnt { font-family: var(--mono); font-size: 1.15rem; display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
+  .hold .sw .cnt small { font-size: 11px; text-transform: uppercase; letter-spacing: .08em; opacity: .85; }
+  .hold .sw .no { position: absolute; top: 14px; right: 14px; font-family: var(--hand); font-size: 1.05rem; transform: rotate(4deg); }
+  .hold .st { padding: 14px 16px; display: grid; gap: 6px; font-size: var(--t-s); }
+  .hold .st .r { display: flex; justify-content: space-between; gap: 8px; }
+  .hold .st .r .num { font-family: var(--mono); }
+  .hold .st .r.big .num { font-size: 1.25rem; font-weight: 500; }
+
+  .spend { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: clamp(16px, 3vw, 32px); }
+  .spend .work .walllabel .price .earn { color: var(--cobalt); }
+  @media (max-width: 800px) { .spend { grid-template-columns: repeat(2, minmax(0, 1fr)); } .spend > :nth-child(3) { display: none; } }
+
+  .log { width: 100%; border-collapse: collapse; font-size: var(--t-s); }
+  .log td { padding: 14px 10px; border-bottom: 1px solid var(--rule); vertical-align: top; }
+  .log td:first-child { font-family: var(--mono); font-size: var(--t-xs); color: var(--ink-2); white-space: nowrap; padding-left: 0; }
+  .log td.num { font-family: var(--mono); text-align: right; white-space: nowrap; padding-right: 0; }
+</style>
+</head>
+<body>
+<div id="chrome-top"></div>
+<main class="wrap" id="main"></main>
+<div id="chrome-bottom"></div>
+<script src="gesso.js"></script>
+<script>
+(function () {
+  G.chrome('collection');
+  const w = G.wallet();
+  const holds = Object.entries(w.chips).map(([k, c]) => ({ k, c, a: G.artist(k), px: G.priceOf(k), v: c * G.priceOf(k), basis: w.basis[k] || 0 })).sort((a, b) => b.v - a.v);
+  const total = holds.reduce((s, h) => s + h.v, 0), basis = holds.reduce((s, h) => s + h.basis, 0);
+  const mine = new Set(Object.keys(w.collectorNo));
+  // pieces where chips cover the full allowed half, from artists you don't collect yet
+  const ideas = G.works.filter((x) => !G.isSold(x) && !mine.has(x.artist) && x.price * G.SPEND_CAP <= total).sort((a, b) => b.price - a.price);
+  const seen = new Set(), picks = [];
+  ideas.forEach((x) => { if (!seen.has(x.artist) && picks.length < 3) { seen.add(x.artist); picks.push(x); } });
+  const owned = w.owned.map(G.work).filter(Boolean);
+
+  document.getElementById('main').innerHTML = `
+    <section class="top">
+      <div>
+        <div style="display:flex;flex-wrap:wrap;gap:12px;align-items:center;margin-bottom:16px"><p class="eyebrow">Your chips are worth</p>${w.sample ? '<span class="sample">Sample collection</span>' : ''}</div>
+        <div class="val">${G.usd(total, true)}</div>
+        <div class="sub"><span class="${total - basis >= 0 ? 'up' : 'down'}" style="font-family:var(--mono)">${total - basis >= 0 ? '+' : '−'}${G.usd(Math.abs(total - basis), true)} since you earned them</span><span>${holds.length} artist${holds.length === 1 ? '' : 's'}</span><span>${owned.length} work${owned.length === 1 ? '' : 's'} owned</span></div>
+      </div>
+      <a class="btn primary" href="discover.html">Spend chips</a>
+    </section>
+
+    <section aria-labelledby="h-chips">
+      <div class="section-head"><div><p class="eyebrow">Chips</p><h2 id="h-chips">What you hold</h2></div><p class="muted" style="max-width:30em">Each one rises when a new person collects that artist. Your collector number never changes.</p></div>
+      <div class="holds">${holds.map((h) => {
+        const gain = h.basis ? h.v / h.basis - 1 : 0;
+        return `<a class="hold" href="artist.html#${h.k}" style="--c:${h.a.color};--on:${h.a.on}">
+          <div class="sw">${w.collectorNo[h.k] ? `<span class="no">#${w.collectorNo[h.k]}${w.collectorNo[h.k] <= 25 ? ' ★' : ''}</span>` : ''}<span class="tick">$${h.a.ticker}</span><span class="cnt">${G.chips(h.c)}<small>chips</small></span></div>
+          <div class="st"><div class="r big"><span>Worth</span><span class="num">${G.usd(h.v, true)}</span></div>
+            <div class="r muted"><span>Per chip</span><span class="num">${G.usd(h.px, true)}</span></div>
+            <div class="r muted"><span>Since earned</span><span class="num ${gain >= 0 ? 'up' : 'down'}">${G.pct(gain)}</span></div>
+            <div style="color:var(--up)">${G.spark(G.history(h.k).slice(-60).map(G.price), { h: 28 })}</div></div></a>`;
+      }).join('') || '<p class="muted">No chips yet. Buy a piece to earn your first.</p>'}</div>
+    </section>
+
+    ${picks.length ? `<section class="section" aria-labelledby="h-spend" style="padding-bottom:0">
+      <div class="section-head"><div><p class="eyebrow">Spend them</p><h2 id="h-spend">Half of these is already paid for</h2></div><p class="muted" style="max-width:30em">Your chips cover the full 50% on each of these, from artists you don't collect yet. Buying one earns you their chips too.</p></div>
+      <div class="spend">${picks.map((x) => G.workCard(x).replace(/<span class="earn">[^<]*<\/span>/, `<span class="earn">pay ${G.usd(x.price / 2)} + chips</span>`)).join('')}</div>
+    </section>` : ''}
+
+    <section class="section" aria-labelledby="h-owned" style="padding-bottom:0">
+      <div class="section-head"><div><p class="eyebrow">On your walls</p><h2 id="h-owned">Works you own</h2></div></div>
+      <div class="salon">${owned.map((x) => G.workCard(x).replace(/<span class="red-dot"[^>]*><\/span>|<button class="quick-add"[^>]*>[^<]*<\/button>/, '').replace(/<span class="price">[\s\S]*?<\/span>\s*<\/span>/, `<span class="price"><span class="sold-tag" style="--sold:var(--up)">Yours</span><span class="earn">${x.edition === 'Original' ? 'Original' : G.esc(x.edition)}</span></span>`)).join('')}</div>
+    </section>
+
+    <section class="section" aria-labelledby="h-log" style="padding-bottom:0">
+      <div class="section-head"><div><p class="eyebrow">Activity</p><h2 id="h-log">Your chip ledger</h2></div><button class="btn small" type="button" data-reset>Reset preview</button></div>
+      <div style="overflow-x:auto"><table class="log"><tbody>${w.log.map((l) => { const a = G.artist(l.a); return `<tr><td>${new Date(l.t + 'T12:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</td><td><i class="dot" style="--c:${a.color}"></i> ${G.esc(l.text)}</td><td class="num ${l.chips >= 0 ? 'up' : 'down'}">${l.chips >= 0 ? '+' : '−'}${G.chips(Math.abs(l.chips))} $${a.ticker}</td></tr>`; }).join('')}</tbody></table></div>
+    </section>`;
+  G.hydrate();
+})();
+</script>
+</body>
+</html>

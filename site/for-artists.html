@@ -1,0 +1,150 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Sell on Gesso</title>
+<meta name="description" content="Artists keep 80% on Gesso, and every collector gets your chips, so the people who buy your work win when you grow.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wdth,wght@12..96,75..100,300..800&family=DM+Mono:wght@400;500&family=Permanent+Marker&display=swap">
+<link rel="stylesheet" href="gesso.css">
+<style>
+  .hero { display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(0, .8fr); gap: clamp(32px, 6vw, 80px); align-items: center; padding-block: clamp(36px, 6vw, 80px); }
+  .hero .copy { display: grid; gap: 24px; }
+  .payout { margin-bottom: 30px; background: var(--card); border: 2px solid var(--ink); font-family: var(--mono); font-size: var(--t-s); transform: rotate(1.5deg); box-shadow: 8px 8px 0 var(--ink); position: relative; }
+  .payout .hd { display: grid; grid-template-columns: 72px minmax(0, 1fr); gap: 14px; padding: 16px; border-bottom: 1.5px dashed var(--rule); align-items: center; font-family: var(--body); }
+  .payout .row { display: flex; justify-content: space-between; gap: 12px; padding: 10px 16px; }
+  .payout .row + .row { border-top: 1px solid var(--rule); }
+  .payout .row.you { background: var(--cobalt); color: var(--on-cobalt); font-size: 1.1rem; }
+  .payout .stamp { position: absolute; right: 12px; bottom: -38px; font-family: var(--hand); color: var(--marker); font-size: 1.4rem; transform: rotate(-8deg); }
+
+  .why { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: clamp(16px, 3vw, 28px); }
+  .why article { display: grid; gap: 12px; align-content: start; padding-top: 18px; border-top: 2px solid var(--ink); }
+  .why h3 { font-size: 1.4rem; letter-spacing: -.02em; }
+  .why p { color: var(--ink-2); }
+  .tools { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1px; background: var(--rule); border: 1px solid var(--rule); }
+  .tools article { background: var(--wall); padding: 24px; display: grid; gap: 10px; align-content: start; }
+  .tools svg { width: 28px; height: 28px; color: var(--cobalt); }
+  .tools p { color: var(--ink-2); font-size: var(--t-s); }
+  @media (max-width: 900px) { .hero, .why, .tools { grid-template-columns: minmax(0, 1fr); } .payout { max-width: 420px; } }
+
+  .cmp-wrap { overflow-x: auto; border: 2px solid var(--ink); background: var(--card); }
+  .cmp { width: 100%; min-width: 760px; border-collapse: collapse; font-size: var(--t-s); }
+  .cmp th, .cmp td { padding: 14px 16px; text-align: left; border-bottom: 1px solid var(--rule); vertical-align: top; }
+  .cmp thead th { font-family: var(--mono); font-weight: 400; font-size: var(--t-xs); text-transform: uppercase; letter-spacing: .1em; color: var(--ink-2); background: var(--wall-2); }
+  .cmp tbody th { font-weight: 700; white-space: nowrap; }
+  .cmp tr.us { background: var(--cobalt-soft); }
+  .cmp tr.us th { color: var(--cobalt); }
+  .cmp tr:last-child td, .cmp tr:last-child th { border-bottom: 0; }
+  .cmp .y { color: var(--up); font-weight: 600; }
+  .cmp .n { color: var(--ink-2); }
+
+  .apply { display: grid; grid-template-columns: minmax(0, .9fr) minmax(0, 1.1fr); gap: clamp(28px, 5vw, 64px); align-items: start; }
+  .apply form { background: var(--card); border: 1px solid var(--rule); padding: clamp(18px, 3vw, 32px); display: grid; gap: 16px; }
+  .thanks { display: grid; gap: 12px; padding: 24px; background: var(--cobalt-soft); border-left: 4px solid var(--cobalt); }
+  @media (max-width: 900px) { .apply { grid-template-columns: minmax(0, 1fr); } }
+</style>
+</head>
+<body>
+<div id="chrome-top"></div>
+<main>
+  <section class="wrap hero">
+    <div class="copy">
+      <p class="eyebrow">For artists</p>
+      <h1 class="display">Keep 80%. Build collectors who win when you do.</h1>
+      <p class="lede">Every person who buys your work gets your chips. When new people collect you, those chips rise, so your collectors have a reason to tell everyone about you.</p>
+      <div class="cta-row"><a class="btn primary" href="#apply">Apply to sell</a><a class="btn" href="#compare">Compare fees</a></div>
+    </div>
+    <div class="payout" id="payout" aria-label="Example payout"></div>
+  </section>
+
+  <section class="wrap section" aria-labelledby="why-h" style="padding-top:24px">
+    <div class="section-head"><div><p class="eyebrow">Why it works</p><h2 id="why-h">Your collectors become your street team.</h2></div></div>
+    <div class="why">
+      <article><h3>They're invested in you</h3><p>A collector holding your chips gains every time someone new buys from you. Sharing your work is in their interest.</p></article>
+      <article><h3>Early believers get rewarded</h3><p>Your first 25 collectors earn double chips for good. It gives people a reason to buy before you're known.</p></article>
+      <article><h3>Chips bring buyers back</h3><p>Collectors across Gesso hold chips they can only spend on art. Some of that lands on your wall.</p></article>
+    </div>
+  </section>
+
+  <section class="wrap section" aria-labelledby="tools-h" style="padding-top:0">
+    <div class="section-head"><div><p class="eyebrow">What you get</p><h2 id="tools-h">Everything to run your wall</h2></div></div>
+    <div class="tools">
+      <article><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><rect x="3" y="4" width="18" height="14"/><path d="M3 14l5-4 4 3 3-2 6 4"/></svg><h3>Studio feed</h3><p>Post process shots and drops. Only collectors can reply, which keeps it a room, not a comment section.</p></article>
+      <article><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c.8-3.5 3.4-5.5 6.5-5.5s5.7 2 6.5 5.5"/><path d="M16 4.5a3.5 3.5 0 0 1 0 7M18.5 14.8c1.6.8 2.6 2.6 3 5.2"/></svg><h3>Know your collectors</h3><p>See every collector by number, invite founding collectors to early drops, and thank them by name.</p></article>
+      <article><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><rect x="7" y="3" width="10" height="8"/><path d="M2 21h20M5 21v-5h14v5"/></svg><h3>On-a-wall previews</h3><p>Enter dimensions once and buyers see the piece to scale above a sofa. It's the question every buyer asks.</p></article>
+      <article><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M3 7l9-4 9 4v10l-9 4-9-4z"/><path d="M3 7l9 4 9-4M12 11v10"/></svg><h3>Shipping handled</h3><p>Prepaid labels, crate sizing for originals, and insurance on every order. You pack; we do the rest.</p></article>
+      <article><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M6 3h9l4 4v14H6z"/><path d="M14 3v5h5M9 13h7M9 17h5"/></svg><h3>Certificates and provenance</h3><p>Each sale generates a certificate of authenticity and adds to the work's public history.</p></article>
+      <article><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M12 3v18M17 7.5c0-1.9-2.2-3-5-3s-5 1.2-5 3.3c0 4.8 10 2.4 10 7.2 0 2.1-2.2 3.5-5 3.5s-5-1.2-5-3.2"/></svg><h3>Paid in two days</h3><p>Payouts land two business days after delivery is confirmed, to your bank. No wallet or crypto account needed.</p></article>
+    </div>
+  </section>
+
+  <section class="wrap section" id="compare" aria-labelledby="cmp-h" style="padding-top:0">
+    <div class="section-head"><div><p class="eyebrow">Fees compared</p><h2 id="cmp-h">Where Gesso sits</h2></div><p class="muted" style="max-width:34em">Figures come from public seller guides and platform docs as of 2026. Terms change, so check each platform before you decide.</p></div>
+    <div class="cmp-wrap"><table class="cmp">
+      <thead><tr><th scope="col">Platform</th><th scope="col">Artist keeps</th><th scope="col">Sells</th><th scope="col">Collectors rewarded</th><th scope="col">Collectors gain as you grow</th></tr></thead>
+      <tbody>
+        <tr class="us"><th scope="row">Gesso</th><td><b>80%</b></td><td>Originals and prints</td><td class="y">10% back in your chips, 2× for the first 25</td><td class="y">Yes. Chip price rises with each new collector</td></tr>
+        <tr><th scope="row">Saatchi Art</th><td>About 60 to 65%</td><td>Originals and prints</td><td class="n">No</td><td class="n">No</td></tr>
+        <tr><th scope="row">Singulart</th><td>About 50%</td><td>Juried originals</td><td class="n">No</td><td class="n">No</td></tr>
+        <tr><th scope="row">Society6</th><td>About 10% royalty</td><td>Prints and products</td><td class="n">No</td><td class="n">No</td></tr>
+        <tr><th scope="row">Zora</th><td>Coin trading rewards</td><td>Digital posts</td><td>Open-market creator coins</td><td>Yes, through trading, so prices can also fall</td></tr>
+      </tbody></table></div>
+  </section>
+
+  <section class="wrap section" id="apply" aria-labelledby="apply-h" style="padding-top:0">
+    <div class="apply">
+      <div style="display:grid;gap:18px">
+        <p class="eyebrow">Apply</p>
+        <h2 id="apply-h">Get a wall on Gesso</h2>
+        <p class="muted">We open new walls in small batches so every artist gets real attention at launch. Tell us about your work and where we can see it.</p>
+        <details class="faq"><summary>Do I need a crypto wallet?</summary><p>No. You're paid in dollars to your bank. Chips live on Gesso and collectors never need a wallet either.</p></details>
+        <details class="faq"><summary>Can I keep selling elsewhere?</summary><p>Yes. Gesso is non-exclusive. Just mark a piece as sold here if it sells somewhere else.</p></details>
+        <details class="faq"><summary>Who sets the prices?</summary><p>You do. We'll share what similar work sells for, but the number is yours.</p></details>
+      </div>
+      <form id="form" novalidate>
+        <div class="grid-2">
+          <div class="field"><label for="f-name">Artist name</label><input class="input" id="f-name" required placeholder="The name you sign with"></div>
+          <div class="field"><label for="f-email">Email</label><input class="input" id="f-email" type="email" required placeholder="you@studio.com"></div>
+        </div>
+        <div class="field"><label for="f-link">Instagram or portfolio</label><input class="input" id="f-link" placeholder="instagram.com/yourname"></div>
+        <div class="grid-2">
+          <div class="field"><label for="f-medium">Main medium</label><select class="input" id="f-medium"><option>Painting</option><option>Drawing and ink</option><option>Printmaking</option><option>Photography</option><option>Mixed media</option><option>Murals and street work</option></select></div>
+          <div class="field"><label for="f-range">Typical price</label><select class="input" id="f-range"><option>Under $250</option><option selected>$250 to $1,000</option><option>$1,000 to $5,000</option><option>Over $5,000</option></select></div>
+        </div>
+        <div class="field"><label for="f-about">About your work</label><textarea class="input" id="f-about" placeholder="What you make, how long you've been at it, and who collects you now."></textarea></div>
+        <p class="mono muted" id="f-err" style="font-size:var(--t-xs);color:var(--down)" hidden>Add your artist name and an email so we can reply.</p>
+        <button class="btn primary" type="submit">Send application</button>
+        <p class="mono muted" style="font-size:var(--t-xs)">Preview: applications aren't sent anywhere yet.</p>
+      </form>
+    </div>
+  </section>
+</main>
+<div id="chrome-bottom"></div>
+<script src="gesso.js"></script>
+<script>
+(function () {
+  G.chrome('artists');
+  const w = G.work('hamel-02'), p = w.price;
+  document.getElementById('payout').innerHTML = `
+    <div class="hd">${G.artImg(w, 200, 'art')}<div style="display:grid;gap:2px"><span class="eyebrow">Sale · Oct 12</span><b>${G.esc(w.title)}</b><span class="muted" style="font-size:var(--t-s)">HAMEL · ${w.w} × ${w.h} in</span></div></div>
+    <div class="row"><span>Sale price</span><span>${G.usd(p, true)}</span></div>
+    <div class="row"><span>Chip reserve 12%</span><span>−${G.usd(p * G.SPLIT.reserve, true)}</span></div>
+    <div class="row"><span>Gesso 8%</span><span>−${G.usd(p * G.SPLIT.gesso, true)}</span></div>
+    <div class="row you"><span>To you</span><span>${G.usd(p * G.SPLIT.artist, true)}</span></div>
+    <div class="row muted"><span>Buyer earned</span><span>${G.chips(G.chipsFor(p, G.collectors('hamel')))} $HAMEL</span></div>
+    <span class="stamp">paid in 2 days</span>`;
+  const form = document.getElementById('form');
+  form.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const name = document.getElementById('f-name').value.trim(), email = document.getElementById('f-email').value.trim();
+    const err = document.getElementById('f-err');
+    if (!name || !/.+@.+\..+/.test(email)) { err.hidden = false; (name ? document.getElementById('f-email') : document.getElementById('f-name')).focus(); return; }
+    form.outerHTML = `<div class="thanks" role="status"><h3>Thanks, ${G.esc(name)}.</h3><p class="muted">In the live app this goes to the Gesso team, who reply to ${G.esc(email)} within a week. In this preview nothing was sent.</p></div>`;
+  });
+  G.hydrate();
+})();
+</script>
+</body>
+</html>

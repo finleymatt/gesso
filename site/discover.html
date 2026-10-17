@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Discover · Gesso</title>
+<meta name="description" content="Originals and prints from artists on Gesso. Every purchase earns you the artist's chips.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wdth,wght@12..96,75..100,300..800&family=DM+Mono:wght@400;500&family=Permanent+Marker&display=swap">
+<link rel="stylesheet" href="gesso.css">
+<style>
+  .head { display: flex; flex-wrap: wrap; align-items: end; justify-content: space-between; gap: 20px 40px; padding-block: clamp(32px, 5vw, 64px) 24px; }
+  .head > div { display: grid; gap: 14px; min-width: 0; }
+  .head .count { font-family: var(--mono); color: var(--ink-2); font-size: var(--t-s); }
+  .search { position: relative; width: min(100%, 360px); }
+  .search svg { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); width: 18px; height: 18px; color: var(--ink-2); pointer-events: none; }
+  .search .input { padding-left: 42px; }
+
+  .filters { position: sticky; top: calc(env(safe-area-inset-top, 0px) + 64px); z-index: 20; background: color-mix(in srgb, var(--wall) 92%, transparent); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border-block: 1px solid var(--rule); }
+  @media (max-width: 760px) { .filters { top: calc(env(safe-area-inset-top, 0px) + 56px); } }
+  .filters .wrap { display: grid; gap: 10px; padding-block: 12px; }
+  .frow { display: flex; gap: 8px; overflow-x: auto; scrollbar-width: none; align-items: center; }
+  .frow::-webkit-scrollbar { display: none; }
+  .frow .sep { width: 1px; height: 24px; background: var(--rule); flex: none; margin-inline: 4px; }
+  .frow select.input { min-height: 36px; width: auto; padding: 0 34px 0 12px; border-radius: 999px; font-size: var(--t-s); font-weight: 600; flex: none; }
+  .frow label.tog { display: inline-flex; align-items: center; gap: 8px; font-size: var(--t-s); font-weight: 600; white-space: nowrap; margin-left: auto; padding-left: 8px; }
+  .frow label.tog .switch { transform: scale(.85); }
+  .results { padding-top: clamp(28px, 4vw, 44px); }
+  .empty { padding: 64px 0; text-align: center; display: grid; gap: 14px; justify-items: center; color: var(--ink-2); }
+</style>
+</head>
+<body>
+<div id="chrome-top"></div>
+<main>
+  <section class="wrap head">
+    <div>
+      <p class="eyebrow">Discover</p>
+      <h1 class="display" style="font-size:clamp(2.6rem,7vw,5rem)">The whole wall</h1>
+      <p class="count" id="count" aria-live="polite"></p>
+    </div>
+    <div class="search">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+      <label for="q" class="sr" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)">Search works</label>
+      <input class="input" id="q" type="search" placeholder="Search titles, artists, mediums" autocomplete="off">
+    </div>
+  </section>
+
+  <div class="filters">
+    <div class="wrap">
+      <div class="frow" id="artists" role="group" aria-label="Filter by artist"></div>
+      <div class="frow">
+        <label for="kind" class="sr" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)">Type</label>
+        <select class="input" id="kind"><option value="all">Originals and prints</option><option value="orig">Originals only</option><option value="print">Prints only</option></select>
+        <label for="price" class="sr" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)">Price</label>
+        <select class="input" id="price"><option value="any">Any price</option><option value="0-250">Under $250</option><option value="250-1000">$250 to $1,000</option><option value="1000-99999">Over $1,000</option></select>
+        <label for="sort" class="sr" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)">Sort</label>
+        <select class="input" id="sort"><option value="new">Newest</option><option value="chips">Most chips earned</option><option value="low">Price, low to high</option><option value="high">Price, high to low</option></select>
+        <label class="tog" for="avail"><span class="switch"><input type="checkbox" id="avail"><span></span></span>Available only</label>
+      </div>
+    </div>
+  </div>
+
+  <section class="wrap results">
+    <div class="salon" id="grid"></div>
+    <div class="empty" id="empty" hidden><p class="h3" style="color:var(--ink)">Nothing on the wall matches that.</p><p>Try another artist or a wider price range.</p><button class="btn small" type="button" id="clear">Clear filters</button></div>
+  </section>
+</main>
+<div id="chrome-bottom"></div>
+<script src="gesso.js"></script>
+<script>
+(function () {
+  G.chrome('discover');
+  const state = { artist: 'all', q: '', kind: 'all', price: 'any', sort: 'new', avail: false };
+  const saved = G.store.get('discover', null); if (saved) Object.assign(state, saved, { q: '' });
+  const fromHash = location.hash.slice(1); if (G.artist(fromHash)) state.artist = fromHash;
+
+  const aEl = document.getElementById('artists');
+  aEl.innerHTML = `<button class="pill" type="button" data-a="all">All artists</button>` + G.artists.map((a) => `<button class="pill" type="button" data-a="${a.slug}"><i class="dot" style="--c:${a.color}"></i>${G.esc(a.name)}</button>`).join('');
+  aEl.addEventListener('click', (e) => { const b = e.target.closest('[data-a]'); if (!b) return; state.artist = b.dataset.a; render(); });
+
+  const $ = (id) => document.getElementById(id);
+  ['kind', 'price', 'sort'].forEach((k) => { $(k).value = state[k]; $(k).addEventListener('change', () => { state[k] = $(k).value; render(); }); });
+  $('avail').checked = state.avail; $('avail').addEventListener('change', () => { state.avail = $('avail').checked; render(); });
+  $('q').addEventListener('input', () => { state.q = $('q').value.trim().toLowerCase(); render(); });
+  $('clear').addEventListener('click', () => { Object.assign(state, { artist: 'all', q: '', kind: 'all', price: 'any', avail: false }); $('q').value = ''; ['kind', 'price'].forEach((k) => ($(k).value = state[k])); $('avail').checked = false; render(); });
+
+  const order = G.works.map((w) => w.id);
+  function render() {
+    aEl.querySelectorAll('[data-a]').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.a === state.artist)));
+    let list = G.works.filter((w) => {
+      const a = G.artist(w.artist);
+      if (state.artist !== 'all' && w.artist !== state.artist) return false;
+      if (state.kind === 'orig' && w.edition !== 'Original') return false;
+      if (state.kind === 'print' && w.edition === 'Original') return false;
+      if (state.price !== 'any') { const [lo, hi] = state.price.split('-').map(Number); if (w.price < lo || w.price >= hi) return false; }
+      if (state.avail && G.isSold(w)) return false;
+      if (state.q && !(w.title + ' ' + a.name + ' ' + w.medium + ' ' + a.city).toLowerCase().includes(state.q)) return false;
+      return true;
+    });
+    const earn = (w) => G.chipsFor(w.price, G.collectors(w.artist)) * G.priceOf(w.artist);
+    if (state.sort === 'low') list.sort((a, b) => a.price - b.price);
+    else if (state.sort === 'high') list.sort((a, b) => b.price - a.price);
+    else if (state.sort === 'chips') list.sort((a, b) => earn(b) / b.price - earn(a) / a.price || b.price - a.price);
+    else { // interleave artists so the wall reads as a salon, newest first
+      list.sort((a, b) => (+a.id.slice(-2) - +b.id.slice(-2)) || order.indexOf(a.id) - order.indexOf(b.id));
+    }
+    $('grid').innerHTML = list.map((w) => G.workCard(w)).join('');
+    $('empty').hidden = list.length > 0;
+    const avail = list.filter((w) => !G.isSold(w)).length;
+    $('count').textContent = `${list.length} work${list.length === 1 ? '' : 's'} · ${avail} available · every purchase earns the artist's chips`;
+    G.store.set('discover', Object.assign({}, state, { q: '' }));
+    G.hydrate();
+  }
+  render();
+})();
+</script>
+</body>
+</html>

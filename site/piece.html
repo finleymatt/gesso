@@ -1,0 +1,174 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Artwork · Gesso</title>
+<meta name="description" content="An artwork on Gesso, with its wall label, provenance, and the chips it earns you.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wdth,wght@12..96,75..100,300..800&family=DM+Mono:wght@400;500&family=Permanent+Marker&display=swap">
+<link rel="stylesheet" href="gesso.css">
+<style>
+  .crumbs { display: flex; flex-wrap: wrap; gap: 8px; font-size: var(--t-s); color: var(--ink-2); padding-block: 20px; }
+  .crumbs a { text-decoration: none; color: var(--ink-2); }
+  .crumbs a:hover { color: var(--ink); }
+  .pg { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); gap: clamp(28px, 5vw, 64px); align-items: start; }
+  .viewer { position: sticky; top: calc(env(safe-area-inset-top, 0px) + 84px); display: grid; gap: 14px; }
+  .stage { background: var(--wall-2); aspect-ratio: 5 / 4.4; display: grid; place-items: center; position: relative; overflow: hidden; container-type: inline-size; }
+  .stage .art { width: auto; height: auto; max-width: 84cqw; max-height: 74cqw; aspect-ratio: auto; }
+  .seg { display: inline-flex; border: 1.5px solid var(--rule); background: var(--card); padding: 3px; gap: 2px; border-radius: 999px; justify-self: start; }
+  .seg button { border: 0; background: none; padding: 7px 14px; border-radius: 999px; font-weight: 600; font-size: var(--t-s); cursor: pointer; color: var(--ink-2); }
+  .seg button[aria-pressed="true"] { background: var(--ink); color: var(--wall); }
+  .vnote { font-size: var(--t-xs); font-family: var(--mono); color: var(--ink-2); }
+
+  /* the room: every length is in inches, scaled by --u (one inch) */
+  .room { position: absolute; inset: 0; background: linear-gradient(var(--wall-2) 0 calc(100% - var(--floor)), var(--rule) 0); }
+  .room .baseboard { position: absolute; left: 0; right: 0; bottom: var(--floor); height: calc(var(--u) * 4); background: var(--card); border-top: 1px solid var(--rule); }
+  .room .sofa { position: absolute; left: 50%; bottom: var(--floor); width: calc(var(--u) * 84); height: calc(var(--u) * 32); transform: translateX(-50%); }
+  .sofa .back { position: absolute; left: 6%; right: 6%; top: 0; height: 58%; background: var(--ink-2); border-radius: calc(var(--u) * 3) calc(var(--u) * 3) 0 0; }
+  .sofa .seat { position: absolute; left: 0; right: 0; top: 48%; height: 30%; background: color-mix(in srgb, var(--ink-2) 85%, var(--ink)); border-radius: calc(var(--u) * 2); }
+  .sofa .arm { position: absolute; top: 28%; width: 9%; height: 50%; background: var(--ink-2); border-radius: calc(var(--u) * 3); }
+  .sofa .arm.l { left: 0; } .sofa .arm.r { right: 0; }
+  .sofa .leg { position: absolute; bottom: 0; width: calc(var(--u) * 2); height: 22%; background: var(--ink); }
+  .room .hungart { position: absolute; left: 50%; transform: translateX(-50%); box-shadow: var(--hang); }
+  .room .person { position: absolute; bottom: var(--floor); width: calc(var(--u) * 16); height: calc(var(--u) * 66); right: 8%; opacity: .22; }
+
+  .info { display: grid; gap: 22px; min-width: 0; }
+  .info .who { display: inline-flex; align-items: center; gap: 8px; font-weight: 700; text-decoration: none; }
+  .info h1 { font-family: var(--display); font-weight: 800; font-size: clamp(2.2rem, 4.6vw, 3.6rem); line-height: .92; letter-spacing: -.04em; font-variation-settings: "wdth" 82; margin: 0; text-wrap: balance; }
+  .label-card { display: grid; gap: 4px; font-size: var(--t-s); padding-block: 14px; border-block: 1px solid var(--rule); }
+  .label-card .m { color: var(--ink-2); }
+  .pricebox { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+  .pricebox .usd { font-family: var(--mono); font-size: 2.2rem; font-weight: 500; letter-spacing: -.03em; }
+  .earnbox { background: var(--cobalt-soft); padding: 16px 18px; display: grid; gap: 8px; border-left: 4px solid var(--cobalt); }
+  .earnbox .big { font-size: var(--t-l); font-weight: 700; letter-spacing: -.01em; }
+  .earnbox .big b { font-family: var(--mono); font-weight: 500; color: var(--cobalt); }
+  .earnbox p { font-size: var(--t-s); color: var(--ink-2); }
+  .trust { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; font-size: var(--t-s); }
+  .trust li { display: grid; grid-template-columns: 20px minmax(0, 1fr); gap: 10px; }
+  .trust li::before { content: "✓"; font-family: var(--mono); color: var(--up); }
+  .prov { list-style: none; margin: 0; padding: 0; display: grid; gap: 0; }
+  .prov li { display: grid; grid-template-columns: 18px minmax(0, 1fr) auto; gap: 12px; padding-bottom: 18px; position: relative; font-size: var(--t-s); }
+  .prov li::before { content: ""; width: 11px; height: 11px; border-radius: 50%; border: 2px solid var(--ink); background: var(--wall); margin-top: 4px; z-index: 1; }
+  .prov li::after { content: ""; position: absolute; left: 6.5px; top: 14px; bottom: 0; width: 1.5px; background: var(--rule); }
+  .prov li:last-child::after { display: none; }
+  .prov li.next::before { border-style: dashed; border-color: var(--cobalt); }
+  .prov li .d { font-family: var(--mono); font-size: var(--t-xs); color: var(--ink-2); }
+  .buy { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  @media (max-width: 900px) {
+    .pg { grid-template-columns: minmax(0, 1fr); }
+    .viewer { position: static; }
+    .buybar { position: fixed; left: 0; right: 0; bottom: var(--tabbar-h); z-index: 30; padding: 10px var(--gut); background: color-mix(in srgb, var(--wall) 94%, transparent); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border-top: 1px solid var(--rule); }
+    body { padding-bottom: calc(var(--tabbar-h) + 72px); }
+  }
+</style>
+</head>
+<body>
+<div id="chrome-top"></div>
+<main class="wrap" id="main"></main>
+<div id="chrome-bottom"></div>
+<script src="gesso.js"></script>
+<script>
+(function () {
+  G.chrome('discover');
+  let mode = 'art';
+
+  function room(w) {
+    // fit the scene: 150 in of wall wide unless the art needs more
+    const floorIn = 6, sofaH = 32, center = Math.max(57, sofaH + 8 + w.h / 2);
+    let roomW = Math.max(150, w.w * 1.9), roomH = roomW * 4.4 / 5;
+    const need = floorIn + center + w.h / 2 + 8; if (need > roomH) { roomH = need; roomW = roomH * 5 / 4.4; }
+    const u = `calc(100cqw / ${roomW.toFixed(2)})`;
+    return `<div class="room" style="--u:${u};--floor:calc(var(--u) * ${floorIn})">
+      <div class="baseboard"></div>
+      <div class="sofa"><div class="back"></div><div class="seat"></div><div class="arm l"></div><div class="arm r"></div><div class="leg" style="left:8%"></div><div class="leg" style="right:8%"></div></div>
+      <svg class="person" viewBox="0 0 16 66" aria-hidden="true"><circle cx="8" cy="5" r="4.2" fill="var(--ink)"/><path d="M3 12h10l1.5 22h-2.5l-1 32h-6l-1-32H1.5z" fill="var(--ink)"/></svg>
+      <img class="hungart" alt="${G.esc(w.title)} shown on a wall above an 84 inch sofa" src="${G.workArt(w, 600)}" style="width:calc(var(--u) * ${w.w});bottom:calc(var(--floor) + var(--u) * ${(center - w.h / 2).toFixed(1)})">
+    </div>`;
+  }
+
+  function render() {
+    const id = G.work(location.hash.slice(1)) ? location.hash.slice(1) : 'hamel-02';
+    const w = G.work(id), a = G.artist(w.artist), n = G.collectors(w.artist), px = G.price(n), sold = G.isSold(w);
+    const wallet = G.wallet(), owned = wallet.owned.includes(id), alreadyCollector = !!wallet.collectorNo[w.artist];
+    const earn = G.chipsFor(w.price, n), canChip = Math.min(w.price * G.SPEND_CAP, G.walletValue(wallet));
+    document.title = w.title + ' · ' + a.name + ' · Gesso';
+    const listed = new Date(2026, 6 + (G.hash(id) % 3), 3 + (G.hash(id) % 20));
+    const more = G.worksBy(w.artist).filter((x) => x.id !== id).slice(0, 4);
+
+    document.getElementById('main').innerHTML = `
+      <nav class="crumbs" aria-label="Breadcrumb"><a href="discover.html">Discover</a><span>/</span><a href="artist.html#${a.slug}">${G.esc(a.name)}</a><span>/</span><span style="color:var(--ink)">${G.esc(w.title)}</span></nav>
+      <div class="pg">
+        <div class="viewer">
+          <div class="stage" id="stage"></div>
+          <div style="display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:10px">
+            <div class="seg" role="group" aria-label="View"><button type="button" data-mode="art" aria-pressed="${mode === 'art'}">Artwork</button><button type="button" data-mode="room" aria-pressed="${mode === 'room'}">On a wall</button></div>
+            <span class="vnote" id="vnote"></span>
+          </div>
+        </div>
+        <div class="info">
+          <div style="display:grid;gap:12px">
+            <a class="who" href="artist.html#${a.slug}"><i class="dot" style="--c:${a.color}"></i>${G.esc(a.name)} <span class="muted" style="font-weight:400">· ${n.toLocaleString()} collectors</span></a>
+            <h1>${G.esc(w.title)}</h1>
+          </div>
+          <div class="label-card">
+            <span>${w.year}</span>
+            <span class="m">${G.esc(w.medium)}</span>
+            <span class="m mono" style="font-size:var(--t-xs)">${G.dims(w)}</span>
+            <span class="m">${w.edition === 'Original' ? 'Original, one of one. Signed on the reverse.' : G.esc(w.edition) + ', signed and numbered.'}</span>
+          </div>
+          ${sold ? `
+            <div class="pricebox"><span class="sold-tag" style="font-size:var(--t-m)">Collected by collector #${w.by || n}</span></div>
+            <p class="muted">This one has a home. Follow ${G.esc(a.name)} to hear first when new work is listed, or see what's still available below.</p>
+            <div class="buy buybar"><a class="btn primary" href="artist.html#${a.slug}">See available work</a><a class="btn" href="discover.html">Discover</a></div>
+          ` : `
+            <div class="pricebox"><span class="usd">${G.usd(w.price)}</span><span class="muted" style="font-size:var(--t-s)">Free crated shipping in the US</span></div>
+            <div class="earnbox">
+              <span class="big">Earns you <b>${G.chips(earn)} $${a.ticker}</b></span>
+              <p>Worth ${G.usd(earn * px, true)} today at ${G.usd(px, true)} per chip${G.isFounding(n) ? ', including the founding 2× bonus' : ''}. ${alreadyCollector ? `You're already ${G.esc(a.name)}'s collector #${wallet.collectorNo[w.artist]}, so this buy adds chips without changing the count.` : `You'd become ${G.esc(a.name)}'s collector #${n + 1}, which raises every $${a.ticker} chip to ${G.usd(G.price(n + 1), true)}.`}</p>
+              <p>You hold ${G.usd(G.walletValue(wallet), true)} in chips. Up to <b style="color:var(--ink)">${G.usd(canChip, true)}</b> of this piece can be paid with them.</p>
+            </div>
+            ${owned ? '<p class="mono" style="font-size:var(--t-s)">✓ You own one of this edition.</p>' : ''}
+            <div class="buy buybar"><button class="btn" type="button" data-add="${w.id}">Add to bag</button><a class="btn primary" href="checkout.html" id="buynow">Buy now</a></div>
+          `}
+          <ul class="trust">
+            <li>${w.edition === 'Original' ? 'Ships crated and insured in 5 to 7 days' : 'Ships flat in a rigid mailer in 3 to 5 days'}</li>
+            <li>14-day returns; any chips you spent come back to you</li>
+            <li>Certificate of authenticity, with provenance kept on record</li>
+          </ul>
+          <div style="display:grid;gap:14px">
+            <p class="eyebrow">Provenance</p>
+            <ol class="prov">
+              <li><span><b>Made</b> in ${G.esc(a.real ? "the artist's studio" : a.city)}</span><span class="d">${w.year}</span></li>
+              <li><span><b>Listed</b> on Gesso by the artist</span><span class="d">${listed.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</span></li>
+              ${sold ? `<li><span><b>Collected</b> by collector #${w.by || n}</span><span class="d">2026</span></li>` : `<li class="next"><span><b>Next owner</b>: you, if you want it</span><span class="d">—</span></li>`}
+            </ol>
+          </div>
+        </div>
+      </div>
+      <section class="section" aria-labelledby="more-h" style="padding-bottom:0">
+        <div class="section-head"><div><p class="eyebrow">More from ${G.esc(a.name)}</p><h2 id="more-h">Same hand, other walls</h2></div><a class="btn small" href="artist.html#${a.slug}">Full wall</a></div>
+        <div class="salon">${more.map((x) => G.workCard(x)).join('')}</div>
+      </section>`;
+
+    const stage = document.getElementById('stage'), vnote = document.getElementById('vnote');
+    const show = () => {
+      stage.innerHTML = mode === 'art' ? G.artImg(w, 1100, 'art hung') : room(w);
+      vnote.textContent = mode === 'art' ? `${w.w} × ${w.h} in` : 'Shown above an 84 in sofa, to scale';
+      document.querySelectorAll('[data-mode]').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.mode === mode)));
+      G.hydrate(stage);
+    };
+    document.querySelector('.seg').addEventListener('click', (e) => { const b = e.target.closest('[data-mode]'); if (b) { mode = b.dataset.mode; show(); } });
+    show();
+    const bn = document.getElementById('buynow');
+    if (bn) bn.addEventListener('click', () => { const b = G.bag(); if (!b.includes(id)) b.push(id); G.setBag(b); });
+    G.hydrate();
+    window.scrollTo(0, 0);
+  }
+  window.addEventListener('hashchange', render);
+  render();
+})();
+</script>
+</body>
+</html>

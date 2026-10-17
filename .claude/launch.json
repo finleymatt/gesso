@@ -1,0 +1,15 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "gesso",
+      "runtimeExecutable": "python",
+      "runtimeArgs": [
+        ".claude/serve.py",
+        "5178",
+        "site"
+      ],
+      "port": 5178
+    }
+  ]
+}
