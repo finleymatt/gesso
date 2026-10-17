@@ -156,10 +156,28 @@
     </div>
   </section>
 
+  <section class="wrap section" id="milestones" aria-labelledby="ms-h" style="padding-top:0">
+    <div class="section-head"><div><p class="eyebrow">Milestones</p><h2 id="ms-h">The more you collect, the more you get back</h2></div>
+      <p class="muted" style="max-width:34em">Everything you spend on Gesso counts: originals, prints, objects and project pledges. Milestones are named for the layers of a painting, from the first coat to the finished work.</p></div>
+    <div class="tiers" id="tiers"></div>
+  </section>
+
+  <section class="wrap section" id="pay" aria-labelledby="pay-h" style="padding-top:0">
+    <div class="two">
+      <div style="display:grid;gap:18px">
+        <p class="eyebrow">Paying over time</p>
+        <h2 id="pay-h">Collect now, pay in pieces</h2>
+        <p class="muted">Every piece can be paid in full, in 4 payments over six weeks, or on layaway over 6 or 10 months. None of them charge interest or run a credit check.</p>
+        <p class="muted">With Pay in 4 the piece ships right away. On layaway, the artist holds it for you and ships it after the last payment. Your chips arrive with each payment.</p>
+      </div>
+      <div class="plans" id="paydemo"></div>
+    </div>
+  </section>
+
   <section class="wrap section" aria-labelledby="rules-h" style="padding-top:0">
     <div class="section-head"><div><p class="eyebrow">House rules</p><h2 id="rules-h">Six rules that keep chips honest</h2></div></div>
     <div class="rules">
-      <article><h3>One person, one count</h3><p>Buy five pieces from the same artist and you earn chips five times, but you count as one collector. The price tracks real people, not volume.</p></article>
+      <article><h3>One person, one count</h3><p>Buy five pieces from the same artist and you earn chips five times, but you count as one collector. Objects like mugs and aprons earn chips without counting. The price tracks real collectors, not volume.</p></article>
       <article><h3>Prices only go up</h3><p>An artist's collector count never shrinks, so their chip price never falls. Early collectors are never punished for showing up first.</p></article>
       <article><h3>Up to half of any piece</h3><p>Chips can pay for up to 50% of a work. The rest is card or Apple Pay, so real money keeps reaching artists.</p></article>
       <article><h3>Chips stay on Gesso</h3><p>Chips are for art. You can't cash them out or sell them to other people, which keeps them out of speculation.</p></article>
@@ -259,6 +277,9 @@
     ? `<a class="link" href="artist.html#mika">${G.esc(m.name)}</a> has <b>${left} founding seat${left > 1 ? 's' : ''} left</b>. Prints start at ${G.usd(Math.min(...G.worksBy('mika').map((w) => w.price)))}.`
     : `${G.esc(m.name)}'s founding seats are all taken.`;
 
+  document.getElementById('tiers').innerHTML = G.TIERS.map((t) => `<div class="tier"><span class="amt">${t.at ? G.usd(t.at) + ' collected' : 'Start here'}</span><h3>${t.name}</h3><ul>${t.perks.map((x) => `<li>${G.esc(x)}</li>`).join('')}</ul></div>`).join('');
+  const demo = G.work('hamel-01');
+  document.getElementById('paydemo').innerHTML = `<p class="mono muted" style="font-size:var(--t-xs)">${G.esc(demo.title)} by HAMEL, ${G.usd(demo.price)}</p>` + G.plans(demo.price).map((pl) => `<div class="plan" style="cursor:default"><span></span><span><span class="n">${pl.name}</span><br><span class="d">${pl.note}</span></span><span class="p">${G.usd(pl.today, true)}<small>${pl.n ? `today, then ${pl.n} × ${G.usd(pl.each, true)}` : 'once'}</small></span></div>`).join('');
   G.hydrate();
 })();
 </script>

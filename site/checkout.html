@@ -92,6 +92,8 @@
   @media (prefers-reduced-motion: reduce) { .jar .fall { top: var(--y); transform: rotate(var(--r)); } }
   .jar .label { position: absolute; left: 18px; top: 16px; display: grid; gap: 2px; z-index: 2; }
   .jar .label b { font-family: var(--mono); font-size: 2rem; font-weight: 500; color: var(--up); }
+  .tierup { padding: 12px 16px; background: var(--cobalt-soft); border-left: 4px solid var(--cobalt); }
+  .tierup .hand { font-size: 1.15rem; }
   .receipt { display: grid; gap: 0; border-top: 2px solid var(--ink); }
   .receipt .row { display: flex; justify-content: space-between; gap: 12px; padding: 12px 0; border-bottom: 1px solid var(--rule); font-size: var(--t-s); }
   .receipt .row .num { font-family: var(--mono); }
@@ -111,46 +113,53 @@
   let bag = G.bag();
   if (!bag.length) { bag = ['mika-01']; G.setBag(bag); seeded = true; }
   const wallet = G.wallet();
+  wallet.pending = wallet.pending || {};
+  const rate = G.myRate(), tierBefore = G.tierOf(wallet.spent || 0);
   const use = Object.fromEntries(Object.keys(wallet.chips).map((k) => [k, true]));
-  let chipOn = true, chipUsd = null, shipping = 'crate';
+  let chipOn = true, chipUsd = null, shipping = 'crate', planId = G.store.get('plan', 'full');
   const form = { name: 'Sample Collector', email: 'you@example.com', addr: '1200 Example Ave, Apt 3', city: 'Chicago', zip: '60607', card: '', exp: '', cvc: '' };
 
-  const items = () => bag.map(G.work).filter((w) => w && !G.isSold(w));
-  const subtotal = () => items().reduce((s, w) => s + w.price, 0);
-  const shipCost = () => (shipping === 'install' ? 95 : 0);
+  const items = () => bag.map(G.item).filter(Boolean);
+  const hasOriginal = () => items().some((i) => i.kind === 'work' && i.w.edition === 'Original');
+  const subtotal = () => items().reduce((s, i) => s + i.price, 0);
+  const shipCost = () => (shipping === 'install' && hasOriginal() ? 95 : 0);
   const usable = () => Object.entries(wallet.chips).filter(([k]) => use[k]).map(([k, c]) => ({ k, c, px: G.priceOf(k), v: c * G.priceOf(k) })).sort((a, b) => b.v - a.v);
   const chipMax = () => Math.min(subtotal() * G.SPEND_CAP, usable().reduce((s, h) => s + h.v, 0));
   const chipApplied = () => (chipOn ? Math.min(chipUsd == null ? chipMax() : chipUsd, chipMax()) : 0);
-  // draw chips from the most valuable holding first
+  const total = () => Math.max(0, subtotal() - chipApplied() + shipCost());
+  const plan = () => { const ps = G.plans(total()); return ps.find((p) => p.id === planId) || ps[0]; };
+  // spend chips from the most valuable holding first
   const draw = () => { let left = chipApplied(); const out = []; for (const h of usable()) { if (left <= 0.004) break; const v = Math.min(left, h.v); out.push({ k: h.k, chips: v / h.px, v }); left -= v; } return out; };
-  // chips earned: per artist, at the collector count when you buy; you count once per artist
+  // chips earned per artist at today's count; only artworks make you a collector
   const earnings = () => {
     const by = {};
-    items().forEach((w) => { (by[w.artist] = by[w.artist] || []).push(w); });
-    return Object.entries(by).map(([k, ws]) => {
-      const n = G.collectors(k), isNew = !wallet.collectorNo[k];
-      const chips = ws.reduce((s, w) => s + G.chipsFor(w.price, n), 0);
-      return { k, chips, n, isNew, pxNow: G.price(n), pxAfter: G.price(n + (isNew ? 1 : 0)) };
+    items().forEach((i) => { (by[i.artist] = by[i.artist] || []).push(i); });
+    return Object.entries(by).map(([k, is]) => {
+      const n = G.collectors(k), joins = !wallet.collectorNo[k] && is.some((i) => i.kind === 'work');
+      const chips = is.reduce((s, i) => s + G.chipsFor(i.price, n, rate), 0);
+      return { k, chips, n, isNew: joins, pxNow: G.price(n), pxAfter: G.price(n + (joins ? 1 : 0)) };
     });
   };
+  const thumb = (i) => (i.kind === 'work' ? G.artImg(i.w, 220, 'art hung') : G.productImg(i.p, 220, 'art'));
 
-  function summary(final) {
-    const sub = subtotal(), ch = chipApplied(), total = Math.max(0, sub - ch + shipCost());
-    const earn = earnings();
+  function summary() {
+    const sub = subtotal(), ch = chipApplied(), earn = earnings(), pl = plan(), its = items();
     return `<aside class="summary" aria-label="Order summary">
       <div class="sec"><p class="eyebrow">Order summary</p>
-        <div class="row"><span>${items().length} piece${items().length === 1 ? '' : 's'}</span><span class="num">${G.usd(sub, true)}</span></div>
-        <div class="row"><span>${shipping === 'install' ? 'White-glove install' : 'Crated, insured shipping'}</span><span class="num">${shipCost() ? G.usd(shipCost(), true) : 'Free'}</span></div>
+        <div class="row"><span>${its.length} item${its.length === 1 ? '' : 's'}</span><span class="num">${G.usd(sub, true)}</span></div>
+        <div class="row"><span>${shipCost() ? 'White-glove install' : hasOriginal() ? 'Crated, insured shipping' : 'Shipping'}</span><span class="num">${shipCost() ? G.usd(shipCost(), true) : 'Free'}</span></div>
         ${ch > 0 ? `<div class="row chip"><span>Paid with chips</span><span class="num">−${G.usd(ch, true)}</span></div>` : ''}
         <div class="row"><span>Estimated tax</span><span class="num muted">at payment</span></div>
       </div>
-      <div class="sec"><div class="row total"><span>You pay</span><span class="num" id="total">${G.usd(total, true)}</span></div></div>
-      ${earn.length ? `<div class="sec earn"><p class="eyebrow" style="color:var(--cobalt)">You'll earn</p>
+      <div class="sec"><div class="row total"><span>${pl.n ? 'Due today' : 'You pay'}</span><span class="num" id="total">${G.usd(pl.today, true)}</span></div>
+        ${pl.n ? `<div class="row muted"><span>${pl.name}</span><span class="num">then ${pl.n} × ${G.usd(pl.each, true)}</span></div><div class="row muted"><span>Order total</span><span class="num">${G.usd(total(), true)}</span></div>` : ''}</div>
+      ${earn.length ? `<div class="sec earn"><p class="eyebrow" style="color:var(--cobalt)">You'll earn${rate > G.EARN ? ` · ${Math.round(rate * 100)}% ${tierBefore.name} rate` : ''}</p>
         ${earn.map((e) => { const a = G.artist(e.k); return `<div class="row"><span><i class="dot" style="--c:${a.color}"></i> $${a.ticker}${G.isFounding(e.n) ? ' · 2× founding' : ''}</span><b>+${G.chips(e.chips)}</b></div>`; }).join('')}
-        <div class="row muted"><span>Worth today</span><span class="num">${G.usd(earn.reduce((s, e) => s + e.chips * e.pxAfter, 0), true)}</span></div></div>` : ''}
-      ${final ? '' : `<div class="cta"><button class="btn primary block" type="button" id="next" ${items().length ? '' : 'disabled'}>${step === 0 ? 'Continue to delivery' : step === 1 ? 'Continue to payment' : 'Place order'} · ${G.usd(total, true)}</button>
+        <div class="row muted"><span>Worth today</span><span class="num">${G.usd(earn.reduce((s, e) => s + e.chips * e.pxAfter, 0), true)}</span></div>
+        ${pl.n ? '<div class="row muted"><span>Chips arrive with each payment</span><span></span></div>' : ''}</div>` : ''}
+      <div class="cta"><button class="btn primary block" type="button" id="next" ${its.length ? '' : 'disabled'}>${step === 0 ? 'Continue to delivery' : step === 1 ? 'Continue to payment' : pl.n ? 'Place order · ' + G.usd(pl.today, true) + ' today' : 'Place order'}${step < 2 || !pl.n ? ' · ' + G.usd(step < 2 ? total() : pl.today, true) : ''}</button>
         ${step > 0 ? '<button class="btn block" type="button" id="back">Back</button>' : ''}
-        <span class="demo-note">Design preview: no card is charged and nothing ships.</span></div>`}
+        <span class="demo-note">Design preview: no card is charged and nothing ships.</span></div>
     </aside>`;
   }
 
@@ -161,19 +170,18 @@
   }
 
   function bagStep() {
-    const its = items();
-    const hold = usable(), allHold = Object.entries(wallet.chips);
+    const its = items(), allHold = Object.entries(wallet.chips);
     return `
       <div class="card"><h2>Your bag</h2>
         ${seeded ? '<p class="demo-note">We added a sample piece so you can try checkout.</p>' : ''}
-        ${its.length ? its.map((w) => { const a = G.artist(w.artist), n = G.collectors(w.artist); return `
-          <div class="line">${G.artImg(w, 220, 'art hung')}
-            <div class="t"><span class="muted"><i class="dot" style="--c:${a.color}"></i> ${G.esc(a.name)}</span><b>${G.esc(w.title)}, ${w.year}</b><span class="muted">${G.esc(w.medium)} · ${w.w} × ${w.h} in</span>
-              <span class="chipline">+${G.chips(G.chipsFor(w.price, n))} $${a.ticker} when you buy</span></div>
-            <div class="r"><span class="usd">${G.usd(w.price)}</span><button type="button" data-remove="${w.id}">Remove</button></div></div>`; }).join('')
+        ${its.length ? its.map((i) => { const a = G.artist(i.artist), n = G.collectors(i.artist); return `
+          <div class="line"><a href="${i.href}">${thumb(i)}</a>
+            <div class="t"><span class="muted"><i class="dot" style="--c:${a.color}"></i> ${G.esc(a.name)}</span><b>${G.esc(i.title)}</b><span class="muted">${G.esc(i.sub)}</span>
+              <span class="chipline">+${G.chips(G.chipsFor(i.price, n, rate))} $${a.ticker} when you buy</span></div>
+            <div class="r"><span class="usd">${G.usd(i.price)}</span><button type="button" data-remove="${G.esc(i.key)}">Remove</button></div></div>`; }).join('')
           : '<p class="muted">Your bag is empty. <a class="link" href="discover.html">Find something on the wall</a>.</p>'}
       </div>
-      ${its.length ? `<div class="chipspend">
+      ${its.length && allHold.length ? `<div class="chipspend">
         <div class="hd"><div style="display:grid;gap:2px"><b>Pay with chips</b><span class="muted" style="font-size:var(--t-s)">Up to half of this order, ${G.usd(subtotal() * G.SPEND_CAP, true)}</span></div>
           <span class="switch"><input type="checkbox" id="chipOn" ${chipOn ? 'checked' : ''} aria-label="Pay with chips"><span></span></span></div>
         <div class="bd" ${chipOn ? '' : 'hidden'}>
@@ -194,20 +202,24 @@
       ${f('addr', 'Street address', form.addr, 'text', 'street-address')}
       <div class="grid-2">${f('city', 'City', form.city, 'text', 'address-level2')}${f('zip', 'ZIP code', form.zip, 'text', 'postal-code')}</div></div>
       <div class="card"><h2>Delivery</h2><div class="ship">
-        <label class="opt"><input type="radio" name="ship" value="crate" ${shipping === 'crate' ? 'checked' : ''}><span><b>Crated and insured</b><br><span class="d">Ships in 5 to 7 days, tracked to your door</span></span><span class="p">Free</span></label>
-        <label class="opt"><input type="radio" name="ship" value="install" ${shipping === 'install' ? 'checked' : ''}><span><b>White-glove install</b><br><span class="d">Delivered, unpacked and hung by an art handler</span></span><span class="p">$95</span></label>
+        <label class="opt"><input type="radio" name="ship" value="crate" ${shipping === 'crate' || !hasOriginal() ? 'checked' : ''}><span><b>${hasOriginal() ? 'Crated and insured' : 'Standard shipping'}</b><br><span class="d">${hasOriginal() ? 'Ships in 5 to 7 days, tracked to your door' : 'Prints and objects ship in 3 to 10 days'}</span></span><span class="p">Free</span></label>
+        ${hasOriginal() ? `<label class="opt"><input type="radio" name="ship" value="install" ${shipping === 'install' ? 'checked' : ''}><span><b>White-glove install</b><br><span class="d">${G.TIERS.indexOf(tierBefore) >= 3 ? 'Free with your Glaze milestone' : 'Delivered, unpacked and hung by an art handler'}</span></span><span class="p">$95</span></label>` : ''}
       </div></div>`;
   }
 
   function payStep() {
-    return `<div class="card"><h2>Payment</h2>
+    const ps = G.plans(total());
+    return `<div class="card"><h2>How do you want to pay?</h2>
+      <div class="plans">${ps.map((pl) => `<label class="plan"><input type="radio" name="plan" value="${pl.id}" ${pl.id === plan().id ? 'checked' : ''}><span><span class="n">${pl.name}</span><br><span class="d">${pl.note}</span></span><span class="p">${G.usd(pl.today, true)}<small>${pl.n ? `today, then ${pl.n} × ${G.usd(pl.each, true)}` : 'once'}</small></span></label>`).join('')}</div>
+      <p class="demo-note">No interest and no credit check on any plan. Layaway pieces are held for you and ship after the last payment.</p></div>
+      <div class="card"><h2>Payment</h2>
       <button class="applepay" type="button" id="apay" aria-label="Pay with Apple Pay"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M16.4 12.6c0-2.4 2-3.5 2-3.6-1.1-1.6-2.8-1.8-3.4-1.8-1.4-.1-2.8.9-3.5.9s-1.9-.9-3.1-.8c-1.6 0-3 .9-3.8 2.3-1.6 2.8-.4 7 1.2 9.3.8 1.1 1.7 2.4 2.9 2.3 1.2 0 1.6-.7 3-.7s1.8.7 3.1.7c1.3 0 2.1-1.1 2.8-2.3.9-1.3 1.3-2.6 1.3-2.6s-2.5-1-2.5-3.7zM14.2 5.6c.6-.8 1.1-1.8 1-2.9-.9 0-2.1.6-2.7 1.4-.6.7-1.1 1.8-1 2.8 1 .1 2.1-.5 2.7-1.3z"/></svg>Pay</button>
       <div class="or">or pay by card</div>
       <div class="field"><label for="card">Card number</label><input class="input mono" id="card" inputmode="numeric" placeholder="1234 1234 1234 1234" autocomplete="off" value="${G.esc(form.card)}"></div>
       <div class="grid-2"><div class="field"><label for="exp">Expiry</label><input class="input mono" id="exp" placeholder="MM / YY" autocomplete="off" value="${G.esc(form.exp)}"></div><div class="field"><label for="cvc">Security code</label><input class="input mono" id="cvc" placeholder="123" autocomplete="off" value="${G.esc(form.cvc)}"></div></div>
       <p class="demo-note">Preview only. Leave these blank and place the order; nothing is charged.</p></div>
       <div class="card"><h2>Review</h2>
-        <div style="display:grid;gap:6px;font-size:var(--t-s)"><span><b>${G.esc(form.name)}</b> · ${G.esc(form.email)}</span><span class="muted">${G.esc(form.addr)}, ${G.esc(form.city)} ${G.esc(form.zip)}</span><span class="muted">${shipping === 'install' ? 'White-glove install' : 'Crated and insured, free'}</span>
+        <div style="display:grid;gap:6px;font-size:var(--t-s)"><span><b>${G.esc(form.name)}</b> · ${G.esc(form.email)}</span><span class="muted">${G.esc(form.addr)}, ${G.esc(form.city)} ${G.esc(form.zip)}</span><span class="muted">${shipCost() ? 'White-glove install' : 'Free shipping'}</span>
         ${chipApplied() > 0 ? `<span class="muted">Chips: ${draw().map((d) => G.chips(d.chips) + ' $' + G.artist(d.k).ticker).join(' + ')}</span>` : ''}</div></div>`;
   }
 
@@ -252,25 +264,30 @@
       refreshSummary();
     }));
     document.querySelectorAll('input[name="ship"]').forEach((r) => r.addEventListener('change', () => { shipping = r.value; refreshSummary(); }));
+    document.querySelectorAll('input[name="plan"]').forEach((r) => r.addEventListener('change', () => { planId = r.value; G.store.set('plan', planId); refreshSummary(); }));
     const ap = document.getElementById('apay'); if (ap) ap.addEventListener('click', place);
   }
 
   function place() {
-    const its = items(), earn = earnings(), spent = draw(), sub = subtotal(), ch = chipApplied(), total = Math.max(0, sub - ch + shipCost());
-    // update the preview wallet and artist counts
+    const its = items(), earn = earnings(), spent = draw(), sub = subtotal(), ch = chipApplied(), pl = plan(), tot = total();
+    const share = tot > 0 ? pl.today / tot : 1; // with a plan, chips arrive as each payment clears
     spent.forEach((d) => { wallet.chips[d.k] = Math.max(0, wallet.chips[d.k] - d.chips); if (wallet.chips[d.k] < 0.005) delete wallet.chips[d.k]; });
     const firsts = [];
     earn.forEach((e) => {
       if (e.isNew) { wallet.collectorNo[e.k] = e.n + 1; G.addCollector(e.k); firsts.push(e); }
-      wallet.chips[e.k] = (wallet.chips[e.k] || 0) + e.chips;
-      wallet.basis[e.k] = (wallet.basis[e.k] || 0) + e.chips * e.pxNow;
+      const now = e.chips * share;
+      wallet.chips[e.k] = (wallet.chips[e.k] || 0) + now;
+      if (e.chips - now > 0.005) wallet.pending[e.k] = (wallet.pending[e.k] || 0) + (e.chips - now);
+      wallet.basis[e.k] = (wallet.basis[e.k] || 0) + now * e.pxNow;
     });
-    its.forEach((w) => { if (!wallet.owned.includes(w.id)) wallet.owned.unshift(w.id); if (w.edition === 'Original') G.markSold(w.id); });
+    its.forEach((i) => { if (i.kind === 'work') { if (!wallet.owned.includes(i.id)) wallet.owned.unshift(i.id); if (i.w.edition === 'Original') G.markSold(i.id); } });
+    wallet.spent = (wallet.spent || 0) + sub;
     const today = '2026-10-17';
-    earn.forEach((e) => wallet.log.unshift({ t: today, text: `Collected ${its.filter((w) => w.artist === e.k).map((w) => w.title).join(', ')}`, chips: e.chips, a: e.k }));
+    earn.forEach((e) => wallet.log.unshift({ t: today, text: `Bought ${its.filter((i) => i.artist === e.k).map((i) => i.title.replace(/, \d{4}$/, '')).join(', ')}${pl.n ? ` (${pl.name.toLowerCase()})` : ''}`, chips: e.chips * share, a: e.k }));
     if (spent.length) wallet.log.unshift({ t: today, text: `Spent ${spent.map((d) => G.chips(d.chips) + ' $' + G.artist(d.k).ticker).join(' + ')} at checkout`, chips: -spent.reduce((s, d) => s + d.chips, 0), a: spent[0].k });
     wallet.sample = false;
-    G.saveWallet(wallet); G.setBag([]);
+    G.saveWallet(wallet); G.setBag([]); G.store.set('plan', 'full');
+    const tierAfter = G.tierOf(wallet.spent);
 
     const lead = earn[0], la = G.artist(lead.k), totalChips = earn.reduce((s, e) => s + e.chips, 0);
     const worth = earn.reduce((s, e) => s + e.chips * e.pxAfter, 0);
@@ -281,18 +298,20 @@
       <section class="done">
         <div class="copy">
           <p class="eyebrow">Order placed · preview</p>
-          <h1 class="display" style="font-size:clamp(2.6rem,6.4vw,5rem)">It's yours.<br>Welcome to the wall.</h1>
-          ${firsts.length ? `<p class="lede">You're <b style="color:var(--ink)">${G.esc(G.artist(firsts[0].k).name)}'s collector #${firsts[0].n + 1}</b>. Joining pushed every $${G.artist(firsts[0].k).ticker} chip from ${G.usd(firsts[0].pxNow, true)} to ${G.usd(firsts[0].pxAfter, true)}, including the ones you just earned.</p>`
-            : `<p class="lede">You already collect ${G.esc(la.name)}, so your collector number stays the same. Your new chips are in your collection.</p>`}
+          <h1 class="display" style="font-size:clamp(2.6rem,6.4vw,5rem)">${pl.id.startsWith('lay') ? "It's on hold<br>for you." : "It's yours.<br>Welcome to the wall."}</h1>
+          ${tierAfter !== tierBefore ? `<p class="tierup"><span class="hand">New milestone:</span> <b>${tierAfter.name}</b>. ${G.esc(tierAfter.perks.join(' · '))}.</p>` : ''}
+          ${firsts.length ? `<p class="lede">You're <b style="color:var(--ink)">${G.esc(G.artist(firsts[0].k).name)}'s collector #${firsts[0].n + 1}</b>. Joining pushed every $${G.artist(firsts[0].k).ticker} chip from ${G.usd(firsts[0].pxNow, true)} to ${G.usd(firsts[0].pxAfter, true)}, including yours.</p>`
+            : `<p class="lede">${its.some((i) => i.kind === 'work') ? `You already collect ${G.esc(la.name)}, so your collector number stays the same.` : 'Objects earn chips without changing the collector count.'} Your new chips are in your collection.</p>`}
           <div class="receipt">
-            ${its.map((w) => `<div class="row"><span>${G.esc(w.title)}</span><span class="num">${G.usd(w.price, true)}</span></div>`).join('')}
+            ${its.map((i) => `<div class="row"><span>${G.esc(i.title)}${i.kind === 'product' ? ' · ' + G.esc(i.sub) : ''}</span><span class="num">${G.usd(i.price, true)}</span></div>`).join('')}
             ${ch > 0 ? `<div class="row"><span>Paid with chips</span><span class="num">−${G.usd(ch, true)}</span></div>` : ''}
-            <div class="row"><b>Charged</b><b class="num">${G.usd(total, true)}</b></div>
+            <div class="row"><b>Charged today</b><b class="num">${G.usd(pl.today, true)}</b></div>
+            ${pl.n ? `<div class="row"><span>Then ${pl.n} payments of ${G.usd(pl.each, true)} ${pl.every}</span><span class="num muted">${pl.id.startsWith('lay') ? 'ships after the last' : 'ships now'}</span></div>` : ''}
           </div>
           <div class="cta-row"><a class="btn primary" href="collection.html">See your collection</a><a class="btn" href="discover.html">Keep collecting</a></div>
         </div>
         <div class="jar" aria-label="Chips earned">
-          <div class="label"><span class="eyebrow">Chips earned</span><b>+${G.chips(totalChips)}</b><span class="muted" style="font-size:var(--t-s)">${earn.map((e) => '$' + G.artist(e.k).ticker).join(' · ')} · worth ${G.usd(worth, true)}</span></div>
+          <div class="label"><span class="eyebrow">Chips earned${pl.n ? ' today' : ''}</span><b>+${G.chips(totalChips * share)}</b><span class="muted" style="font-size:var(--t-s)">${earn.map((e) => '$' + G.artist(e.k).ticker).join(' · ')} · worth ${G.usd(worth * share, true)}${pl.n ? ` · ${G.chips(totalChips * (1 - share))} more as you pay` : ''}</span></div>
           ${falls}
         </div>
       </section>`;

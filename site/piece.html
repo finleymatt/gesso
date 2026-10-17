@@ -21,18 +21,9 @@
   .seg button { border: 0; background: none; padding: 7px 14px; border-radius: 999px; font-weight: 600; font-size: var(--t-s); cursor: pointer; color: var(--ink-2); }
   .seg button[aria-pressed="true"] { background: var(--ink); color: var(--wall); }
   .vnote { font-size: var(--t-xs); font-family: var(--mono); color: var(--ink-2); }
-
-  /* the room: every length is in inches, scaled by --u (one inch) */
-  .room { position: absolute; inset: 0; background: linear-gradient(var(--wall-2) 0 calc(100% - var(--floor)), var(--rule) 0); }
-  .room .baseboard { position: absolute; left: 0; right: 0; bottom: var(--floor); height: calc(var(--u) * 4); background: var(--card); border-top: 1px solid var(--rule); }
-  .room .sofa { position: absolute; left: 50%; bottom: var(--floor); width: calc(var(--u) * 84); height: calc(var(--u) * 32); transform: translateX(-50%); }
-  .sofa .back { position: absolute; left: 6%; right: 6%; top: 0; height: 58%; background: var(--ink-2); border-radius: calc(var(--u) * 3) calc(var(--u) * 3) 0 0; }
-  .sofa .seat { position: absolute; left: 0; right: 0; top: 48%; height: 30%; background: color-mix(in srgb, var(--ink-2) 85%, var(--ink)); border-radius: calc(var(--u) * 2); }
-  .sofa .arm { position: absolute; top: 28%; width: 9%; height: 50%; background: var(--ink-2); border-radius: calc(var(--u) * 3); }
-  .sofa .arm.l { left: 0; } .sofa .arm.r { right: 0; }
-  .sofa .leg { position: absolute; bottom: 0; width: calc(var(--u) * 2); height: 22%; background: var(--ink); }
-  .room .hungart { position: absolute; left: 50%; transform: translateX(-50%); box-shadow: var(--hang); }
-  .room .person { position: absolute; bottom: var(--floor); width: calc(var(--u) * 16); height: calc(var(--u) * 66); right: 8%; opacity: .22; }
+  .viewer.roommode { position: static; }
+  .viewer .seg .new { font: 500 10px var(--mono); text-transform: uppercase; letter-spacing: .06em; color: var(--marker); margin-left: 4px; }
+  .pays { display: grid; gap: 10px; }
 
   .info { display: grid; gap: 22px; min-width: 0; }
   .info .who { display: inline-flex; align-items: center; gap: 8px; font-weight: 700; text-decoration: none; }
@@ -69,30 +60,17 @@
 <main class="wrap" id="main"></main>
 <div id="chrome-bottom"></div>
 <script src="gesso.js"></script>
+<script src="room.js"></script>
 <script>
 (function () {
   G.chrome('discover');
   let mode = 'art';
 
-  function room(w) {
-    // fit the scene: 150 in of wall wide unless the art needs more
-    const floorIn = 6, sofaH = 32, center = Math.max(57, sofaH + 8 + w.h / 2);
-    let roomW = Math.max(150, w.w * 1.9), roomH = roomW * 4.4 / 5;
-    const need = floorIn + center + w.h / 2 + 8; if (need > roomH) { roomH = need; roomW = roomH * 5 / 4.4; }
-    const u = `calc(100cqw / ${roomW.toFixed(2)})`;
-    return `<div class="room" style="--u:${u};--floor:calc(var(--u) * ${floorIn})">
-      <div class="baseboard"></div>
-      <div class="sofa"><div class="back"></div><div class="seat"></div><div class="arm l"></div><div class="arm r"></div><div class="leg" style="left:8%"></div><div class="leg" style="right:8%"></div></div>
-      <svg class="person" viewBox="0 0 16 66" aria-hidden="true"><circle cx="8" cy="5" r="4.2" fill="var(--ink)"/><path d="M3 12h10l1.5 22h-2.5l-1 32h-6l-1-32H1.5z" fill="var(--ink)"/></svg>
-      <img class="hungart" alt="${G.esc(w.title)} shown on a wall above an 84 inch sofa" src="${G.workArt(w, 600)}" style="width:calc(var(--u) * ${w.w});bottom:calc(var(--floor) + var(--u) * ${(center - w.h / 2).toFixed(1)})">
-    </div>`;
-  }
-
   function render() {
     const id = G.work(location.hash.slice(1)) ? location.hash.slice(1) : 'hamel-02';
     const w = G.work(id), a = G.artist(w.artist), n = G.collectors(w.artist), px = G.price(n), sold = G.isSold(w);
     const wallet = G.wallet(), owned = wallet.owned.includes(id), alreadyCollector = !!wallet.collectorNo[w.artist];
-    const earn = G.chipsFor(w.price, n), canChip = Math.min(w.price * G.SPEND_CAP, G.walletValue(wallet));
+    const earn = G.chipsFor(w.price, n, G.myRate()), canChip = Math.min(w.price * G.SPEND_CAP, G.walletValue(wallet));
     document.title = w.title + ' · ' + a.name + ' · Gesso';
     const listed = new Date(2026, 6 + (G.hash(id) % 3), 3 + (G.hash(id) % 20));
     const more = G.worksBy(w.artist).filter((x) => x.id !== id).slice(0, 4);
@@ -101,9 +79,9 @@
       <nav class="crumbs" aria-label="Breadcrumb"><a href="discover.html">Discover</a><span>/</span><a href="artist.html#${a.slug}">${G.esc(a.name)}</a><span>/</span><span style="color:var(--ink)">${G.esc(w.title)}</span></nav>
       <div class="pg">
         <div class="viewer">
-          <div class="stage" id="stage"></div>
+          <div class="stage" id="stage"></div><div id="studio" hidden></div>
           <div style="display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:10px">
-            <div class="seg" role="group" aria-label="View"><button type="button" data-mode="art" aria-pressed="${mode === 'art'}">Artwork</button><button type="button" data-mode="room" aria-pressed="${mode === 'room'}">On a wall</button></div>
+            <div class="seg" role="group" aria-label="View"><button type="button" data-mode="art" aria-pressed="${mode === 'art'}">Artwork</button><button type="button" data-mode="room" aria-pressed="${mode === 'room'}">See it in a room<span class="new">+ your wall</span></button></div>
             <span class="vnote" id="vnote"></span>
           </div>
         </div>
@@ -126,9 +104,12 @@
             <div class="pricebox"><span class="usd">${G.usd(w.price)}</span><span class="muted" style="font-size:var(--t-s)">Free crated shipping in the US</span></div>
             <div class="earnbox">
               <span class="big">Earns you <b>${G.chips(earn)} $${a.ticker}</b> <a class="link" href="how-it-works.html" style="font-size:var(--t-s);font-weight:600;margin-left:6px">What are chips?</a></span>
-              <p>Worth ${G.usd(earn * px, true)} today at ${G.usd(px, true)} per chip${G.isFounding(n) ? ', including the founding 2× bonus' : ''}. ${alreadyCollector ? `You're already ${G.esc(a.name)}'s collector #${wallet.collectorNo[w.artist]}, so this buy adds chips without changing the count.` : `You'd become ${G.esc(a.name)}'s collector #${n + 1}, which raises every $${a.ticker} chip to ${G.usd(G.price(n + 1), true)}.`}</p>
+              <p>Worth ${G.usd(earn * px, true)} today at ${G.usd(px, true)} per chip${G.isFounding(n) ? ', including the founding 2× bonus' : ''}${G.myRate() > G.EARN ? `, at your ${G.tierOf(G.spent()).name} rate of ${Math.round(G.myRate() * 100)}%` : ''}. ${alreadyCollector ? `You're already ${G.esc(a.name)}'s collector #${wallet.collectorNo[w.artist]}, so this buy adds chips without changing the count.` : `You'd become ${G.esc(a.name)}'s collector #${n + 1}, which raises every $${a.ticker} chip to ${G.usd(G.price(n + 1), true)}.`}</p>
               <p>You hold ${G.usd(G.walletValue(wallet), true)} in chips. Up to <b style="color:var(--ink)">${G.usd(canChip, true)}</b> of this piece can be paid with them.</p>
             </div>
+            <div class="pays"><p class="eyebrow">Ways to pay</p><div class="plans" id="plans">${G.plans(w.price).map((pl) => `
+              <label class="plan"><input type="radio" name="plan" value="${pl.id}" ${pl.id === (G.store.get('plan', 'full')) ? 'checked' : ''}><span><span class="n">${pl.name}</span><br><span class="d">${pl.note}</span></span>
+                <span class="p">${G.usd(pl.today, true)}<small>${pl.n ? `today, then ${pl.n} × ${G.usd(pl.each, true)}` : 'once'}</small></span></label>`).join('')}</div></div>
             ${owned ? '<p class="mono" style="font-size:var(--t-s)">✓ You own one of this edition.</p>' : ''}
             <div class="buy buybar"><button class="btn" type="button" data-add="${w.id}">Add to bag</button><a class="btn primary" href="checkout.html" id="buynow">Buy now</a></div>
           `}
@@ -152,15 +133,19 @@
         <div class="salon">${more.map((x) => G.workCard(x)).join('')}</div>
       </section>`;
 
-    const stage = document.getElementById('stage'), vnote = document.getElementById('vnote');
+    const stage = document.getElementById('stage'), studio = document.getElementById('studio'), vnote = document.getElementById('vnote');
+    let mounted = false;
     const show = () => {
-      stage.innerHTML = mode === 'art' ? G.artImg(w, 1100, 'art hung') : room(w);
-      vnote.textContent = mode === 'art' ? `${w.w} × ${w.h} in` : 'Shown above an 84 in sofa, to scale';
+      stage.hidden = mode !== 'art'; studio.hidden = mode === 'art';
+      document.querySelector('.viewer').classList.toggle('roommode', mode !== 'art');
+      if (mode === 'art') { stage.innerHTML = G.artImg(w, 1100, 'art hung'); G.hydrate(stage); }
+      else if (!mounted) { mounted = true; G.roomStudio(studio, { img: G.workArt(w, 1000), dims: { w: w.w, h: w.h } }); }
+      vnote.textContent = mode === 'art' ? `${w.w} × ${w.h} in` : '';
       document.querySelectorAll('[data-mode]').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.mode === mode)));
-      G.hydrate(stage);
     };
     document.querySelector('.seg').addEventListener('click', (e) => { const b = e.target.closest('[data-mode]'); if (b) { mode = b.dataset.mode; show(); } });
     show();
+    document.querySelectorAll('input[name="plan"]').forEach((r) => r.addEventListener('change', () => G.store.set('plan', r.value)));
     const bn = document.getElementById('buynow');
     if (bn) bn.addEventListener('click', () => { const b = G.bag(); if (!b.includes(id)) b.push(id); G.setBag(b); });
     G.hydrate();

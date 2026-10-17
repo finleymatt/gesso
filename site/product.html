@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Object · Gesso</title>
+<meta name="description" content="Wallpaper, aprons, totes and more, printed with an artist's work. Every purchase earns you their chips.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wdth,wght@12..96,75..100,300..800&family=DM+Mono:wght@400;500&family=Permanent+Marker&display=swap">
+<link rel="stylesheet" href="gesso.css">
+<style>
+  .crumbs { display: flex; flex-wrap: wrap; gap: 8px; font-size: var(--t-s); color: var(--ink-2); padding-block: 20px; }
+  .crumbs a { text-decoration: none; color: var(--ink-2); }
+  .pg { display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr); gap: clamp(28px, 5vw, 64px); align-items: start; }
+  .viewer { display: grid; gap: 14px; position: sticky; top: calc(env(safe-area-inset-top, 0px) + 84px); }
+  .viewer.roommode { position: static; }
+  .shot { background: #E4E2DB; }
+  .shot .art { aspect-ratio: 1; }
+  .seg { display: inline-flex; border: 1.5px solid var(--rule); background: var(--card); padding: 3px; gap: 2px; border-radius: 999px; justify-self: start; }
+  .seg button { border: 0; background: none; padding: 7px 14px; border-radius: 999px; font-weight: 600; font-size: var(--t-s); cursor: pointer; color: var(--ink-2); }
+  .seg button[aria-pressed="true"] { background: var(--ink); color: var(--wall); }
+  .info { display: grid; gap: 20px; min-width: 0; }
+  .info h1 { font-family: var(--display); font-weight: 800; font-size: clamp(2.2rem, 4.6vw, 3.4rem); line-height: .92; letter-spacing: -.04em; font-variation-settings: "wdth" 82; margin: 0; }
+  .src { display: grid; grid-template-columns: 64px minmax(0, 1fr); gap: 14px; align-items: center; padding: 12px; background: var(--card); border: 1px solid var(--rule); text-decoration: none; }
+  .src .art { width: 64px; }
+  .price { font-family: var(--mono); font-size: 2rem; font-weight: 500; letter-spacing: -.03em; }
+  .opts { display: flex; flex-wrap: wrap; gap: 8px; }
+  .qty { display: inline-flex; align-items: center; border: 1.5px solid var(--rule); background: var(--card); }
+  .qty button { width: 44px; height: 44px; border: 0; background: none; font-size: 1.2rem; cursor: pointer; }
+  .qty output { min-width: 40px; text-align: center; font-family: var(--mono); }
+  .calc { background: var(--card); border: 1px solid var(--rule); padding: 16px; display: grid; gap: 12px; }
+  .calc .res { font-size: var(--t-s); }
+  .calc .res b { font-family: var(--mono); font-weight: 500; }
+  #earn { background: var(--cobalt-soft); border-left: 4px solid var(--cobalt); padding: 14px 16px; font-size: var(--t-s); }
+  #earn b { font-family: var(--mono); font-weight: 500; color: var(--cobalt); }
+  .buy { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .facts { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; font-size: var(--t-s); color: var(--ink-2); }
+  .facts li::before { content: "·"; margin-right: 8px; }
+  .objs { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 200px), 1fr)); gap: clamp(16px, 3vw, 28px); }
+  @media (max-width: 900px) {
+    .pg { grid-template-columns: minmax(0, 1fr); }
+    .viewer { position: static; }
+    .buybar { position: fixed; left: 0; right: 0; bottom: var(--tabbar-h); z-index: 30; padding: 10px var(--gut); background: color-mix(in srgb, var(--wall) 94%, transparent); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border-top: 1px solid var(--rule); }
+    body { padding-bottom: calc(var(--tabbar-h) + 72px); }
+  }
+</style>
+</head>
+<body>
+<div id="chrome-top"></div>
+<main class="wrap" id="main"></main>
+<div id="chrome-bottom"></div>
+<script src="gesso.js"></script>
+<script src="room.js"></script>
+<script>
+(function () {
+  G.chrome('discover');
+  let mode = 'shot';
+  function render() {
+    const id = G.product(location.hash.slice(1)) ? location.hash.slice(1) : 'hamel-wallpaper';
+    const p = G.product(id), a = G.artist(p.artist), w = G.work(p.src), n = G.collectors(p.artist);
+    const isPaper = p.type === 'wallpaper';
+    let opt = p.opts[0], qty = isPaper ? 3 : 1;
+    document.title = p.name + ' · ' + a.name + ' · Gesso';
+    const more = G.productsBy(p.artist).filter((x) => x.id !== id);
+
+    document.getElementById('main').innerHTML = `
+      <nav class="crumbs" aria-label="Breadcrumb"><a href="discover.html#objects">Objects</a><span>/</span><a href="artist.html#${a.slug}">${G.esc(a.name)}</a><span>/</span><span style="color:var(--ink)">${G.esc(p.name)}</span></nav>
+      <div class="pg">
+        <div class="viewer">
+          <div class="shot" id="shot">${G.productImg(p, 900, 'art')}</div><div id="studio" hidden></div>
+          ${isPaper ? `<div class="seg" role="group" aria-label="View"><button type="button" data-mode="shot" aria-pressed="true">Swatch</button><button type="button" data-mode="room" aria-pressed="false">In a room + your wall</button></div>` : ''}
+        </div>
+        <div class="info">
+          <div style="display:grid;gap:12px">
+            <a class="who" href="artist.html#${a.slug}"><i class="dot" style="--c:${a.color}"></i>${G.esc(a.name)}</a>
+            <h1>${G.esc(p.name)}</h1>
+            <p class="muted">${G.esc(p.desc)}</p>
+          </div>
+          <a class="src" href="piece.html#${w.id}">${G.artImg(w, 160, 'art')}<span><span class="eyebrow">Printed with</span><br><b>${G.esc(w.title)}</b>, ${w.year}<br><span class="muted" style="font-size:var(--t-s)">See the original →</span></span></a>
+          <div class="price" id="price"></div>
+          <div class="field"><span class="lbl">${isPaper ? 'Finish' : p.type === 'tee' ? 'Size' : 'Option'}</span><div class="opts" id="opts">${p.opts.map((o, i) => `<button type="button" class="pill" aria-pressed="${i === 0}" data-opt="${G.esc(o)}">${G.esc(o)}</button>`).join('')}</div></div>
+          ${isPaper ? `<div class="calc">
+            <span class="lbl" style="font:500 var(--t-xs) var(--mono);text-transform:uppercase;letter-spacing:.1em;color:var(--ink-2)">How many rolls?</span>
+            <div class="grid-2" style="grid-template-columns:1fr 1fr"><div class="field"><label for="ww">Wall width (ft)</label><input class="input" id="ww" type="number" min="1" value="12"></div><div class="field"><label for="wh">Wall height (ft)</label><input class="input" id="wh" type="number" min="1" value="9"></div></div>
+            <p class="res" id="res"></p></div>` : ''}
+          <div class="field"><span class="lbl">Quantity</span><div class="qty"><button type="button" data-q="-1" aria-label="One fewer">−</button><output id="qty"></output><button type="button" data-q="1" aria-label="One more">+</button></div></div>
+          <p class="earn" id="earn"></p>
+          <div class="buy buybar"><button class="btn" type="button" id="add">Add to bag</button><a class="btn primary" href="checkout.html" id="buy">Buy now</a></div>
+          <ul class="facts"><li>Made to order, ships in 7 to 10 days</li><li>${G.esc(a.name)} earns 30% of every object sold</li><li>Objects earn chips but don't change the collector count. Originals and prints do.</li></ul>
+        </div>
+      </div>
+      ${more.length ? `<section class="section" style="padding-bottom:0" aria-labelledby="more-h"><div class="section-head"><div><p class="eyebrow">More objects</p><h2 id="more-h">${G.esc(a.name)} on other things</h2></div><a class="btn small" href="discover.html#objects">All objects</a></div>
+        <div class="objs">${more.map(G.productCard).join('')}</div></section>` : ''}`;
+
+    const key = () => `p:${id}|${opt}|${qty}`;
+    const update = () => {
+      document.getElementById('qty').textContent = qty;
+      document.getElementById('price').textContent = G.usd(p.price * qty) + (isPaper ? ` · ${qty} roll${qty > 1 ? 's' : ''}` : '');
+      const c = G.chipsFor(p.price * qty, n, G.myRate());
+      document.getElementById('earn').innerHTML = `Earns you <b>${G.chips(c)} $${a.ticker}</b>, worth ${G.usd(c * G.price(n), true)} today. <a class="link" href="how-it-works.html">What are chips?</a>`;
+    };
+    const calc = () => {
+      const ww = +document.getElementById('ww').value || 0, wh = +document.getElementById('wh').value || 0;
+      const rolls = Math.max(1, Math.ceil((ww * wh) / 56 * 1.15));
+      document.getElementById('res').innerHTML = `${ww} × ${wh} ft is ${ww * wh} sq ft. With 15% extra for matching the pattern, you need <b>${rolls} roll${rolls > 1 ? 's' : ''}</b>. <button type="button" class="link" id="userolls" style="background:none;border:0;padding:0;cursor:pointer;font-size:inherit">Use ${rolls}</button>`;
+      document.getElementById('userolls').onclick = () => { qty = rolls; update(); };
+    };
+    document.getElementById('opts').addEventListener('click', (e) => { const b = e.target.closest('[data-opt]'); if (!b) return; opt = b.dataset.opt; document.querySelectorAll('[data-opt]').forEach((x) => x.setAttribute('aria-pressed', String(x === b))); });
+    document.querySelectorAll('[data-q]').forEach((b) => b.addEventListener('click', () => { qty = Math.max(1, Math.min(40, qty + +b.dataset.q)); update(); }));
+    if (isPaper) { ['ww', 'wh'].forEach((i) => document.getElementById(i).addEventListener('input', calc)); calc(); }
+    document.getElementById('add').addEventListener('click', () => G.addToBag(key()));
+    document.getElementById('buy').addEventListener('click', () => { const k = key(), base = k.split('|').slice(0, 2).join('|'); G.setBag(G.bag().filter((x) => !x.startsWith(base + '|')).concat(k)); });
+    const seg = document.querySelector('.seg');
+    let mounted = false;
+    if (seg) seg.addEventListener('click', (e) => {
+      const b = e.target.closest('[data-mode]'); if (!b) return; mode = b.dataset.mode;
+      seg.querySelectorAll('button').forEach((x) => x.setAttribute('aria-pressed', String(x === b)));
+      document.getElementById('shot').hidden = mode !== 'shot'; document.getElementById('studio').hidden = mode === 'shot';
+      document.querySelector('.viewer').classList.toggle('roommode', mode !== 'shot');
+      if (mode === 'room' && !mounted) { mounted = true; G.roomStudio(document.getElementById('studio'), { wallpaper: G.workArt(w, 700) }); }
+    });
+    update(); G.hydrate(); window.scrollTo(0, 0);
+  }
+  window.addEventListener('hashchange', render);
+  render();
+})();
+</script>
+</body>
+</html>

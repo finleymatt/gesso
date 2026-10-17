@@ -91,7 +91,20 @@
   .bar.us .fill { background: var(--cobalt); }
   .bars .src { font-size: var(--t-xs); color: var(--ink-2); }
 
+  .roomfeat { display: grid; grid-template-columns: minmax(0, .8fr) minmax(0, 1.2fr); gap: clamp(28px, 5vw, 64px); align-items: start; }
+  .ticks { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; font-size: var(--t-s); }
+  .ticks li::before { content: "✓"; color: var(--up); font-family: var(--mono); margin-right: 10px; }
+  .objgrid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: clamp(16px, 3vw, 32px); }
+  .msband { display: grid; grid-template-columns: minmax(0, .8fr) minmax(0, 1.2fr); gap: clamp(24px, 5vw, 64px); align-items: center; padding: clamp(22px, 4vw, 40px); background: var(--card); border: 1px solid var(--rule); }
+  .msrow { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 8px; }
+  .msrow li { display: grid; gap: 4px; padding: 14px 12px; border-top: 4px solid var(--c); background: var(--wall); }
+  .msrow b { font-size: var(--t-s); }
+  .msrow span { font: 500 11px var(--mono); color: var(--ink-2); }
+  .msrow small { font-size: var(--t-xs); color: var(--ink-2); line-height: 1.35; }
   @media (max-width: 900px) {
+    .roomfeat, .msband { grid-template-columns: minmax(0, 1fr); }
+    .objgrid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .msrow { grid-template-columns: repeat(2, minmax(0, 1fr)); }
     .hero, .feature .wrap, .fees { grid-template-columns: minmax(0, 1fr); }
     .hang { max-width: 560px; margin-inline: auto; margin-bottom: 44px; aspect-ratio: 1 / 1.2; }
     .loop { grid-template-columns: minmax(0, 1fr); }
@@ -168,7 +181,51 @@
     <div class="salon" id="fresh"></div>
   </section>
 
-  <section class="wrap section" aria-labelledby="fees-h">
+  <section class="wrap section" aria-labelledby="room-h">
+    <div class="roomfeat">
+      <div style="display:grid;gap:18px;align-content:start">
+        <p class="eyebrow">See it on your wall</p>
+        <h2 id="room-h">Hang it before you buy it.</h2>
+        <p class="muted">Every piece can be previewed to scale in six rooms, with your choice of wall color, frame and light. Or add a photo of your own wall: an AI model running on your device finds the wall and hangs the piece on it. Your photo never leaves your phone.</p>
+        <ul class="ticks"><li>Six rooms, drawn to scale in inches</li><li>Your own walls, saved for every piece</li><li>Wallpaper previews on your actual wall</li><li>Meta glasses support coming in the app</li></ul>
+        <div class="cta-row"><a class="btn primary" href="piece.html#hamel-01">Try it with HAMEL's work</a></div>
+      </div>
+      <div id="homestudio"></div>
+    </div>
+  </section>
+
+  <section class="wrap" aria-labelledby="obj-h">
+    <div class="section-head">
+      <div><p class="eyebrow">Objects</p><h2 id="obj-h">Wear it, paper a room with it, drink coffee out of it.</h2></div>
+      <a class="btn small" href="discover.html#objects">All objects</a>
+    </div>
+    <div class="objgrid" id="objs"></div>
+  </section>
+
+  <section class="wrap section" aria-labelledby="proj-h">
+    <div class="section-head">
+      <div><p class="eyebrow">Projects</p><h2 id="proj-h">Back what an artist makes next</h2></div>
+      <p class="muted" style="max-width:32em">A wall, a press, a research trip. Pledge any amount, get a reward, and earn chips when it's funded. Nobody is charged unless the goal is met.</p>
+    </div>
+    <div class="cards" id="projs"></div>
+  </section>
+
+  <section class="wrap" aria-labelledby="visit-h">
+    <div class="section-head">
+      <div><p class="eyebrow">Visit</p><h2 id="visit-h">See it in person</h2></div>
+      <a class="btn small" href="visit.html">All places</a>
+    </div>
+    <div class="cards" id="venues"></div>
+  </section>
+
+  <section class="wrap section" aria-labelledby="ms-h">
+    <div class="msband">
+      <div style="display:grid;gap:12px"><p class="eyebrow">Milestones</p><h2 id="ms-h">Collect more, get more back.</h2><p class="muted">Every dollar you spend or pledge counts toward milestones named for the layers of a painting.</p><a class="link" href="how-it-works.html#milestones">See every perk</a></div>
+      <ol class="msrow" id="msrow"></ol>
+    </div>
+  </section>
+
+  <section class="wrap section" aria-labelledby="fees-h" style="padding-top:0">
     <div class="fees">
       <div style="display:grid;gap:18px">
         <p class="eyebrow">For artists</p>
@@ -189,6 +246,7 @@
 
 <div id="chrome-bottom"></div>
 <script src="gesso.js"></script>
+<script src="room.js"></script>
 <script>
 (function () {
   G.chrome('home');
@@ -254,6 +312,13 @@
   const fresh = ['hamel-02', 'mika-01', 'ama-02', 'odalys-02', 'teo-01', 'june-01', 'ruben-01', 'hamel-05', 'hamel-08', 'mika-04', 'ama-03', 'teo-02'];
   document.getElementById('fresh').innerHTML = fresh.map((id) => G.workCard(G.work(id), { size: 520 })).join('');
 
+  // room studio, objects, projects, places, milestones
+  G.roomStudio(document.getElementById('homestudio'), { img: G.workArt(G.work('hamel-01'), 1000), dims: { w: 35, h: 40 } });
+  document.getElementById('objs').innerHTML = ['hamel-wallpaper', 'hamel-apron', 'hamel-deck', 'june-tote'].map((id) => G.productCard(G.product(id))).join('');
+  document.getElementById('projs').innerHTML = G.projects.map(G.projectCard).join('');
+  document.getElementById('venues').innerHTML = G.venues.filter((v) => !v.tbd).sort((a, b) => G.openToday(b) - G.openToday(a)).slice(0, 3).map((v) => G.venueCard(v, true)).join('');
+  const msColors = ['#B9B4A8', '#D4931C', '#2140E3', '#16865A', '#DC1F68'];
+  document.getElementById('msrow').innerHTML = G.TIERS.slice(1).map((t, i) => `<li style="--c:${msColors[i]}"><span>${G.usd(t.at)}</span><b>${t.name}</b><small>${G.esc(t.perks[0])}</small></li>`).join('');
   G.hydrate();
 })();
 </script>

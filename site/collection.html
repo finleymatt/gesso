@@ -48,8 +48,15 @@
 (function () {
   G.chrome('collection');
   const w = G.wallet();
-  const holds = Object.entries(w.chips).map(([k, c]) => ({ k, c, a: G.artist(k), px: G.priceOf(k), v: c * G.priceOf(k), basis: w.basis[k] || 0 })).sort((a, b) => b.v - a.v);
+  const holds = [...new Set([...Object.keys(w.chips), ...Object.keys(w.pending || {})])].map((k) => [k, w.chips[k] || 0]).map(([k, c]) => ({ k, c, a: G.artist(k), px: G.priceOf(k), v: c * G.priceOf(k), basis: w.basis[k] || 0 })).sort((a, b) => b.v - a.v);
   const total = holds.reduce((s, h) => s + h.v, 0), basis = holds.reduce((s, h) => s + h.basis, 0);
+  const spent = w.spent || 0, tier = G.tierOf(spent), next = G.nextTier(spent), pend = w.pending || {};
+  // milestone track on a square-root scale so the early steps aren't crushed together
+  const MAX = G.TIERS[G.TIERS.length - 1].at, pos = (v) => Math.min(100, Math.sqrt(Math.min(v, MAX) / MAX) * 100);
+  const ladder = `<div class="ladder" aria-label="Milestones: you have collected ${G.usd(spent)}">
+    ${G.TIERS.slice(1).map((t, i, arr) => `<span class="lab ${i === arr.length - 1 || t === next ? 'keep' : ''}" style="left:${pos(t.at)}%"><b>${t.name}</b>${G.usd(t.at)}</span>`).join('')}
+    <div class="track"><div class="fill" style="width:${pos(spent)}%"></div>${G.TIERS.slice(1).map((t) => `<i class="stop ${spent >= t.at ? 'on' : ''}" style="left:${pos(t.at)}%"></i>`).join('')}</div>
+    <span class="you" style="left:${Math.max(4, Math.min(96, pos(spent)))}%">you, ${G.usd(spent)}</span></div>`;
   const mine = new Set(Object.keys(w.collectorNo));
   // pieces where chips cover the full allowed half, from artists you don't collect yet
   const ideas = G.works.filter((x) => !G.isSold(x) && !mine.has(x.artist) && x.price * G.SPEND_CAP <= total).sort((a, b) => b.price - a.price);
@@ -67,6 +74,13 @@
       <a class="btn primary" href="discover.html">Spend chips</a>
     </section>
 
+    <section class="section" id="milestones" aria-labelledby="h-ms" style="padding-top:8px">
+      <div class="section-head"><div><p class="eyebrow">Milestones</p><h2 id="h-ms">You're at ${tier.name}</h2></div>
+        <p class="muted" style="max-width:32em">${next ? `<b style="color:var(--ink)">${G.usd(next.at - spent)} more</b> reaches ${next.name}: ${G.esc(next.perks.join(', ').toLowerCase())}.` : 'You reached the top milestone. Thank you for keeping artists going.'} Everything you buy or back counts.</p></div>
+      ${ladder}
+      <div class="tiers" style="margin-top:28px">${G.TIERS.map((t) => `<div class="tier ${spent >= t.at ? 'on' : ''} ${t === tier ? 'cur' : ''}">${t === tier ? '<span class="tag">You</span>' : ''}<span class="amt">${t.at ? G.usd(t.at) + ' collected' : 'Start here'}</span><h3>${t.name}</h3><ul>${t.perks.map((x) => `<li>${G.esc(x)}</li>`).join('')}</ul></div>`).join('')}</div>
+    </section>
+
     <section aria-labelledby="h-chips">
       <div class="section-head"><div><p class="eyebrow">Chips</p><h2 id="h-chips">What you hold</h2></div><p class="muted" style="max-width:30em">Each one rises when a new person collects that artist. Your collector number never changes.</p></div>
       <div class="holds">${holds.map((h) => {
@@ -76,6 +90,7 @@
           <div class="st"><div class="r big"><span>Worth</span><span class="num">${G.usd(h.v, true)}</span></div>
             <div class="r muted"><span>Per chip</span><span class="num">${G.usd(h.px, true)}</span></div>
             <div class="r muted"><span>Since earned</span><span class="num ${gain >= 0 ? 'up' : 'down'}">${G.pct(gain)}</span></div>
+            ${pend[h.k] ? `<div class="r muted"><span>On the way</span><span class="num">+${G.chips(pend[h.k])}</span></div>` : ''}
             <div style="color:var(--up)">${G.spark(G.history(h.k).slice(-60).map(G.price), { h: 28 })}</div></div></a>`;
       }).join('') || '<p class="muted">No chips yet. Buy a piece to earn your first.</p>'}</div>
     </section>

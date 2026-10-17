@@ -60,6 +60,16 @@
   .coll .no { font-family: var(--mono); font-size: 11px; color: var(--ink-2); }
   .coll .no .f { color: var(--marker); }
 
+  .storebar { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; margin-top: 28px; }
+  .sb { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 4px 12px; align-items: center; padding: 14px 16px; background: var(--card); border: 1px solid var(--rule); text-decoration: none; text-align: left; cursor: pointer; font: inherit; color: inherit; }
+  .sb:hover { border-color: var(--ink); }
+  .sb svg { width: 22px; height: 22px; grid-row: span 2; color: var(--cobalt); }
+  .sb b { font-size: var(--t-s); }
+  .sb span { font-size: var(--t-xs); color: var(--ink-2); grid-column: 2; }
+  .sb .progress { grid-column: 2; margin-top: 4px; }
+  @media (max-width: 760px) { .storebar { grid-template-columns: minmax(0, 1fr); } }
+  .shophead { display: flex; justify-content: space-between; align-items: end; gap: 12px; margin: 8px 0 22px; }
+  .objs { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 200px), 1fr)); gap: clamp(16px, 3vw, 28px); }
   .more { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 12px; }
   @media (max-width: 1000px) { .more { display: flex; overflow-x: auto; margin-inline: calc(-1 * var(--gut)); padding-inline: var(--gut); padding-bottom: 12px; } .more .chip { flex: 0 0 168px; } }
 </style>
@@ -96,6 +106,7 @@
     const shown = Math.min(n, 40);
     const colls = Array.from({ length: shown }, (_, i) => ({ no: i + 1, name: FIRST[Math.floor(r() * FIRST.length)] + ' ' + String.fromCharCode(65 + Math.floor(r() * 26)) + '.', c: G.artists[Math.floor(r() * G.artists.length)].color }));
     const posts = POSTS[slug] || POSTS._default;
+    const venues = G.venuesBy(slug), proj = G.projectBy(slug), objs = G.productsBy(slug), v0 = venues[0];
 
     document.getElementById('main').innerHTML = `
       ${a.banner ? `<div class="banner strip" style="--c:${a.color}">${a.banner.map((id) => `<img src="${G.work(id).img}" alt="" loading="lazy">`).join('')}</div>`
@@ -111,6 +122,12 @@
             <button class="btn" type="button" id="follow" aria-pressed="${following}">${following ? 'Following' : 'Follow'}</button>
             <a class="btn primary" href="#works" id="collect">Collect from ${G.usd(from)}</a>
           </div>
+        </div>
+
+        <div class="storebar">
+          ${v0 ? `<button class="sb" type="button" data-goto-tab="visit">${G.icons.pin}<b>${G.esc(v0.type)}: ${G.esc(v0.name)}</b><span>${G.openToday(v0) ? 'Open today · ' : v0.soon ? G.esc(v0.soon) + ' · ' : ''}${G.esc(v0.city || v0.hours)}</span></button>` : ''}
+          ${proj ? `<a class="sb" href="project.html#${proj.id}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M12 21C7 17 3 13.6 3 9.3 3 6.4 5.2 4.5 7.7 4.5c1.7 0 3.2.9 4.3 2.4 1.1-1.5 2.6-2.4 4.3-2.4C18.8 4.5 21 6.4 21 9.3 21 13.6 17 17 12 21z"/></svg><b>Back: ${G.esc(proj.title)}</b><span>${G.usd(G.raised(proj))} of ${G.usd(proj.goal)} · ${proj.daysLeft} days left</span><div class="progress"><i style="width:${Math.min(100, G.raised(proj) / proj.goal * 100)}%;background:${a.color}"></i></div></a>` : ''}
+          <button class="sb" type="button" data-goto-tab="works">${G.icons.bag}<b>Shop ${works.length} works${objs.length ? ` and ${objs.length} objects` : ''}</b><span>Originals from ${G.usd(from)}${objs.length ? ` · objects from ${G.usd(Math.min(...objs.map((o) => o.price)))}` : ''}</span></button>
         </div>
 
         <div class="about">
@@ -136,11 +153,22 @@
         </div>
 
         <div class="tabs" role="tablist" id="tabs">
-          <button role="tab" aria-selected="true" data-tab="works" id="works">Works <span class="n">${works.length}</span></button>
+          <button role="tab" aria-selected="true" data-tab="works" id="works">Shop <span class="n">${works.length + objs.length}</span></button>
+          <button role="tab" aria-selected="false" data-tab="visit">Visit <span class="n">${venues.length}</span></button>
           <button role="tab" aria-selected="false" data-tab="studio">Studio <span class="n">${posts.length}</span></button>
           <button role="tab" aria-selected="false" data-tab="collectors">Collectors <span class="n">${n.toLocaleString()}</span></button>
         </div>
-        <div class="panel" data-panel="works"><div class="salon">${works.map((w) => G.workCard(w)).join('')}</div></div>
+        <div class="panel" data-panel="works">
+          <div class="shophead"><h2 style="font-size:1.8rem">Originals and prints</h2><span class="muted mono" style="font-size:var(--t-xs)">${avail.length} available</span></div>
+          <div class="salon">${works.map((w) => G.workCard(w)).join('')}</div>
+          ${objs.length ? `<div class="shophead" style="margin-top:20px"><h2 style="font-size:1.8rem">Objects</h2><span class="muted mono" style="font-size:var(--t-xs)">Made to order · ${G.esc(a.name)} earns 30%</span></div>
+          <div class="objs">${objs.map(G.productCard).join('')}</div>` : ''}
+        </div>
+        <div class="panel" data-panel="visit" hidden>
+          <div class="shophead"><h2 style="font-size:1.8rem">See it in person</h2></div>
+          <div class="cards">${venues.map((v) => G.venueCard(v)).join('')}</div>
+          ${proj ? `<div class="shophead" style="margin-top:32px"><h2 style="font-size:1.8rem">Help make what's next</h2></div><div class="cards">${G.projectCard(proj)}</div>` : ''}
+        </div>
         <div class="panel" data-panel="studio" hidden>${posts.map(([d, t, k, likes]) => `
           <article class="post"><div class="txt"><span class="eyebrow">${d}, 2026${a.real ? ' · from Instagram' : ''}</span><p>${G.esc(t)}</p><div class="likes"><span>♥ ${likes}</span><span>Only collectors can reply</span></div></div>
           <img class="art hung" style="--ar:${a.real ? '4/5;max-width:420px;justify-self:center' : '4/3'}" data-artist-art="${slug},${k},800,600" alt="${a.real ? 'Photo from ' + G.esc(a.name) + "'s studio" : 'Studio photo stand-in'}"></article>`).join('')}</div>
@@ -179,6 +207,7 @@
       document.querySelectorAll('[data-panel]').forEach((p) => (p.hidden = p.dataset.panel !== b.dataset.tab));
       G.hydrate();
     });
+    document.querySelectorAll('[data-goto-tab]').forEach((b) => b.addEventListener('click', () => { tabs.querySelector(`[data-tab="${b.dataset.gotoTab}"]`).click(); tabs.scrollIntoView({ behavior: 'smooth' }); }));
     document.getElementById('collect').addEventListener('click', (e) => { e.preventDefault(); tabs.querySelector('[data-tab="works"]').click(); tabs.scrollIntoView({ behavior: 'smooth' }); });
     document.getElementById('follow').addEventListener('click', (e) => {
       const f = G.store.get('follows', []) || []; const i = f.indexOf(slug);

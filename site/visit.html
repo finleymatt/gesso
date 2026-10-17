@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Visit · Gesso</title>
+<meta name="description" content="Studios, galleries, murals and pop-ups where you can see Gesso artists' work in person.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wdth,wght@12..96,75..100,300..800&family=DM+Mono:wght@400;500&family=Permanent+Marker&display=swap">
+<link rel="stylesheet" href="gesso.css">
+<style>
+  .head { display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr); gap: 24px 48px; align-items: end; padding-block: clamp(32px, 5vw, 64px) 28px; }
+  .head > div { display: grid; gap: 16px; }
+  .perk { background: var(--card); border: 1px solid var(--rule); padding: 18px; display: grid; gap: 8px; font-size: var(--t-s); }
+  .perk b { font-size: var(--t-m); }
+  .frow { display: flex; gap: 8px; overflow-x: auto; scrollbar-width: none; padding-bottom: 4px; margin-bottom: 24px; }
+  .group-h { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; margin: 36px 0 16px; padding-top: 18px; border-top: 2px solid var(--ink); }
+  .group-h h2 { font-size: 1.8rem; }
+  @media (max-width: 800px) { .head { grid-template-columns: minmax(0, 1fr); } }
+</style>
+</head>
+<body>
+<div id="chrome-top"></div>
+<main class="wrap">
+  <section class="head">
+    <div>
+      <p class="eyebrow">Visit</p>
+      <h1 class="display" style="font-size:clamp(2.6rem,7vw,5rem)">See it in person</h1>
+      <p class="lede">Studios, shows, murals and pop-ups where Gesso artists' work is on the wall. Stand in front of it before you buy.</p>
+    </div>
+    <div class="perk" id="perk"></div>
+  </section>
+  <div class="frow" id="filters" role="group" aria-label="Filter places"></div>
+  <div id="list"></div>
+</main>
+<div id="chrome-bottom"></div>
+<script src="gesso.js"></script>
+<script>
+(function () {
+  G.chrome('visit');
+  const tier = G.tierOf(G.spent()), canBook = G.TIERS.indexOf(tier) >= 2;
+  document.getElementById('perk').innerHTML = `<b>${canBook ? 'You can book studio visits' : 'Studio visits are a milestone perk'}</b>
+    <span class="muted">${canBook ? `Your ${tier.name} milestone lets you book a visit with any artist. Tap "Book a visit" on a studio.` : `Reach Underpainting ($1,000 collected) to book visits with any artist. You can still request one.`}</span>
+    <a class="link" href="collection.html#milestones">See your milestones</a>`;
+  const F = [['all', 'Everything'], ['today', 'Open today'], ['soon', 'Coming up'], ['Studio', 'Studios'], ['shows', 'Galleries and shows'], ['Mural', 'Murals']];
+  let f = 'all';
+  const fEl = document.getElementById('filters');
+  fEl.innerHTML = F.map(([k, l]) => `<button type="button" class="pill" data-f="${k}">${l}</button>`).join('');
+  fEl.addEventListener('click', (e) => { const b = e.target.closest('[data-f]'); if (b) { f = b.dataset.f; render(); } });
+  function match(v) {
+    if (f === 'all') return true; if (f === 'today') return G.openToday(v); if (f === 'soon') return !!v.soon;
+    if (f === 'shows') return ['Gallery', 'Exhibition', 'Pop-up', 'Print shop', 'Open studio'].includes(v.type);
+    return v.type === f;
+  }
+  function render() {
+    fEl.querySelectorAll('[data-f]').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.f === f)));
+    const list = G.venues.filter(match), groups = {};
+    list.forEach((v) => { const c = v.city || 'Shared with collectors'; (groups[c] = groups[c] || []).push(v); });
+    document.getElementById('list').innerHTML = Object.keys(groups).length ? Object.entries(groups).map(([c, vs]) => `
+      <div class="group-h"><h2>${G.esc(c)}</h2><span class="mono muted" style="font-size:var(--t-xs)">${vs.length} place${vs.length > 1 ? 's' : ''}</span></div>
+      <div class="cards">${vs.map((v) => G.venueCard(v, true)).join('')}</div>`).join('')
+      : '<p class="muted" style="padding:40px 0">Nothing matches that today. Try Everything.</p>';
+    G.hydrate();
+  }
+  render();
+})();
+</script>
+</body>
+</html>

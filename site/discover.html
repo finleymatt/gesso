@@ -27,6 +27,10 @@
   .frow label.tog { display: inline-flex; align-items: center; gap: 8px; font-size: var(--t-s); font-weight: 600; white-space: nowrap; margin-left: auto; padding-left: 8px; }
   .frow label.tog .switch { transform: scale(.85); }
   .results { padding-top: clamp(28px, 4vw, 44px); }
+  .modes { display: inline-flex; border: 2px solid var(--ink); justify-self: start; }
+  .modes button { border: 0; background: var(--card); padding: 10px 18px; font-weight: 700; cursor: pointer; color: var(--ink); }
+  .modes button[aria-selected="true"] { background: var(--ink); color: var(--wall); }
+  .objgrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 220px), 1fr)); gap: clamp(20px, 3vw, 36px); }
   .empty { padding: 64px 0; text-align: center; display: grid; gap: 14px; justify-items: center; color: var(--ink-2); }
 </style>
 </head>
@@ -36,7 +40,8 @@
   <section class="wrap head">
     <div>
       <p class="eyebrow">Discover</p>
-      <h1 class="display" style="font-size:clamp(2.6rem,7vw,5rem)">The whole wall</h1>
+      <h1 class="display" style="font-size:clamp(2.6rem,7vw,5rem)" id="h1">The whole wall</h1>
+      <div class="modes" role="tablist" aria-label="What to browse"><button type="button" role="tab" data-mode="art">Art</button><button type="button" role="tab" data-mode="objects">Objects and wallpaper</button></div>
       <p class="count"><span id="count" aria-live="polite"></span> <button class="link" type="button" id="clear2" hidden style="background:none;border:0;padding:0;cursor:pointer;font-size:var(--t-s);margin-left:8px">Clear filters</button></p>
     </div>
     <div class="search">
@@ -71,9 +76,14 @@
 <script>
 (function () {
   G.chrome('discover');
-  const state = { artist: 'all', q: '', kind: 'all', price: 'any', sort: 'new', avail: false };
+  const state = { mode: 'art', artist: 'all', q: '', kind: 'all', price: 'any', sort: 'new', avail: false };
   const saved = G.store.get('discover', null); if (saved) Object.assign(state, saved, { q: '' });
   const fromHash = location.hash.slice(1); if (G.artist(fromHash)) state.artist = fromHash;
+  state.mode = fromHash === 'objects' ? 'objects' : fromHash === 'art' ? 'art' : (state.mode || 'art');
+  const KINDS = { art: [['all', 'Originals and prints'], ['orig', 'Originals only'], ['print', 'Prints only']], objects: [['all', 'All objects']].concat(Object.entries(G.types).map(([k, t]) => [k, t.name])) };
+  const setKinds = () => { document.getElementById('kind').innerHTML = KINDS[state.mode].map(([v, l]) => `<option value="${v}">${l}</option>`).join(''); if (!KINDS[state.mode].some(([v]) => v === state.kind)) state.kind = 'all'; document.getElementById('kind').value = state.kind; };
+  setKinds();
+  document.querySelector('.modes').addEventListener('click', (e) => { const b = e.target.closest('[data-mode]'); if (!b) return; state.mode = b.dataset.mode; state.kind = 'all'; setKinds(); history.replaceState(null, '', '#' + (state.mode === 'objects' ? 'objects' : 'art')); render(); });
 
   const aEl = document.getElementById('artists');
   aEl.innerHTML = `<button class="pill" type="button" data-a="all">All artists</button>` + G.artists.map((a) => `<button class="pill" type="button" data-a="${a.slug}"><i class="dot" style="--c:${a.color}"></i>${G.esc(a.name)}</button>`).join('');
@@ -88,6 +98,11 @@
 
   const order = G.works.map((w) => w.id);
   function render() {
+    document.querySelectorAll('[data-mode]').forEach((b) => b.setAttribute('aria-selected', String(b.dataset.mode === state.mode)));
+    document.getElementById('h1').textContent = state.mode === 'objects' ? 'Objects and wallpaper' : 'The whole wall';
+    $('avail').closest('label').hidden = state.mode === 'objects';
+    if (state.mode === 'objects') return renderObjects();
+    $('grid').className = 'salon';
     aEl.querySelectorAll('[data-a]').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.a === state.artist)));
     let list = G.works.filter((w) => {
       const a = G.artist(w.artist);
@@ -111,6 +126,27 @@
     $('clear2').hidden = !(state.artist !== 'all' || state.q || state.kind !== 'all' || state.price !== 'any' || state.avail);
     const avail = list.filter((w) => !G.isSold(w)).length;
     $('count').textContent = `${list.length} work${list.length === 1 ? '' : 's'} · ${avail} available · every purchase earns the artist's chips`;
+    G.store.set('discover', Object.assign({}, state, { q: '' }));
+    G.hydrate();
+  }
+  window.addEventListener('hashchange', () => { const h = location.hash.slice(1); if (h === 'objects' || h === 'art') { state.mode = h; state.kind = 'all'; setKinds(); render(); } });
+  function renderObjects() {
+    aEl.querySelectorAll('[data-a]').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.a === state.artist)));
+    let list = G.products.filter((p) => {
+      const a = G.artist(p.artist);
+      if (state.artist !== 'all' && p.artist !== state.artist) return false;
+      if (state.kind !== 'all' && p.type !== state.kind) return false;
+      if (state.price !== 'any') { const [lo, hi] = state.price.split('-').map(Number); if (p.price < lo || p.price >= hi) return false; }
+      if (state.q && !(p.name + ' ' + a.name + ' ' + G.work(p.src).title).toLowerCase().includes(state.q)) return false;
+      return true;
+    });
+    if (state.sort === 'low') list.sort((a, b) => a.price - b.price);
+    else if (state.sort === 'high') list.sort((a, b) => b.price - a.price);
+    $('grid').className = 'objgrid';
+    $('grid').innerHTML = list.map(G.productCard).join('');
+    $('empty').hidden = list.length > 0;
+    $('clear2').hidden = !(state.artist !== 'all' || state.q || state.kind !== 'all' || state.price !== 'any');
+    $('count').textContent = `${list.length} object${list.length === 1 ? '' : 's'} · made to order from the artists' work · each earns chips`;
     G.store.set('discover', Object.assign({}, state, { q: '' }));
     G.hydrate();
   }

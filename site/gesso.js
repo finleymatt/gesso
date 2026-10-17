@@ -22,7 +22,7 @@
   G.SPLIT = { artist: 0.80, reserve: 0.12, gesso: 0.08 };
   G.price = (n) => Math.sqrt(1 + n / 10);
   G.isFounding = (n) => n < G.FOUNDING;
-  G.chipsFor = (usd, n) => (usd * G.EARN / G.price(n)) * (G.isFounding(n) ? 2 : 1);
+  G.chipsFor = (usd, n, rate = G.EARN) => (usd * rate / G.price(n)) * (G.isFounding(n) ? 2 : 1);
 
   /* ================= artists =================
      HAMEL is the real founding artist; everyone else is a sample creator for the preview. */
@@ -141,6 +141,106 @@
   G.work = (id) => WORKS.find((w) => w.id === id);
   G.worksBy = (slug) => WORKS.filter((w) => w.artist === slug);
 
+  /* ================= objects: print-on-demand goods made from an artist's work ================= */
+  const TYPES = {
+    wallpaper: { name: 'Wallpaper', price: 120, unit: 'roll', opts: ['Peel and stick', 'Traditional paste'], desc: 'Matte, made to order. Each roll covers 20.5 in × 33 ft (about 56 sq ft).' },
+    apron: { name: 'Studio apron', price: 48, opts: ['One size'], desc: 'Heavy cotton canvas with cross-back straps and a split front pocket.' },
+    tote: { name: 'Canvas tote', price: 32, opts: ['One size'], desc: '16 oz natural canvas, 15 × 16 in, with a full-color print.' },
+    tee: { name: 'T-shirt', price: 38, opts: ['S', 'M', 'L', 'XL', 'XXL'], desc: 'Heavyweight cotton, relaxed fit, printed in the US.' },
+    deck: { name: 'Skate deck', price: 85, opts: ['8.0 in', '8.25 in', '8.5 in'], desc: 'Seven-ply Canadian maple. Ride it or hang it.' },
+    pillow: { name: 'Throw pillow', price: 55, opts: ['18 × 18 in', '22 × 22 in'], desc: 'Printed on both sides, with a feather insert.' },
+    mug: { name: 'Mug', price: 24, opts: ['11 oz', '15 oz'], desc: 'Ceramic, printed all the way around. Dishwasher safe.' }
+  };
+  const PRODUCTS = [];
+  [['hamel', { wallpaper: 'hamel-03', apron: 'hamel-01', tote: 'hamel-07', tee: 'hamel-02', deck: 'hamel-01', pillow: 'hamel-04', mug: 'hamel-03' }],
+   ['odalys', { wallpaper: 'odalys-01', tee: 'odalys-02', mug: 'odalys-04' }],
+   ['teo', { pillow: 'teo-01', tote: 'teo-02' }],
+   ['ama', { wallpaper: 'ama-01', pillow: 'ama-03', apron: 'ama-02' }],
+   ['june', { tote: 'june-01', tee: 'june-03', pillow: 'june-02' }],
+   ['ruben', { deck: 'ruben-03', mug: 'ruben-01' }],
+   ['mika', { pillow: 'mika-03', mug: 'mika-01' }]
+  ].forEach(([artist, map]) => Object.entries(map).forEach(([type, src]) =>
+    PRODUCTS.push(Object.assign({ id: artist + '-' + type, artist, type, src }, TYPES[type]))));
+  G.types = TYPES;
+  G.products = PRODUCTS;
+  G.product = (id) => PRODUCTS.find((p) => p.id === id);
+  G.productsBy = (slug) => PRODUCTS.filter((p) => p.artist === slug);
+
+  /* ================= places to see the work in person ================= */
+  // HAMEL's entries are placeholders until HAMEL confirms where work can be seen.
+  const VENUES = [
+    { id: 'hamel-studio', artist: 'hamel', type: 'Studio', name: "HAMEL's studio", area: 'Address shared when your visit is confirmed', city: '', hours: 'Visits by appointment', book: true, tbd: true },
+    { id: 'hamel-mural', artist: 'hamel', type: 'Mural', name: 'The Message', area: 'Street mural, location shared with collectors', city: '', hours: 'Outdoors, always open', img: 'art/hamel-mural.jpg', tbd: true },
+    { id: 'odalys-taller', artist: 'odalys', type: 'Studio', name: 'Taller Fuente', area: 'Jalatlaco', city: 'Oaxaca, MX', hours: 'Thu to Sat, 11:00 to 18:00', days: [4, 5, 6] },
+    { id: 'odalys-show', artist: 'odalys', type: 'Exhibition', name: 'Líneas, a group show', area: 'Centro', city: 'Oaxaca, MX', hours: 'Nov 7 to Dec 20, Tue to Sun 10:00 to 19:00', soon: 'Opens Nov 7' },
+    { id: 'teo-studio', artist: 'teo', type: 'Open studio', name: 'Studio Marchetti', area: 'San Salvario', city: 'Turin, IT', hours: 'Open studio weekend, Nov 15 and 16, 12:00 to 19:00', soon: 'Nov 15 and 16' },
+    { id: 'ama-shop', artist: 'ama', type: 'Gallery', name: 'Korsah Studio and Shop', area: 'Osu', city: 'Accra, GH', hours: 'Tue to Sat, 10:00 to 17:00', days: [2, 3, 4, 5, 6] },
+    { id: 'june-press', artist: 'june', type: 'Print shop', name: 'Noodle Shop Press', area: 'Nakazakicho', city: 'Osaka, JP', hours: 'Fri to Sun, 12:00 to 19:00', days: [5, 6, 0] },
+    { id: 'ruben-studio', artist: 'ruben', type: 'Studio', name: 'Old Town studio', area: 'Old Town', city: 'Albuquerque, NM', hours: 'Visits by appointment', book: true },
+    { id: 'mika-popup', artist: 'mika', type: 'Pop-up', name: 'Midnight Sun pop-up', area: 'Kallio', city: 'Helsinki, FI', hours: 'Dec 1 to 14, daily 12:00 to 20:00', soon: 'Dec 1 to 14' }
+  ];
+  G.venues = VENUES;
+  G.venuesBy = (slug) => VENUES.filter((v) => v.artist === slug);
+  G.TODAY = new Date(2026, 9, 17);
+  G.openToday = (v) => !!(v.days && v.days.includes(G.TODAY.getDay()));
+  G.directions = (v) => (v.tbd ? null : 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(v.area + ', ' + v.city));
+
+  /* ================= projects: fund something specific an artist wants to make ================= */
+  const PROJECTS = [
+    { id: 'hamel-wall', artist: 'hamel', example: true, title: 'Scale it up: a 40-foot wall', img: 'art/hamel-mural.jpg',
+      goal: 15000, raised: 9420, backers: 138, daysLeft: 19,
+      story: "HAMEL wants to take the work from canvas to the side of a building. Backing covers paint, a lift, permits and two weeks of painting time. If the goal isn't reached, nobody is charged.",
+      budget: [['Paint, primer and clear coat', 4200], ['Lift rental, 14 days', 3800], ['Permits and insurance', 1900], ['Artist time, two weeks', 5100]],
+      rewards: [
+        { amt: 25, title: 'Name on the wall', text: 'Your name in the credits corner of the finished mural.' },
+        { amt: 100, title: 'Signed print of the wall', text: 'An 11 × 14 in print of the finished mural, signed.' },
+        { amt: 500, title: 'Original mural study', text: 'One of the paper studies for the wall, signed and dated.', left: 11 },
+        { amt: 2500, title: 'A day on the lift', text: 'Paint a section with HAMEL and take home a panel from the test wall.', left: 2 }
+      ],
+      updates: [['Oct 12', 'Example update: the test wall is finished and the colors hold up in full sun.'], ['Oct 3', 'Example update: past the halfway mark, and the permit application is in.']] },
+    { id: 'june-drum', artist: 'june', title: 'A second risograph drum', img: null, art: 'june-03', goal: 4000, raised: 3610, backers: 212, daysLeft: 6,
+      story: 'A second color drum means three-color prints without a week of waiting between passes. June will run a backers-only edition on the first day it arrives.',
+      budget: [['Used two-color drum', 2900], ['Shipping from Tokyo', 450], ['Ink and paper for the first run', 650]],
+      rewards: [{ amt: 15, title: 'First-run print', text: 'A small print from the first run on the new drum.' }, { amt: 40, title: 'Three-print bundle', text: 'Three prints from the first week.' }, { amt: 150, title: 'Your own edition', text: 'June prints a design you choose, edition of 10, all yours.', left: 4 }],
+      updates: [['Oct 14', 'A drum is on hold at a shop in Tokyo until the 23rd.']] },
+    { id: 'ruben-trip', artist: 'ruben', title: 'Pigment field trip: Four Corners', img: null, art: 'ruben-03', goal: 3000, raised: 820, backers: 31, daysLeft: 27,
+      story: 'Ten days on foot across the Four Corners to sketch and collect earth for a new series. Every backer gets a vial of hand-ground pigment.',
+      budget: [['Truck and fuel', 900], ['Permits and camping', 600], ['Grinding and binding supplies', 700], ['Ten days of studio time', 800]],
+      rewards: [{ amt: 20, title: 'A vial of pigment', text: 'Hand-ground earth from the trip, labeled with where it came from.' }, { amt: 120, title: 'Field sketch', text: 'An original pencil sketch from the trail.' }, { amt: 600, title: 'First painting from the series', text: 'First pick of the finished paintings, with your pledge counted toward the price.', left: 3 }],
+      updates: [] }
+  ];
+  G.projects = PROJECTS;
+  G.project = (id) => PROJECTS.find((p) => p.id === id);
+  G.projectBy = (slug) => PROJECTS.find((p) => p.artist === slug);
+  G.pledged = (p) => ((store.get('pledged', {}) || {})[p.id] || 0);
+  G.raised = (p) => p.raised + G.pledged(p);
+
+  /* ================= milestones: what you've spent on Gesso unlocks more ================= */
+  G.TIERS = [
+    { name: 'Gesso', at: 0, rate: 0.10, perks: ['10% back in chips on everything'] },
+    { name: 'Primer', at: 250, rate: 0.10, perks: ['See new work 24 hours before everyone else'] },
+    { name: 'Underpainting', at: 1000, rate: 0.11, perks: ['11% back in chips', 'Book studio visits with any artist'] },
+    { name: 'Glaze', at: 5000, rate: 0.12, perks: ['12% back in chips', 'Free white-glove install on every original'] },
+    { name: 'Varnish', at: 10000, rate: 0.13, perks: ['13% back in chips', 'A hosted studio visit every year', 'First look at every artist project'] },
+    { name: 'Masterwork', at: 20000, rate: 0.15, perks: ['15% back in chips', 'Commission a piece from any Gesso artist', 'Your name on the Gesso founders wall', 'A seat at the annual collectors dinner'] }
+  ];
+  G.tierOf = (spent) => G.TIERS.filter((t) => spent >= t.at).pop();
+  G.nextTier = (spent) => G.TIERS.find((t) => t.at > spent) || null;
+  G.spent = () => G.wallet().spent || 0;
+  G.myRate = () => G.tierOf(G.spent()).rate;
+
+  /* ================= paying over time ================= */
+  G.plans = (total) => {
+    const p = [
+      { id: 'full', name: 'Pay in full', today: total, n: 0, each: 0, note: 'Ships right away' },
+      { id: 'pay4', name: 'Pay in 4', today: total / 4, n: 3, each: total / 4, every: 'every 2 weeks', note: 'Ships right away, 0% interest' },
+      { id: 'lay6', name: 'Layaway, 6 months', today: total / 6, n: 5, each: total / 6, every: 'a month', note: 'Held for you, ships after the last payment, 0% interest' }
+    ];
+    if (total >= 1000) p.push({ id: 'lay10', name: 'Layaway, 10 months', today: total / 10, n: 9, each: total / 10, every: 'a month', note: 'Held for you, ships after the last payment, 0% interest' });
+    return p;
+  };
+  G.planLine = (pl) => (pl.n ? `${G.usd(pl.today, true)} today, then ${pl.n} × ${G.usd(pl.each, true)} ${pl.every}` : 'One payment');
+
   /* ================= live state (sample wallet, purchases made in this preview) ================= */
   const SAMPLE_WALLET = {
     sample: true,
@@ -148,7 +248,10 @@
     basis: { hamel: 43.15, june: 37.9, ruben: 7.1 },
     owned: ['hamel-06', 'june-01', 'june-04'],
     collectorNo: { hamel: 214, june: 61, ruben: 12 },
+    spent: 3420,
+    pending: {},
     log: [
+      { t: '2026-10-02', text: "Backed HAMEL's wall project with $500 (example)", chips: 8.82, a: 'hamel' },
       { t: '2026-09-28', text: 'Collected Night Garden, Pink Plate', chips: 5.2, a: 'june' },
       { t: '2026-08-14', text: 'Collected Untitled (Ribbons), print 12/40', chips: 9.12, a: 'hamel' },
       { t: '2026-07-30', text: 'Founding collector #12 of Ruben Castillo', chips: 4.8, a: 'ruben' },
@@ -157,7 +260,7 @@
   };
   G.wallet = () => store.get('wallet', null) || JSON.parse(JSON.stringify(SAMPLE_WALLET));
   G.saveWallet = (w) => store.set('wallet', w);
-  G.resetPreview = () => { ['wallet', 'delta', 'sold', 'bag', 'follows'].forEach(store.del); };
+  G.resetPreview = () => { ['wallet', 'delta', 'sold', 'bag', 'follows', 'pledged', 'plan', 'introDone', 'walls'].forEach(store.del); };
 
   G.collectors = (slug) => (G.artist(slug).collectors + ((store.get('delta', {}) || {})[slug] || 0));
   G.addCollector = (slug) => { const d = store.get('delta', {}) || {}; d[slug] = (d[slug] || 0) + 1; store.set('delta', d); };
@@ -166,14 +269,28 @@
   G.markSold = (id) => { const s = store.get('sold', []) || []; if (!s.includes(id)) s.push(id); store.set('sold', s); };
   G.walletValue = (w) => Object.entries((w || G.wallet()).chips).reduce((s, [k, v]) => s + v * G.priceOf(k), 0);
 
-  G.bag = () => (store.get('bag', []) || []).filter((id) => G.work(id));
+  /* the bag holds artworks ("hamel-02") and objects ("p:hamel-apron|One size|2") */
+  G.item = (key) => {
+    if (typeof key !== 'string') return null;
+    if (key.startsWith('p:')) {
+      const [id, opt, qty] = key.slice(2).split('|'), p = G.product(id);
+      if (!p) return null;
+      const q = Math.max(1, +qty || 1);
+      return { key, kind: 'product', id, artist: p.artist, title: p.name, sub: `${opt}${q > 1 ? ' · ' + q + ' ' + (p.unit ? p.unit + 's' : 'pieces') : ''}`, opt, qty: q, unit: p.price, price: p.price * q, href: `product.html#${id}`, p };
+    }
+    const w = G.work(key);
+    if (!w || G.isSold(w)) return null;
+    return { key, kind: 'work', id: key, artist: w.artist, title: `${w.title}, ${w.year}`, sub: `${w.medium} · ${w.w} × ${w.h} in`, qty: 1, unit: w.price, price: w.price, href: `piece.html#${key}`, w };
+  };
+  G.bag = () => (store.get('bag', []) || []).filter((k) => G.item(k));
   G.setBag = (b) => { store.set('bag', b); G.refreshBadges(); };
-  G.addToBag = (id) => {
-    const b = G.bag();
-    if (!b.includes(id)) b.push(id);
+  G.addToBag = (key) => {
+    let b = G.bag();
+    if (key.startsWith('p:')) { const base = key.split('|').slice(0, 2).join('|'); b = b.filter((k) => !k.startsWith(base + '|')); }
+    if (!b.includes(key)) b.push(key);
     G.setBag(b);
-    const w = G.work(id);
-    G.toast(`<span>Added <b>${esc(w.title)}</b> to your bag</span><a href="checkout.html">Check out</a>`);
+    const it = G.item(key);
+    G.toast(`<span>Added <b>${esc(it.title)}</b> to your bag</span><a href="checkout.html">Check out</a>`);
   };
 
   /* collector-count history for charts: 120 daily points ending today, monotonic */
@@ -467,6 +584,8 @@
     `<img class="${cls}" data-art="${w.id}" data-px="${px}" style="--ar:${w.w}/${w.h}" width="${w.w * 10}" height="${w.h * 10}" alt="${esc(alt || `${w.title} by ${G.artist(w.artist).name}`)}" decoding="async">`;
   G.artistArt = (slug, key, w, h) => { const a = G.artist(slug); return (a.photos && a.photos[key]) || G.renderArt(slug + ':' + key, a.style, w, h); };
   G.hydrate = (root = document) => {
+    root.querySelectorAll('img[data-prod]:not([src])').forEach((el) => G.renderProduct(G.product(el.dataset.prod), +el.dataset.px || 480).then((u) => (el.src = u)).catch(() => {}));
+    root.querySelectorAll('img[data-map]:not([src])').forEach((el) => (el.src = G.mapTile(G.venues.find((v) => v.id === el.dataset.map))));
     const els = [...root.querySelectorAll('img[data-art]:not([src]), [data-artist-art]:not([data-done])')];
     let i = 0;
     const step = () => {
@@ -486,8 +605,213 @@
     step();
   };
 
+  /* ================= object mockups: the artist's image printed onto real things ================= */
+  const loadImg = (src) => new Promise((res, rej) => { const i = new Image(); i.onload = () => res(i); i.onerror = rej; i.src = src; });
+  G.loadImg = loadImg;
+  const coverImg = (ctx, img, x, y, w, h) => { const r = Math.max(w / img.width, h / img.height), iw = img.width * r, ih = img.height * r; ctx.drawImage(img, x + (w - iw) / 2, y + (h - ih) / 2, iw, ih); };
+  // half-drop repeat, the way wallpaper is printed
+  G.tileImg = (ctx, img, x, y, w, h, t) => {
+    const th = t * img.height / img.width;
+    for (let col = 0, xx = x; xx < x + w; xx += t, col++) for (let yy = y - (col % 2 ? th / 2 : 0); yy < y + h; yy += th) ctx.drawImage(img, xx, yy, t, th);
+  };
+  const MOCK = {
+    backdrop(ctx, S) {
+      const g = ctx.createLinearGradient(0, 0, 0, S); g.addColorStop(0, '#F0EFEA'); g.addColorStop(1, '#D9D7CF');
+      ctx.fillStyle = g; ctx.fillRect(0, 0, S, S);
+    },
+    shadow(ctx, S, cx, cy, rx, ry) {
+      const g = ctx.createRadialGradient(cx, cy, 0, cx, cy, rx); g.addColorStop(0, 'rgba(0,0,0,.28)'); g.addColorStop(1, 'rgba(0,0,0,0)');
+      ctx.save(); ctx.translate(cx, cy); ctx.scale(1, ry / rx); ctx.translate(-cx, -cy); ctx.fillStyle = g; ctx.beginPath(); ctx.arc(cx, cy, rx, 0, 7); ctx.fill(); ctx.restore();
+    },
+    shade(ctx, x0, y0, x1, y1, stops) { const g = ctx.createLinearGradient(x0, y0, x1, y1); stops.forEach(([o, c]) => g.addColorStop(o, c)); return g; },
+    apron(ctx, S, img) {
+      const u = S / 100; MOCK.backdrop(ctx, S); MOCK.shadow(ctx, S, 50 * u, 94 * u, 30 * u, 3 * u);
+      ctx.lineCap = 'round'; ctx.strokeStyle = '#26252A'; ctx.lineWidth = 2.2 * u;
+      ctx.beginPath(); ctx.moveTo(40 * u, 17 * u); ctx.bezierCurveTo(40 * u, 3 * u, 60 * u, 3 * u, 60 * u, 17 * u); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(28 * u, 41 * u); ctx.bezierCurveTo(18 * u, 46 * u, 14 * u, 58 * u, 19 * u, 72 * u); ctx.moveTo(72 * u, 41 * u); ctx.bezierCurveTo(82 * u, 46 * u, 86 * u, 58 * u, 81 * u, 72 * u); ctx.stroke();
+      const body = new Path2D(); body.moveTo(38 * u, 16 * u); body.lineTo(62 * u, 16 * u); body.quadraticCurveTo(63 * u, 31 * u, 72 * u, 38 * u); body.lineTo(74 * u, 88 * u);
+      body.quadraticCurveTo(74 * u, 93 * u, 69 * u, 93 * u); body.lineTo(31 * u, 93 * u); body.quadraticCurveTo(26 * u, 93 * u, 26 * u, 88 * u); body.lineTo(28 * u, 38 * u); body.quadraticCurveTo(37 * u, 31 * u, 38 * u, 16 * u); body.closePath();
+      ctx.save(); ctx.clip(body); coverImg(ctx, img, 26 * u, 16 * u, 48 * u, 77 * u);
+      ctx.fillStyle = MOCK.shade(ctx, 26 * u, 0, 74 * u, 0, [[0, 'rgba(0,0,0,.18)'], [0.3, 'rgba(255,255,255,.06)'], [0.7, 'rgba(0,0,0,0)'], [1, 'rgba(0,0,0,.2)']]); ctx.fillRect(0, 0, S, S);
+      ctx.fillStyle = 'rgba(0,0,0,.1)'; ctx.fillRect(35 * u, 58 * u, 30 * u, 15 * u);
+      ctx.setLineDash([1.2 * u, 1 * u]); ctx.strokeStyle = 'rgba(255,255,255,.75)'; ctx.lineWidth = 0.45 * u; ctx.strokeRect(35.8 * u, 58.8 * u, 28.4 * u, 13.4 * u);
+      ctx.beginPath(); ctx.moveTo(50 * u, 59 * u); ctx.lineTo(50 * u, 72 * u); ctx.stroke(); ctx.setLineDash([]);
+      ctx.restore(); ctx.strokeStyle = 'rgba(0,0,0,.35)'; ctx.lineWidth = 0.5 * u; ctx.stroke(body);
+    },
+    tote(ctx, S, img) {
+      const u = S / 100; MOCK.backdrop(ctx, S); MOCK.shadow(ctx, S, 50 * u, 92 * u, 30 * u, 3 * u);
+      ctx.lineCap = 'round';
+      [[32, 46], [54, 68]].forEach(([a, b]) => { ctx.strokeStyle = '#CFC4AB'; ctx.lineWidth = 3.4 * u; ctx.beginPath(); ctx.moveTo(a * u, 35 * u); ctx.bezierCurveTo(a * u, 9 * u, b * u, 9 * u, b * u, 35 * u); ctx.stroke(); ctx.strokeStyle = '#E6DDC8'; ctx.lineWidth = 2.4 * u; ctx.stroke(); });
+      ctx.fillStyle = '#E8DFCA'; ctx.fillRect(24 * u, 33 * u, 52 * u, 57 * u);
+      ctx.save(); ctx.beginPath(); ctx.rect(31 * u, 42 * u, 38 * u, 40 * u); ctx.clip(); coverImg(ctx, img, 31 * u, 42 * u, 38 * u, 40 * u); ctx.globalCompositeOperation = 'multiply'; ctx.fillStyle = '#EFE7D4'; ctx.fillRect(0, 0, S, S); ctx.restore();
+      ctx.fillStyle = MOCK.shade(ctx, 24 * u, 0, 76 * u, 0, [[0, 'rgba(0,0,0,.14)'], [0.35, 'rgba(255,255,255,.05)'], [1, 'rgba(0,0,0,.16)']]); ctx.fillRect(24 * u, 33 * u, 52 * u, 57 * u);
+      ctx.fillStyle = 'rgba(0,0,0,.08)'; ctx.fillRect(24 * u, 33 * u, 52 * u, 2.2 * u);
+    },
+    tee(ctx, S, img) {
+      const u = S / 100; MOCK.backdrop(ctx, S); MOCK.shadow(ctx, S, 50 * u, 93 * u, 28 * u, 2.6 * u);
+      const t = new Path2D(); t.moveTo(40 * u, 14 * u); t.lineTo(24 * u, 19 * u); t.lineTo(11 * u, 36 * u); t.lineTo(21 * u, 44 * u); t.lineTo(28 * u, 37 * u); t.lineTo(29 * u, 90 * u);
+      t.lineTo(71 * u, 90 * u); t.lineTo(72 * u, 37 * u); t.lineTo(79 * u, 44 * u); t.lineTo(89 * u, 36 * u); t.lineTo(76 * u, 19 * u); t.lineTo(60 * u, 14 * u); t.quadraticCurveTo(50 * u, 23 * u, 40 * u, 14 * u); t.closePath();
+      ctx.fillStyle = '#F4F3EF'; ctx.fill(t);
+      ctx.save(); ctx.clip(t); coverImg(ctx, img, 36 * u, 29 * u, 28 * u, 32 * u);
+      ctx.fillStyle = MOCK.shade(ctx, 11 * u, 0, 89 * u, 0, [[0, 'rgba(0,0,0,.12)'], [0.4, 'rgba(0,0,0,0)'], [0.62, 'rgba(0,0,0,.05)'], [1, 'rgba(0,0,0,.14)']]); ctx.fillRect(0, 0, S, S); ctx.restore();
+      ctx.strokeStyle = 'rgba(0,0,0,.16)'; ctx.lineWidth = 0.5 * u; ctx.stroke(t);
+      ctx.beginPath(); ctx.moveTo(41 * u, 15.5 * u); ctx.quadraticCurveTo(50 * u, 25 * u, 59 * u, 15.5 * u); ctx.lineWidth = 1.4 * u; ctx.strokeStyle = 'rgba(0,0,0,.12)'; ctx.stroke();
+    },
+    deck(ctx, S, img) {
+      const u = S / 100; MOCK.backdrop(ctx, S); MOCK.shadow(ctx, S, 52 * u, 93 * u, 22 * u, 2.4 * u);
+      ctx.save(); ctx.translate(50 * u, 49 * u); ctx.rotate(-0.24);
+      const w = 25 * u, h = 84 * u, r = w / 2, d = new Path2D(); d.moveTo(-w / 2, -h / 2 + r); d.arc(0, -h / 2 + r, r, Math.PI, 0); d.lineTo(w / 2, h / 2 - r); d.arc(0, h / 2 - r, r, 0, Math.PI); d.closePath();
+      ctx.shadowColor = 'rgba(0,0,0,.3)'; ctx.shadowBlur = 3 * u; ctx.shadowOffsetX = 1.2 * u; ctx.shadowOffsetY = 1.6 * u; ctx.fillStyle = '#C9A877'; ctx.fill(d); ctx.shadowColor = 'transparent';
+      ctx.save(); ctx.clip(d); coverImg(ctx, img, -w / 2, -h / 2, w, h); ctx.fillStyle = MOCK.shade(ctx, -w / 2, 0, w / 2, 0, [[0, 'rgba(0,0,0,.18)'], [0.4, 'rgba(255,255,255,.12)'], [1, 'rgba(0,0,0,.22)']]); ctx.fillRect(-w, -h, w * 2, h * 2); ctx.restore();
+      ctx.fillStyle = '#1C1B20';
+      [-1, 1].forEach((e) => [[-3, -2], [3, -2], [-3, 2], [3, 2]].forEach(([x, y]) => { ctx.beginPath(); ctx.arc(x * u, (e * 29 + y) * u, 0.7 * u, 0, 7); ctx.fill(); }));
+      ctx.strokeStyle = 'rgba(0,0,0,.4)'; ctx.lineWidth = 0.4 * u; ctx.stroke(d); ctx.restore();
+    },
+    pillow(ctx, S, img) {
+      const u = S / 100; MOCK.backdrop(ctx, S); MOCK.shadow(ctx, S, 50 * u, 86 * u, 34 * u, 4 * u);
+      const pl = new Path2D(); pl.moveTo(18 * u, 20 * u); pl.quadraticCurveTo(50 * u, 26 * u, 82 * u, 20 * u); pl.quadraticCurveTo(76 * u, 51 * u, 82 * u, 82 * u); pl.quadraticCurveTo(50 * u, 76 * u, 18 * u, 82 * u); pl.quadraticCurveTo(24 * u, 51 * u, 18 * u, 20 * u); pl.closePath();
+      ctx.save(); ctx.clip(pl); coverImg(ctx, img, 18 * u, 20 * u, 64 * u, 62 * u);
+      const g = ctx.createRadialGradient(46 * u, 46 * u, 4 * u, 50 * u, 51 * u, 42 * u); g.addColorStop(0, 'rgba(255,255,255,.14)'); g.addColorStop(0.6, 'rgba(0,0,0,0)'); g.addColorStop(1, 'rgba(0,0,0,.34)');
+      ctx.fillStyle = g; ctx.fillRect(0, 0, S, S); ctx.restore();
+      ctx.strokeStyle = 'rgba(0,0,0,.28)'; ctx.lineWidth = 0.5 * u; ctx.stroke(pl);
+    },
+    mug(ctx, S, img) {
+      const u = S / 100; MOCK.backdrop(ctx, S); MOCK.shadow(ctx, S, 50 * u, 82 * u, 30 * u, 4 * u);
+      ctx.lineCap = 'round'; ctx.strokeStyle = '#E9E8E3'; ctx.lineWidth = 5.5 * u; ctx.beginPath(); ctx.moveTo(64 * u, 38 * u); ctx.bezierCurveTo(82 * u, 37 * u, 82 * u, 68 * u, 64 * u, 66 * u); ctx.stroke();
+      ctx.strokeStyle = 'rgba(0,0,0,.12)'; ctx.lineWidth = 0.6 * u; ctx.stroke();
+      const b = new Path2D(); b.moveTo(28 * u, 27 * u); b.lineTo(28 * u, 78 * u); b.ellipse(47 * u, 78 * u, 19 * u, 4 * u, 0, Math.PI, 0, true); b.lineTo(66 * u, 27 * u); b.closePath();
+      ctx.save(); ctx.clip(b); coverImg(ctx, img, 28 * u, 23 * u, 38 * u, 60 * u);
+      ctx.fillStyle = MOCK.shade(ctx, 28 * u, 0, 66 * u, 0, [[0, 'rgba(0,0,0,.35)'], [0.3, 'rgba(255,255,255,.18)'], [0.45, 'rgba(255,255,255,0)'], [1, 'rgba(0,0,0,.4)']]); ctx.fillRect(0, 0, S, S); ctx.restore();
+      ctx.fillStyle = '#F2F1ED'; ctx.beginPath(); ctx.ellipse(47 * u, 27 * u, 19 * u, 4 * u, 0, 0, 7); ctx.fill();
+      ctx.fillStyle = '#CFCDC6'; ctx.beginPath(); ctx.ellipse(47 * u, 27.4 * u, 17.4 * u, 3.1 * u, 0, 0, 7); ctx.fill();
+    },
+    wallpaper(ctx, S, img) {
+      const u = S / 100;
+      G.tileImg(ctx, img, 0, 0, S, 79 * u, 24 * u);
+      ctx.fillStyle = MOCK.shade(ctx, 0, 0, S, 0, [[0, 'rgba(255,255,255,.12)'], [1, 'rgba(0,0,0,.22)']]); ctx.fillRect(0, 0, S, 79 * u);
+      ctx.fillStyle = '#F1F0EC'; ctx.fillRect(0, 79 * u, S, 3 * u);
+      ctx.fillStyle = '#A97C52'; ctx.fillRect(0, 82 * u, S, 18 * u);
+      ctx.strokeStyle = 'rgba(60,35,15,.35)'; ctx.lineWidth = 0.3 * u; for (let y = 85; y < 100; y += 3.6) { ctx.beginPath(); ctx.moveTo(0, y * u); ctx.lineTo(S, y * u); ctx.stroke(); }
+      MOCK.shadow(ctx, S, 50 * u, 83 * u, 22 * u, 1.6 * u);
+      ctx.fillStyle = '#1D1C21'; ctx.fillRect(33 * u, 60 * u, 34 * u, 2.2 * u); ctx.fillRect(35 * u, 62 * u, 1.5 * u, 21 * u); ctx.fillRect(63.5 * u, 62 * u, 1.5 * u, 21 * u);
+      ctx.fillStyle = '#E9E6DE'; ctx.beginPath(); ctx.ellipse(44 * u, 55 * u, 3.4 * u, 5 * u, 0, 0, 7); ctx.fill();
+      ctx.strokeStyle = '#3E6B45'; ctx.lineWidth = 0.6 * u; [[-6, -14], [0, -17], [5, -13]].forEach(([dx, dy]) => { ctx.beginPath(); ctx.moveTo(44 * u, 51 * u); ctx.quadraticCurveTo((44 + dx / 2) * u, (51 + dy / 2) * u, (44 + dx) * u, (51 + dy) * u); ctx.stroke(); });
+    }
+  };
+  const mockCache = new Map();
+  G.renderProduct = async (p, px = 600) => {
+    const k = p.id + '|' + px; if (mockCache.has(k)) return mockCache.get(k);
+    const job = (async () => {
+      const img = await loadImg(G.workArt(G.work(p.src), 900));
+      const c = document.createElement('canvas'); c.width = c.height = px;
+      MOCK[p.type](c.getContext('2d'), px, img);
+      return c.toDataURL('image/jpeg', 0.88);
+    })();
+    mockCache.set(k, job); return job;
+  };
+  G.productImg = (p, px = 480, cls = 'art') => `<img class="${cls}" data-prod="${p.id}" data-px="${px}" style="--ar:1" width="600" height="600" alt="${esc(p.name)} printed with ${esc(G.work(p.src).title)} by ${esc(G.artist(p.artist).name)}" decoding="async">`;
+
+  /* ================= map tiles for venues, drawn in the page's own colors ================= */
+  const css = (n) => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+  G.mapTile = (v, w = 640, h = 360) => {
+    const r = rng(hash('map' + v.id)), c = document.createElement('canvas'); c.width = w; c.height = h; const ctx = c.getContext('2d');
+    ctx.fillStyle = css('--wall-2'); ctx.fillRect(0, 0, w, h);
+    ctx.fillStyle = 'rgba(40,150,90,.2)'; ctx.beginPath(); ctx.roundRect(r() * w * 0.6, r() * h * 0.6, w * (0.15 + r() * 0.15), h * (0.2 + r() * 0.2), 10); ctx.fill();
+    if (r() < 0.7) { ctx.strokeStyle = 'rgba(70,130,200,.32)'; ctx.lineWidth = 18 + r() * 14; ctx.beginPath(); ctx.moveTo(-20, h * r()); ctx.bezierCurveTo(w * 0.3, h * r(), w * 0.6, h * r(), w + 20, h * r()); ctx.stroke(); }
+    const roads = [];
+    for (let i = 0; i < 9; i++) { const x = (i + r() * 0.6) * (w / 8), sk = (r() - 0.5) * 60; roads.push([[x, -10], [x + sk, h + 10], i % 4 === 1 ? 9 : 4]); }
+    for (let i = 0; i < 6; i++) { const y = (i + r() * 0.6) * (h / 5), sk = (r() - 0.5) * 50; roads.push([[-10, y], [w + 10, y + sk], i === 2 ? 9 : 4]); }
+    const diag = [[-10, h * r()], [w + 10, h * r()], 7]; roads.push(diag);
+    ctx.lineCap = 'round';
+    roads.forEach(([a, b, lw]) => { ctx.strokeStyle = css('--rule'); ctx.lineWidth = lw + 2.5; ctx.beginPath(); ctx.moveTo(...a); ctx.lineTo(...b); ctx.stroke(); });
+    roads.forEach(([a, b, lw]) => { ctx.strokeStyle = css('--card'); ctx.lineWidth = lw; ctx.beginPath(); ctx.moveTo(...a); ctx.lineTo(...b); ctx.stroke(); });
+    const a = G.artist(v.artist), px = w / 2, py = h / 2 + 10;
+    if (!v.tbd) {
+      ctx.fillStyle = 'rgba(0,0,0,.25)'; ctx.beginPath(); ctx.ellipse(px, py + 2, 9, 4, 0, 0, 7); ctx.fill();
+      ctx.fillStyle = a.color; ctx.beginPath(); ctx.moveTo(px, py); ctx.bezierCurveTo(px - 16, py - 20, px - 15, py - 42, px, py - 42); ctx.bezierCurveTo(px + 15, py - 42, px + 16, py - 20, px, py); ctx.fill();
+      ctx.lineWidth = 2.5; ctx.strokeStyle = '#fff'; ctx.stroke(); ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.arc(px, py - 28, 5.5, 0, 7); ctx.fill();
+    }
+    return c.toDataURL('image/png');
+  };
+
+  G.venueCard = (v, showArtist) => {
+    const a = G.artist(v.artist), dir = G.directions(v);
+    const status = G.openToday(v) ? '<b class="vopen">Open today</b>' : v.soon ? `<b class="vsoon">${esc(v.soon)}</b>` : '';
+    return `<article class="venue">
+      <div class="vmap">${v.img ? `<img src="${v.img}" alt="${esc(v.name)}" loading="lazy">` : `<img data-map="${v.id}" alt="Map of ${esc(v.area)}">`}
+        <span class="vtype">${esc(v.type)}</span>${v.tbd ? '<span class="vlock">Exact spot shared after you book</span>' : ''}</div>
+      <div class="vbody">
+        ${showArtist ? `<a class="who" href="artist.html#${a.slug}"><i class="dot" style="--c:${a.color}"></i>${esc(a.name)}</a>` : ''}
+        <h3>${esc(v.name)}</h3>
+        <p class="muted">${esc(v.area)}${v.city ? ', ' + esc(v.city) : ''}</p>
+        <p class="vhours">${status}${status ? ' · ' : ''}${esc(v.hours)}</p>
+        <div class="vact">${dir ? `<a class="btn small" href="${dir}" target="_blank" rel="noopener">Directions ↗</a>` : ''}${v.book ? `<button class="btn small primary" type="button" data-book="${v.id}">Book a visit</button>` : ''}${!dir && !v.book ? '<span class="muted" style="font-size:var(--t-s)">Collectors get the location in the app</span>' : ''}</div>
+        ${v.tbd ? '<p class="vnote">Placeholder until HAMEL confirms details.</p>' : ''}
+      </div></article>`;
+  };
+
+  G.projectImg = (p, px = 640) => (p.img ? `<img class="art" src="${p.img}" style="--ar:4/3" alt="${esc(p.title)}" loading="lazy">` : G.artImg(G.work(p.art), px, 'art').replace(/style="--ar:[^"]+"/, 'style="--ar:4/3"'));
+  G.projectCard = (p) => {
+    const a = G.artist(p.artist), raised = G.raised(p), pct = Math.min(100, (raised / p.goal) * 100);
+    return `<a class="proj" href="project.html#${p.id}">
+      <div class="pimg">${G.projectImg(p)}${p.example ? '<span class="vtype">Example</span>' : ''}</div>
+      <div class="pbody"><span class="who"><i class="dot" style="--c:${a.color}"></i>${esc(a.name)}</span><h3>${esc(p.title)}</h3>
+        <div class="progress" role="progressbar" aria-valuenow="${Math.round(pct)}" aria-valuemin="0" aria-valuemax="100"><i style="width:${pct}%;background:${a.color}"></i></div>
+        <div class="pstats"><span><b>${G.usd(raised)}</b> of ${G.usd(p.goal)}</span><span>${p.backers + (G.pledged(p) ? 1 : 0)} backers · ${p.daysLeft} days left</span></div></div></a>`;
+  };
+
+  G.productCard = (p) => {
+    const a = G.artist(p.artist), back = Math.round(p.price * G.EARN);
+    return `<a class="work obj" href="product.html#${p.id}">
+      <div class="frame">${G.productImg(p, 480, 'art')}<button class="quick-add" type="button" data-add="p:${p.id}|${esc(p.opts[0])}|1">+ Add to bag</button></div>
+      <div class="walllabel">
+        <span class="who"><i class="dot" style="--c:${a.color}"></i>${esc(a.name)}</span>
+        <span class="title"><b>${esc(p.name)}</b></span>
+        <span class="meta">Printed with ${esc(G.work(p.src).title)} · made to order</span>
+        <span class="price"><span class="usd">${G.usd(p.price)}${p.unit ? ' / ' + p.unit : ''}</span><span class="earn">${G.usd(back)} back in chips</span></span>
+      </div></a>`;
+  };
+
+  /* bottom sheet / dialog used for bookings, pledges and the room studio's extras */
+  G.sheet = (html, opts = {}) => {
+    let el = document.getElementById('sheet');
+    if (!el) {
+      document.body.insertAdjacentHTML('beforeend', '<div class="sheet-wrap" id="sheet" hidden><div class="sheet-scrim" data-close></div><div class="sheet" role="dialog" aria-modal="true"><button class="sheet-x" type="button" data-close aria-label="Close">×</button><div class="sheet-body"></div></div></div>');
+      el = document.getElementById('sheet');
+      el.addEventListener('click', (e) => { if (e.target.closest('[data-close]')) G.closeSheet(); });
+      document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && !el.hidden) G.closeSheet(); });
+    }
+    el.querySelector('.sheet').style.maxWidth = opts.wide ? '760px' : '';
+    el.querySelector('.sheet-body').innerHTML = html;
+    el.hidden = false; document.body.style.overflow = 'hidden';
+    setTimeout(() => (el.querySelector('.sheet-body [autofocus]') || el.querySelector('.sheet-x')).focus(), 30);
+    return el.querySelector('.sheet-body');
+  };
+  G.closeSheet = () => { const el = document.getElementById('sheet'); if (el) { el.hidden = true; document.body.style.overflow = ''; } };
+
+  /* studio-visit booking, offered on artist pages and the Visit page */
+  G.book = (vid) => {
+    const v = VENUES.find((x) => x.id === vid), a = G.artist(v.artist), tier = G.tierOf(G.spent());
+    const days = Array.from({ length: 6 }, (_, i) => { const d = new Date(G.TODAY); d.setDate(d.getDate() + i + 2); return d; });
+    const body = G.sheet(`<p class="eyebrow">Book a visit</p><h2 style="font-size:2rem;margin:8px 0 6px">${esc(v.name)}</h2>
+      <p class="muted">${esc(a.name)} · ${esc(v.hours)}</p>
+      <p style="margin:14px 0;font-size:var(--t-s)">${G.TIERS.indexOf(tier) >= 2 ? `Studio visits are a perk of your <b>${tier.name}</b> milestone.` : 'Studio visits open up at the Underpainting milestone ($1,000 spent). You can still request one.'}</p>
+      <div class="field"><span class="lbl">Day</span><div class="slots" id="bk-days">${days.map((d, i) => `<button type="button" class="pill" aria-pressed="${i === 0}" data-v="${d.toDateString()}">${d.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })}</button>`).join('')}</div></div>
+      <div class="field" style="margin-top:14px"><span class="lbl">Time</span><div class="slots" id="bk-times">${['11:00', '13:00', '15:00', '17:00'].map((t, i) => `<button type="button" class="pill" aria-pressed="${i === 1}" data-v="${t}">${t}</button>`).join('')}</div></div>
+      <div class="field" style="margin-top:14px"><label for="bk-n">Guests</label><select class="input" id="bk-n"><option>Just me</option><option>2 people</option><option>3 people</option><option>4 people</option></select></div>
+      <button class="btn primary block" type="button" id="bk-go" style="margin-top:20px">Request visit</button>
+      <p class="mono muted" style="font-size:var(--t-xs);margin-top:10px">Preview: no request is sent.</p>`);
+    body.querySelectorAll('.slots').forEach((g) => g.addEventListener('click', (e) => { const b = e.target.closest('button'); if (!b) return; g.querySelectorAll('button').forEach((x) => x.setAttribute('aria-pressed', String(x === b))); }));
+    body.querySelector('#bk-go').addEventListener('click', () => {
+      const d = body.querySelector('#bk-days [aria-pressed="true"]').textContent, t = body.querySelector('#bk-times [aria-pressed="true"]').textContent;
+      body.innerHTML = `<p class="eyebrow">Requested</p><h2 style="font-size:2rem;margin:8px 0">See you ${esc(d)} at ${t}.</h2><p class="muted">In the live app, ${esc(a.name)} confirms within a day and you get the address then. Nothing was sent in this preview.</p><button class="btn block" type="button" data-close style="margin-top:20px">Done</button>`;
+    });
+  };
+
   /* ================= chrome: top bar, tab bar, footer, toast ================= */
   const I = {
+    pin: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M12 21s-7-6.2-7-11.5A7 7 0 0 1 19 9.5C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></svg>',
+    menu: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg>',
     home: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10.5 12 3l9 7.5V20a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1z"/></svg>',
     wall: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><rect x="3" y="3" width="8" height="10"/><rect x="13" y="3" width="8" height="6"/><rect x="13" y="11" width="8" height="10"/><rect x="3" y="15" width="8" height="6"/></svg>',
     chip: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><rect x="5" y="2.5" width="14" height="19" rx="1"/><path d="M5 14.5h14"/><circle cx="15.5" cy="6" r="1.2"/></svg>',
@@ -498,7 +822,8 @@
   G.icons = I;
 
   G.chrome = (page) => {
-    const nav = [['discover.html', 'Discover', 'discover'], ['how-it-works.html', 'How chips work', 'how'], ['for-artists.html', 'For artists', 'artists'], ['collection.html', 'Collection', 'collection']];
+    const nav = [['discover.html', 'Discover', 'discover'], ['project.html', 'Projects', 'projects'], ['visit.html', 'Visit', 'visit'], ['how-it-works.html', 'How chips work', 'how'], ['for-artists.html', 'For artists', 'artists']];
+    const menu = [['index.html', 'Home'], ['discover.html', 'Discover art'], ['discover.html#objects', 'Wallpaper, aprons and more'], ['project.html', 'Back a project'], ['visit.html', 'See art in person'], ['collection.html', 'Your collection and milestones'], ['how-it-works.html', 'How chips work'], ['for-artists.html', 'Sell on Gesso']];
     const top = document.getElementById('chrome-top');
     if (top) top.outerHTML = `
       <header class="topbar"><div class="wrap">
@@ -507,6 +832,7 @@
         <div class="tools">
           <a class="wallet-pill" href="collection.html" title="What your chips are worth. Tap to see your collection."><span class="stack" data-wallet-stack></span><span class="num" data-wallet-val></span><span class="label muted">in chips</span></a>
           <a class="icon-btn" href="checkout.html" aria-label="Bag">${I.bag}<span class="badge" data-bag-count></span></a>
+          <button class="icon-btn menu-btn" type="button" aria-label="Menu" aria-expanded="false" id="menu-btn">${I.menu}</button>
         </div>
       </div></header>`;
     const bottom = document.getElementById('chrome-bottom');
@@ -514,7 +840,7 @@
       <nav class="tabbar" aria-label="Tabs">
         <a href="index.html" ${page === 'home' ? 'aria-current="page"' : ''}>${I.home}Home</a>
         <a href="discover.html" ${page === 'discover' ? 'aria-current="page"' : ''}>${I.wall}Discover</a>
-        <a href="how-it-works.html" ${page === 'how' ? 'aria-current="page"' : ''}>${I.chip}Chips</a>
+        <a href="visit.html" ${page === 'visit' ? 'aria-current="page"' : ''}>${I.pin}Visit</a>
         <a href="collection.html" ${page === 'collection' ? 'aria-current="page"' : ''}>${I.coll}Collection</a>
         <a href="checkout.html" ${page === 'checkout' ? 'aria-current="page"' : ''}>${I.bag}Bag<span class="badge" data-bag-count></span></a>
       </nav>
@@ -524,12 +850,15 @@
           <p class="muted">An art market owned by the people who collect it. Buy the art, earn the artist's chips, spend them on more art.</p>
           <div class="theme-toggle" role="group" aria-label="Theme"><button type="button" data-theme-set="system">Auto</button><button type="button" data-theme-set="light">Light</button><button type="button" data-theme-set="dark">Dark</button></div>
         </div>
-        <div><h4>Collect</h4><ul><li><a href="discover.html">Discover</a></li><li><a href="artist.html#hamel">Featured: HAMEL</a></li><li><a href="index.html#board">Chip board</a></li><li><a href="collection.html">Your collection</a></li></ul></div>
-        <div><h4>Learn</h4><ul><li><a href="how-it-works.html">How chips work</a></li><li><a href="how-it-works.html#curve">The price curve</a></li><li><a href="how-it-works.html#faq">Questions</a></li></ul></div>
+        <div><h4>Collect</h4><ul><li><a href="discover.html">Discover art</a></li><li><a href="discover.html#objects">Objects and wallpaper</a></li><li><a href="project.html">Back a project</a></li><li><a href="visit.html">See art in person</a></li><li><a href="collection.html">Your collection</a></li></ul></div>
+        <div><h4>Learn</h4><ul><li><a href="how-it-works.html">How chips work</a></li><li><a href="how-it-works.html#milestones">Milestones</a></li><li><a href="how-it-works.html#pay">Paying over time</a></li><li><a href="how-it-works.html#faq">Questions</a></li></ul></div>
         <div><h4>Create</h4><ul><li><a href="for-artists.html">Sell on Gesso</a></li><li><a href="for-artists.html#compare">Fees compared</a></li><li><a href="for-artists.html#apply">Apply</a></li></ul></div>
         <div class="fine"><span>Design preview. HAMEL's paintings are real (photos from Instagram); their titles, sizes and prices are placeholders. Other artists are sample creators with generated stand-in art. No payments are taken.</span><button type="button" class="link" style="background:none;border:0;padding:0;cursor:pointer;font-size:inherit" data-reset>Reset preview</button></div>
       </div></footer>`;
     document.body.insertAdjacentHTML('beforeend', '<div class="toast" role="status" aria-live="polite" id="toast"></div>');
+    document.querySelector('.topbar').insertAdjacentHTML('beforeend', `<nav class="menu" id="menu" hidden aria-label="All pages"><div class="wrap">${menu.map(([h, l]) => `<a href="${h}">${l}<span aria-hidden="true">→</span></a>`).join('')}</div></nav>`);
+    const mb = document.getElementById('menu-btn'), mn = document.getElementById('menu');
+    mb.addEventListener('click', () => { mn.hidden = !mn.hidden; mb.setAttribute('aria-expanded', String(!mn.hidden)); });
     if (!store.get('introDone', false) && page !== 'how' && page !== 'checkout') {
       document.querySelector('.topbar').insertAdjacentHTML('afterend', `<div class="intro" id="intro"><div class="wrap">
         <p><b>New here?</b> Every piece you buy pays you back 10% in that artist's chips, and chips gain value as the artist gains collectors.</p>
@@ -549,6 +878,8 @@
       const add = e.target.closest('[data-add]');
       if (add) { e.preventDefault(); e.stopPropagation(); G.addToBag(add.dataset.add); }
       if (e.target.closest('[data-reset]')) { G.resetPreview(); location.reload(); }
+      const bk = e.target.closest('[data-book]');
+      if (bk) { e.preventDefault(); G.book(bk.dataset.book); }
     });
     G.refreshBadges();
   };
