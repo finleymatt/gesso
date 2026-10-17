@@ -258,7 +258,13 @@
       { t: '2026-06-02', text: 'Collected Ghost Fern, 31/60', chips: 9.4, a: 'june' }
     ]
   };
-  G.wallet = () => store.get('wallet', null) || JSON.parse(JSON.stringify(SAMPLE_WALLET));
+  G.wallet = () => {
+    const w = store.get('wallet', null) || JSON.parse(JSON.stringify(SAMPLE_WALLET));
+    // collections saved before milestones existed: count what was bought
+    if (w.spent == null) w.spent = (w.owned || []).reduce((s, id) => s + ((G.work(id) || {}).price || 0), 0);
+    w.pending = w.pending || {}; w.basis = w.basis || {}; w.collectorNo = w.collectorNo || {}; w.log = w.log || []; w.owned = w.owned || [];
+    return w;
+  };
   G.saveWallet = (w) => store.set('wallet', w);
   G.resetPreview = () => { ['wallet', 'delta', 'sold', 'bag', 'follows', 'pledged', 'plan', 'introDone', 'walls'].forEach(store.del); };
 
