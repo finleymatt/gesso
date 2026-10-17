@@ -32,6 +32,8 @@
       handle: '@justintime7189', ig: 'https://www.instagram.com/justintime7189/', city: '',
       collectors: 312, joined: 'Founding artist since 2026', sold: 41, real: true,
       quote: 'KEEP GOING.',
+      photos: { avatar: 'art/hamel-avatar.jpg', p1: 'art/hamel-03.jpg', p2: 'art/hamel-mural.jpg', p3: 'art/hamel-studio.jpg' },
+      banner: ['hamel-01', 'hamel-04', 'hamel-02', 'hamel-07', 'hamel-05', 'hamel-08'],
       short: 'Loud color, thick black line, and eyes in everything.',
       bio: 'HAMEL paints the way a city sounds: packed, overlapping, and wide awake. Black contour holds neon fields together, faces hide in the patterns, and every surface (canvas, panel, brick) gets the same treatment. HAMEL was the first artist on Gesso and the reason it exists.'
     },
@@ -84,15 +86,16 @@
   const W = (artist, rows) => rows.map(([n, title, year, medium, w, h, price, edition, opt]) =>
     Object.assign({ id: artist + '-' + n, artist, title, year, medium, w, h, price, edition: edition || 'Original', sold: false }, opt || {}));
   const WORKS = [].concat(
+    // HAMEL's real paintings (photos from Instagram). Titles, sizes and prices are placeholders until HAMEL confirms them.
     W('hamel', [
-      ['01', "Everybody's Watching", 2026, 'Acrylic and spray paint on canvas', 36, 48, 1850],
-      ['02', 'Loud Weather', 2026, 'Acrylic and paint marker on canvas', 24, 30, 960],
-      ['03', 'Third Eye Traffic', 2025, 'Acrylic on panel', 18, 24, 620],
-      ['04', 'Gray Matter', 2026, 'Acrylic and ink on canvas', 30, 40, 1400, null, { variant: 'gray' }],
-      ['05', 'All the Little Faces', 2025, 'Spray paint and acrylic on canvas', 48, 60, 3200, null, { sold: true, by: 128 }],
-      ['06', 'Keep Going', 2026, 'Giclée on cotton rag', 18, 24, 140, 'Edition of 40'],
-      ['07', 'Sunday Congee', 2026, 'Acrylic on paper', 14, 11, 280],
-      ['08', 'Neighborhood Static', 2026, 'Acrylic on canvas, mural study', 20, 20, 540]
+      ['01', 'Untitled (Neon Faces)', 2026, 'Acrylic and paint marker on canvas', 35, 40, 1850, null, { img: 'art/hamel-01.jpg' }],
+      ['02', 'Untitled (Green Eyes)', 2026, 'Acrylic and spray paint on canvas', 30, 40, 960, null, { img: 'art/hamel-02.jpg' }],
+      ['03', 'Untitled (Ribbons)', 2026, 'Acrylic on canvas', 36, 24, 1400, null, { img: 'art/hamel-03.jpg' }],
+      ['04', 'Untitled (Gray Matter)', 2026, 'Acrylic and ink on canvas', 30, 40, 1200, null, { img: 'art/hamel-04.jpg' }],
+      ['05', 'Untitled (Dope)', 2026, 'Acrylic and spray paint on canvas', 36, 48, 2400, null, { img: 'art/hamel-05.jpg', sold: true, by: 128 }],
+      ['06', 'Untitled (Ribbons), print', 2026, 'Giclée on cotton rag', 18, 12, 140, 'Edition of 40', { img: 'art/hamel-03.jpg' }],
+      ['07', 'Untitled (Chaos Here, Peace There)', 2026, 'Spray paint and marker on canvas', 30, 40, 880, null, { img: 'art/hamel-07.jpg' }],
+      ['08', 'Untitled (Spray Study)', 2026, 'Spray paint and acrylic on canvas', 26, 36, 620, null, { img: 'art/hamel-08.jpg' }]
     ]),
     W('odalys', [
       ['01', 'Contour for a Sleeping River', 2026, 'Sumi ink and acrylic on canvas', 24, 36, 1100],
@@ -147,7 +150,7 @@
     collectorNo: { hamel: 214, june: 61, ruben: 12 },
     log: [
       { t: '2026-09-28', text: 'Collected Night Garden, Pink Plate', chips: 5.2, a: 'june' },
-      { t: '2026-08-14', text: 'Collected a HAMEL print (Keep Going, 12/40)', chips: 9.12, a: 'hamel' },
+      { t: '2026-08-14', text: 'Collected Untitled (Ribbons), print 12/40', chips: 9.12, a: 'hamel' },
       { t: '2026-07-30', text: 'Founding collector #12 of Ruben Castillo', chips: 4.8, a: 'ruben' },
       { t: '2026-06-02', text: 'Collected Ghost Fern, 31/60', chips: 9.4, a: 'june' }
     ]
@@ -462,7 +465,7 @@
   /* placeholder <img> that hydrates after first paint; aspect-ratio reserves its space */
   G.artImg = (w, px = 520, cls = 'art', alt) =>
     `<img class="${cls}" data-art="${w.id}" data-px="${px}" style="--ar:${w.w}/${w.h}" width="${w.w * 10}" height="${w.h * 10}" alt="${esc(alt || `${w.title} by ${G.artist(w.artist).name}`)}" decoding="async">`;
-  G.artistArt = (slug, key, w, h) => G.renderArt(slug + ':' + key, G.artist(slug).style, w, h);
+  G.artistArt = (slug, key, w, h) => { const a = G.artist(slug); return (a.photos && a.photos[key]) || G.renderArt(slug + ':' + key, a.style, w, h); };
   G.hydrate = (root = document) => {
     const els = [...root.querySelectorAll('img[data-art]:not([src]), [data-artist-art]:not([data-done])')];
     let i = 0;
@@ -524,7 +527,7 @@
         <div><h4>Collect</h4><ul><li><a href="discover.html">Discover</a></li><li><a href="artist.html#hamel">Featured: HAMEL</a></li><li><a href="index.html#board">Chip board</a></li><li><a href="collection.html">Your collection</a></li></ul></div>
         <div><h4>Learn</h4><ul><li><a href="how-it-works.html">How chips work</a></li><li><a href="how-it-works.html#curve">The price curve</a></li><li><a href="how-it-works.html#faq">Questions</a></li></ul></div>
         <div><h4>Create</h4><ul><li><a href="for-artists.html">Sell on Gesso</a></li><li><a href="for-artists.html#compare">Fees compared</a></li><li><a href="for-artists.html#apply">Apply</a></li></ul></div>
-        <div class="fine"><span>Design preview. HAMEL is real; other artists are sample creators, and all artwork shown is generated stand-in imagery. No payments are taken.</span><button type="button" class="link" style="background:none;border:0;padding:0;cursor:pointer;font-size:inherit" data-reset>Reset preview</button></div>
+        <div class="fine"><span>Design preview. HAMEL's paintings are real (photos from Instagram); their titles, sizes and prices are placeholders. Other artists are sample creators with generated stand-in art. No payments are taken.</span><button type="button" class="link" style="background:none;border:0;padding:0;cursor:pointer;font-size:inherit" data-reset>Reset preview</button></div>
       </div></footer>`;
     document.body.insertAdjacentHTML('beforeend', '<div class="toast" role="status" aria-live="polite" id="toast"></div>');
 

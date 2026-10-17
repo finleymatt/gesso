@@ -11,6 +11,9 @@
 <link rel="stylesheet" href="gesso.css">
 <style>
   .banner { height: clamp(170px, 26vw, 360px); background-size: cover; background-position: center; background-color: var(--c); border-bottom: 2px solid var(--ink); }
+  .banner.strip { display: flex; gap: 0; overflow: hidden; }
+  .banner.strip img { flex: 1 1 0; min-width: 0; height: 100%; object-fit: cover; }
+  @media (max-width: 700px) { .banner.strip img:nth-child(n+4) { display: none; } }
   .prof { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: 14px 28px; align-items: end; }
   .avatar { width: clamp(96px, 13vw, 148px); aspect-ratio: 1; margin-top: calc(-1 * clamp(48px, 6.5vw, 74px)); border: 6px solid var(--wall); background: var(--c) center / cover; box-shadow: var(--hang); }
   .prof h1 { font-size: clamp(2.6rem, 8vw, 6rem); }
@@ -70,10 +73,11 @@
 (function () {
   G.chrome('');
   const POSTS = {
+    // HAMEL's own captions, shortened, from Instagram
     hamel: [
-      ['Oct 14', 'New one drying on the floor. Eyes everywhere this week.', 'p1', 412],
-      ['Oct 2', "Mural study for a wall I can't talk about yet. The canvas version is up on my Gesso wall.", 'p2', 638],
-      ['Sep 21', 'Three hundred of you now. That means every chip went up again. KEEP GOING.', 'p3', 1204]
+      ['Oct 16', 'One of my favorite pieces. Made during an interesting moment in my life.', 'p1', 4],
+      ['Oct 5', 'So exited to scale my work. Yep. So dope!', 'p2', 30],
+      ['Sep 26', 'A dude and his love for creating. What do you see? What do you feel?', 'p3', 11]
     ],
     _default: [
       ['Oct 11', 'Two new pieces leave the studio next week. Founding collectors get first look.', 'p1', 188],
@@ -94,7 +98,8 @@
     const posts = POSTS[slug] || POSTS._default;
 
     document.getElementById('main').innerHTML = `
-      <div class="banner" style="--c:${a.color}" data-artist-art="${slug},banner,1600,520" role="img" aria-label="Detail of a work by ${G.esc(a.name)}"></div>
+      ${a.banner ? `<div class="banner strip" style="--c:${a.color}">${a.banner.map((id) => `<img src="${G.work(id).img}" alt="" loading="lazy">`).join('')}</div>`
+        : `<div class="banner" style="--c:${a.color}" data-artist-art="${slug},banner,1600,520" role="img" aria-label="Detail of a work by ${G.esc(a.name)}"></div>`}
       <section class="wrap">
         <div class="prof">
           <div class="avatar" style="--c:${a.color}" data-artist-art="${slug},avatar,300,300"></div>
@@ -137,8 +142,8 @@
         </div>
         <div class="panel" data-panel="works"><div class="salon">${works.map((w) => G.workCard(w)).join('')}</div></div>
         <div class="panel" data-panel="studio" hidden>${posts.map(([d, t, k, likes]) => `
-          <article class="post"><div class="txt"><span class="eyebrow">${d}, 2026</span><p>${G.esc(t)}</p><div class="likes"><span>♥ ${likes}</span><span>Collectors only can reply</span></div></div>
-          <img class="art hung" style="--ar:4/3" data-artist-art="${slug},${k},800,600" alt="Studio photo stand-in"></article>`).join('')}</div>
+          <article class="post"><div class="txt"><span class="eyebrow">${d}, 2026${a.real ? ' · from Instagram' : ''}</span><p>${G.esc(t)}</p><div class="likes"><span>♥ ${likes}</span><span>Collectors only can reply</span></div></div>
+          <img class="art hung" style="--ar:${a.real ? '4/5;max-width:420px;justify-self:center' : '4/3'}" data-artist-art="${slug},${k},800,600" alt="${a.real ? 'Photo from ' + G.esc(a.name) + "'s studio" : 'Studio photo stand-in'}"></article>`).join('')}</div>
         <div class="panel" data-panel="collectors" hidden>
           <p class="muted" style="margin-bottom:18px">Collector numbers are permanent. The first 25 are founding collectors and earn double chips from ${G.esc(a.name)} for good.</p>
           <div class="collectors">${colls.map((c) => `<div class="coll"><span class="av" style="background:${c.c}">${c.name[0]}</span><div style="min-width:0"><div class="nm">${G.esc(c.name)}</div><div class="no">#${c.no}${c.no <= 25 ? ' · <span class="f">founding</span>' : ''}</div></div></div>`).join('')}</div>
