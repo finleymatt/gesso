@@ -82,7 +82,7 @@
 
     ${picks.length ? `<section class="section" aria-labelledby="h-spend" style="padding-bottom:0">
       <div class="section-head"><div><p class="eyebrow">Spend them</p><h2 id="h-spend">Half of these is already paid for</h2></div><p class="muted" style="max-width:30em">Your chips cover the full 50% on each of these, from artists you don't collect yet. Buying one earns you their chips too.</p></div>
-      <div class="spend">${picks.map((x) => G.workCard(x).replace(/<span class="earn">[^<]*<\/span>/, `<span class="earn">pay ${G.usd(x.price / 2)} + chips</span>`)).join('')}</div>
+      <div class="spend">${picks.map((x) => G.workCard(x).replace(/<span class="earn"[^>]*>[^<]*<\/span>/, `<span class="earn">pay ${G.usd(x.price / 2)} + chips</span>`)).join('')}</div>
     </section>` : ''}
 
     <section class="section" aria-labelledby="h-owned" style="padding-bottom:0">

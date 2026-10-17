@@ -19,6 +19,7 @@
   .stepper li[aria-current="step"] span { background: var(--ink); color: var(--wall); border-color: var(--ink); }
   .stepper li.done span { background: var(--cobalt); border-color: var(--cobalt); color: var(--on-cobalt); }
   .stepper li.done { color: var(--ink); }
+  .stepper button { display: inline-flex; align-items: center; gap: 8px; background: none; border: 0; padding: 0; font: inherit; color: inherit; cursor: pointer; text-decoration: underline; text-underline-offset: 3px; }
 
   .co { display: grid; grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr); gap: clamp(24px, 4vw, 56px); align-items: start; }
   .co-main { display: grid; gap: 28px; min-width: 0; }
@@ -74,6 +75,10 @@
   @media (max-width: 900px) {
     .co { grid-template-columns: minmax(0, 1fr); }
     .summary { position: static; }
+    .summary .cta { position: fixed; left: 0; right: 0; bottom: var(--tabbar-h); z-index: 30; padding: 10px var(--gut); border-top: 1px solid var(--rule);
+      background: color-mix(in srgb, var(--wall) 94%, transparent); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
+    .summary .cta #back, .summary .cta .demo-note { display: none; }
+    body { padding-bottom: calc(var(--tabbar-h) + 76px); }
   }
 
   /* success */
@@ -143,14 +148,16 @@
       ${earn.length ? `<div class="sec earn"><p class="eyebrow" style="color:var(--cobalt)">You'll earn</p>
         ${earn.map((e) => { const a = G.artist(e.k); return `<div class="row"><span><i class="dot" style="--c:${a.color}"></i> $${a.ticker}${G.isFounding(e.n) ? ' · 2× founding' : ''}</span><b>+${G.chips(e.chips)}</b></div>`; }).join('')}
         <div class="row muted"><span>Worth today</span><span class="num">${G.usd(earn.reduce((s, e) => s + e.chips * e.pxAfter, 0), true)}</span></div></div>` : ''}
-      ${final ? '' : `<div class="cta"><button class="btn primary block" type="button" id="next" ${items().length ? '' : 'disabled'}>${step === 0 ? 'Continue to delivery' : step === 1 ? 'Continue to payment' : 'Place order · ' + G.usd(total, true)}</button>
+      ${final ? '' : `<div class="cta"><button class="btn primary block" type="button" id="next" ${items().length ? '' : 'disabled'}>${step === 0 ? 'Continue to delivery' : step === 1 ? 'Continue to payment' : 'Place order'} · ${G.usd(total, true)}</button>
         ${step > 0 ? '<button class="btn block" type="button" id="back">Back</button>' : ''}
         <span class="demo-note">Design preview: no card is charged and nothing ships.</span></div>`}
     </aside>`;
   }
 
   function stepper() {
-    return `<ol class="stepper" aria-label="Checkout steps">${STEPS.map((s, i) => `<li class="${i < step ? 'done' : ''}" ${i === step ? 'aria-current="step"' : ''}><span>${i < step ? '✓' : i + 1}</span>${s}</li>`).join('')}</ol>`;
+    return `<ol class="stepper" aria-label="Checkout steps">${STEPS.map((s, i) => i < step
+      ? `<li class="done"><button type="button" data-goto="${i}" aria-label="Back to ${s}"><span>✓</span>${s}</button></li>`
+      : `<li ${i === step ? 'aria-current="step"' : ''}><span>${i + 1}</span>${s}</li>`).join('')}</ol>`;
   }
 
   function bagStep() {
@@ -229,6 +236,7 @@
     const next = document.getElementById('next'), back = document.getElementById('back');
     if (next) next.addEventListener('click', () => { saveForm(); if (step < 2) { step++; render(); window.scrollTo({ top: 0, behavior: 'smooth' }); } else place(); });
     if (back) back.addEventListener('click', () => { saveForm(); step--; render(); });
+    document.querySelectorAll('[data-goto]').forEach((b) => b.addEventListener('click', () => { saveForm(); step = +b.dataset.goto; render(); }));
   }
 
   function wire() {

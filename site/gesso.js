@@ -224,12 +224,12 @@
     return `<${tag} class="chip" ${tag === 'a' ? `href="artist.html#${slug}"` : ''} style="--c:${a.color};--on:${a.on}" data-chip="${slug}">
       <div class="swatch"><span class="notch"></span>
         <div class="tick">$${a.ticker}</div>
-        <div class="row"><span>${esc(a.name)}</span><span>${seats ? seats + ' founding left' : 'No. ' + String(ARTISTS.indexOf(a) + 1).padStart(3, '0')}</span></div>
+        <div class="row"><span>${esc(a.name)}</span>${seats ? `<span class="seats" title="Founding collectors earn 2× chips">${seats} founding left</span>` : ''}</div>
       </div>
       <div class="strip">
-        <div class="px"><span class="usd" data-px>${G.usd(p, true)}</span><span class="chg ${ch >= 0 ? 'up' : 'down'}">${G.pct(ch)} 30d</span></div>
+        <div class="px" title="Price per chip, and its change over 30 days"><span class="usd" data-px>${G.usd(p, true)}</span><span class="chg ${ch >= 0 ? 'up' : 'down'}">${G.pct(ch)}</span></div>
         <div style="color:var(--up)">${G.spark(hist)}</div>
-        <div class="meta"><span data-n>${n.toLocaleString()} collectors</span><span>per chip</span></div>
+        <div class="meta" data-n>${n.toLocaleString()} collectors</div>
       </div></${tag}>`;
   };
 
@@ -246,7 +246,7 @@
         <span class="title"><b>${esc(w.title)}</b>, ${w.year}</span>
         <span class="meta">${esc(w.medium)} · ${w.w} × ${w.h} in${w.edition !== 'Original' ? ' · ' + esc(w.edition) : ''}</span>
         <span class="price">${sold ? '<span class="sold-tag">Collected</span>' : `<span class="usd">${G.usd(w.price)}</span>`}
-          <span class="earn">${sold ? `by collector #${w.by || n}` : `earns ${G.chips(earn)} $${a.ticker}`}</span></span>
+          <span class="earn" ${sold ? '' : `title="${G.chips(earn)} $${a.ticker} chips at today's price"`}>${sold ? `by collector #${w.by || n}` : `${G.usd(Math.round(earn * G.price(n)))} back in chips`}</span></span>
       </div></a>`;
   };
 
@@ -505,7 +505,7 @@
         <a class="wordmark" href="index.html" aria-label="Gesso home">gesso<span class="drip" aria-hidden="true"></span></a>
         <nav class="nav" aria-label="Main">${nav.map(([h, l, k]) => `<a href="${h}" ${k === page ? 'aria-current="page"' : ''}>${l}</a>`).join('')}</nav>
         <div class="tools">
-          <a class="wallet-pill" href="collection.html" title="Your chips"><span class="stack" data-wallet-stack></span><span class="num" data-wallet-val></span><span class="label muted">in chips</span></a>
+          <a class="wallet-pill" href="collection.html" title="What your chips are worth. Tap to see your collection."><span class="stack" data-wallet-stack></span><span class="num" data-wallet-val></span><span class="label muted">in chips</span></a>
           <a class="icon-btn" href="checkout.html" aria-label="Bag">${I.bag}<span class="badge" data-bag-count></span></a>
         </div>
       </div></header>`;
@@ -519,7 +519,7 @@
         <a href="checkout.html" ${page === 'checkout' ? 'aria-current="page"' : ''}>${I.bag}Bag<span class="badge" data-bag-count></span></a>
       </nav>
       <footer class="footer"><div class="wrap">
-        <div style="display:grid;gap:14px;align-content:start;max-width:30em">
+        <div class="brand">
           <a class="wordmark" href="index.html" style="font-size:2.4rem">gesso<span class="drip" aria-hidden="true"></span></a>
           <p class="muted">An art market owned by the people who collect it. Buy the art, earn the artist's chips, spend them on more art.</p>
           <div class="theme-toggle" role="group" aria-label="Theme"><button type="button" data-theme-set="system">Auto</button><button type="button" data-theme-set="light">Light</button><button type="button" data-theme-set="dark">Dark</button></div>
@@ -530,6 +530,12 @@
         <div class="fine"><span>Design preview. HAMEL's paintings are real (photos from Instagram); their titles, sizes and prices are placeholders. Other artists are sample creators with generated stand-in art. No payments are taken.</span><button type="button" class="link" style="background:none;border:0;padding:0;cursor:pointer;font-size:inherit" data-reset>Reset preview</button></div>
       </div></footer>`;
     document.body.insertAdjacentHTML('beforeend', '<div class="toast" role="status" aria-live="polite" id="toast"></div>');
+    if (!store.get('introDone', false) && page !== 'how' && page !== 'checkout') {
+      document.querySelector('.topbar').insertAdjacentHTML('afterend', `<div class="intro" id="intro"><div class="wrap">
+        <p><b>New here?</b> Every piece you buy pays you back 10% in that artist's chips, and chips gain value as the artist gains collectors.</p>
+        <a href="how-it-works.html">How it works →</a><button type="button" aria-label="Dismiss" id="intro-x">×</button></div></div>`);
+      document.getElementById('intro-x').addEventListener('click', () => { store.set('introDone', true); document.getElementById('intro').remove(); });
+    }
 
     // theme
     const applyTheme = (t) => {

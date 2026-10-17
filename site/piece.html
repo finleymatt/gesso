@@ -125,7 +125,7 @@
           ` : `
             <div class="pricebox"><span class="usd">${G.usd(w.price)}</span><span class="muted" style="font-size:var(--t-s)">Free crated shipping in the US</span></div>
             <div class="earnbox">
-              <span class="big">Earns you <b>${G.chips(earn)} $${a.ticker}</b></span>
+              <span class="big">Earns you <b>${G.chips(earn)} $${a.ticker}</b> <a class="link" href="how-it-works.html" style="font-size:var(--t-s);font-weight:600;margin-left:6px">What are chips?</a></span>
               <p>Worth ${G.usd(earn * px, true)} today at ${G.usd(px, true)} per chip${G.isFounding(n) ? ', including the founding 2× bonus' : ''}. ${alreadyCollector ? `You're already ${G.esc(a.name)}'s collector #${wallet.collectorNo[w.artist]}, so this buy adds chips without changing the count.` : `You'd become ${G.esc(a.name)}'s collector #${n + 1}, which raises every $${a.ticker} chip to ${G.usd(G.price(n + 1), true)}.`}</p>
               <p>You hold ${G.usd(G.walletValue(wallet), true)} in chips. Up to <b style="color:var(--ink)">${G.usd(canChip, true)}</b> of this piece can be paid with them.</p>
             </div>

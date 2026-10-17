@@ -37,7 +37,7 @@
     <div>
       <p class="eyebrow">Discover</p>
       <h1 class="display" style="font-size:clamp(2.6rem,7vw,5rem)">The whole wall</h1>
-      <p class="count" id="count" aria-live="polite"></p>
+      <p class="count"><span id="count" aria-live="polite"></span> <button class="link" type="button" id="clear2" hidden style="background:none;border:0;padding:0;cursor:pointer;font-size:var(--t-s);margin-left:8px">Clear filters</button></p>
     </div>
     <div class="search">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
@@ -83,6 +83,7 @@
   ['kind', 'price', 'sort'].forEach((k) => { $(k).value = state[k]; $(k).addEventListener('change', () => { state[k] = $(k).value; render(); }); });
   $('avail').checked = state.avail; $('avail').addEventListener('change', () => { state.avail = $('avail').checked; render(); });
   $('q').addEventListener('input', () => { state.q = $('q').value.trim().toLowerCase(); render(); });
+  $('clear2').addEventListener('click', () => $('clear').click());
   $('clear').addEventListener('click', () => { Object.assign(state, { artist: 'all', q: '', kind: 'all', price: 'any', avail: false }); $('q').value = ''; ['kind', 'price'].forEach((k) => ($(k).value = state[k])); $('avail').checked = false; render(); });
 
   const order = G.works.map((w) => w.id);
@@ -107,6 +108,7 @@
     }
     $('grid').innerHTML = list.map((w) => G.workCard(w)).join('');
     $('empty').hidden = list.length > 0;
+    $('clear2').hidden = !(state.artist !== 'all' || state.q || state.kind !== 'all' || state.price !== 'any' || state.avail);
     const avail = list.filter((w) => !G.isSold(w)).length;
     $('count').textContent = `${list.length} work${list.length === 1 ? '' : 's'} · ${avail} available · every purchase earns the artist's chips`;
     G.store.set('discover', Object.assign({}, state, { q: '' }));

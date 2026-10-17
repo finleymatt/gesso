@@ -142,7 +142,7 @@
         </div>
         <div class="panel" data-panel="works"><div class="salon">${works.map((w) => G.workCard(w)).join('')}</div></div>
         <div class="panel" data-panel="studio" hidden>${posts.map(([d, t, k, likes]) => `
-          <article class="post"><div class="txt"><span class="eyebrow">${d}, 2026${a.real ? ' · from Instagram' : ''}</span><p>${G.esc(t)}</p><div class="likes"><span>♥ ${likes}</span><span>Collectors only can reply</span></div></div>
+          <article class="post"><div class="txt"><span class="eyebrow">${d}, 2026${a.real ? ' · from Instagram' : ''}</span><p>${G.esc(t)}</p><div class="likes"><span>♥ ${likes}</span><span>Only collectors can reply</span></div></div>
           <img class="art hung" style="--ar:${a.real ? '4/5;max-width:420px;justify-self:center' : '4/3'}" data-artist-art="${slug},${k},800,600" alt="${a.real ? 'Photo from ' + G.esc(a.name) + "'s studio" : 'Studio photo stand-in'}"></article>`).join('')}</div>
         <div class="panel" data-panel="collectors" hidden>
           <p class="muted" style="margin-bottom:18px">Collector numbers are permanent. The first 25 are founding collectors and earn double chips from ${G.esc(a.name)} for good.</p>
