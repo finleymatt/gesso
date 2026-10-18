@@ -16,10 +16,16 @@
   .vm article { background: var(--wall); padding: clamp(20px, 3vw, 32px); display: grid; gap: 12px; align-content: start; }
   .vm h2 { font-size: 1.8rem; }
   .vm p { color: var(--ink-2); }
-  .statement { display: grid; grid-template-columns: minmax(0, .8fr) minmax(0, 1.2fr); gap: clamp(24px, 5vw, 64px); align-items: center; }
-  .statement img { width: 100%; aspect-ratio: 9 / 13; object-fit: cover; }
-  .statement blockquote { margin: 0; font-size: clamp(1.2rem, 2.2vw, 1.6rem); line-height: 1.4; letter-spacing: -.01em; }
-  .pending { font: 500 var(--t-xs) var(--mono); padding: 8px 12px; border: 1.5px dashed var(--ink-2); color: var(--ink-2); justify-self: start; }
+  .statement { display: grid; grid-template-columns: minmax(0, .75fr) minmax(0, 1.25fr); gap: clamp(28px, 6vw, 80px); align-items: start; }
+  .st-fig { margin: 0; position: sticky; top: calc(env(safe-area-inset-top, 0px) + 96px); display: grid; gap: 12px; }
+  .st-fig img { width: 100%; aspect-ratio: 9 / 13; object-fit: cover; }
+  .st-fig figcaption { font: var(--t-xs) var(--mono); color: var(--ink-2); line-height: 1.5; }
+  .st-body { display: grid; gap: 22px; max-width: 40em; }
+  .st-body h2 { font-size: clamp(1.8rem, 3.4vw, 2.6rem); }
+  .st-pull { font-family: var(--display); font-weight: 800; font-size: clamp(1.9rem, 3.8vw, 3rem); line-height: 1.02; letter-spacing: -.035em; font-variation-settings: "wdth" 82; text-wrap: balance; margin: 0; }
+  .st-body .para { font-size: clamp(1.05rem, 1.5vw, 1.18rem); line-height: 1.65; color: var(--ink); margin: 0; text-wrap: pretty; }
+  .st-close { margin: 6px 0 0; padding-left: 18px; border-left: 4px solid var(--marker); font-size: clamp(1.25rem, 2.2vw, 1.6rem); line-height: 1.35; font-weight: 600; letter-spacing: -.01em; text-wrap: balance; }
+  .st-sig { font-family: var(--hand); color: var(--marker); font-size: 2rem; transform: rotate(-4deg); transform-origin: left; margin: 0; }
   .board { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
   .seat { border: 2px solid var(--ink); padding: 18px; display: grid; gap: 6px; background: var(--card); }
   .seat.open { border-style: dashed; border-color: var(--ink-2); background: transparent; }
@@ -52,15 +58,17 @@
     <article><p class="eyebrow">Mission</p><h2>Make collecting rewarding, and make the work last.</h2><p>Pay artists 80%. Reward collectors with chips that rise as artists grow. Make everything physical in natural materials, and open spaces where people can see the work and spend their chips in person.</p></article>
   </section>
 
-  <section class="section statement" aria-labelledby="st-h">
-    <img src="art/justin/j29.jpg" alt="Justin, who paints as HAMEL, sitting outside the studio" loading="lazy">
-    <div style="display:grid;gap:20px">
-      <p class="eyebrow">Founding artist</p>
-      <h2 id="st-h">HAMEL</h2>
-      <blockquote>"KEEP GOING."</blockquote>
-      <p class="muted">Justin paints as HAMEL: loud color, thick black line and eyes in everything, on paper, canvas and brick. Thirteen years as a chef before that, which is where FAME comes from: food, art, music and experience.</p>
-      <p class="pending">Justin's full artist statement is being updated and goes here.</p>
-      <a class="btn primary" href="artist.html#hamel" style="justify-self:start">See HAMEL's wall</a>
+  <section class="section statement" id="statement" aria-labelledby="st-h">
+    <figure class="st-fig">
+      <img src="art/justin/j29.jpg" alt="Justin Andrew Hamel, who paints as HAMEL, sitting outside on the street">
+      <figcaption>Justin Andrew Hamel, who paints as HAMEL. A nomadic artist, and a professional chef for 13 years before painting full time, which is where FAME comes from.</figcaption>
+    </figure>
+    <div class="st-body">
+      <p class="eyebrow">Artist statement · founding artist</p>
+      <h2 id="st-h">Justin Andrew Hamel</h2>
+      <div id="st-text" style="display:grid;gap:22px"></div>
+      <p class="st-sig" aria-hidden="true">HAMEL</p>
+      <div class="cta-row"><a class="btn primary" href="artist.html#hamel">See HAMEL's wall</a><a class="btn" href="artist.html#hamel">Book a listening session</a></div>
     </div>
   </section>
 
@@ -86,6 +94,12 @@
 <script>
 (function () {
   G.chrome('mission');
+  // Justin's statement, in Justin's words: the opening line as the pull, the last line as the close
+  const st = G.artist('hamel').statement;
+  document.getElementById('st-text').innerHTML = `<p class="st-pull">${G.esc(st[0])}</p>`
+    + st.slice(1, -1).map((x) => `<p class="para">${G.esc(x)}</p>`).join('')
+    + `<p class="st-close">${G.esc(st[st.length - 1])}</p>`;
+  if (location.hash === '#statement') document.getElementById('statement').scrollIntoView();
   const spent = G.spent(), mine = G.store.get('votes', {}) || {};
   document.getElementById('weight').innerHTML = spent > 0
     ? `You've put <b style="color:var(--ink)">${G.usd(spent)}</b> into Gesso, so your vote counts. Votes are weighted by what you've spent or pledged.`

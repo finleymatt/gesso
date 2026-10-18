@@ -292,7 +292,7 @@
 
   // feature
   const a = G.artist('hamel'), n = G.collectors('hamel');
-  document.getElementById('feat-bio').textContent = a.bio;
+  document.getElementById('feat-bio').textContent = a.bio.split('. ').slice(0, 2).join('. ') + '.';
   document.getElementById('feat-art').innerHTML = `<a href="piece.html#hamel-01">${G.artImg(G.work('hamel-01'), 900, 'art')}</a><a href="piece.html#hamel-04" class="b">${G.artImg(G.work('hamel-04'), 500, 'art')}</a>`;
   document.getElementById('feat-stats').innerHTML = `
     <div><b>${n}</b><span>collectors</span></div>

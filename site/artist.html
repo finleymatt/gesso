@@ -143,6 +143,7 @@
           <div class="bio">
             <p class="quote">${G.esc(a.quote)}</p>
             <p class="lede" style="color:var(--ink)">${G.esc(a.bio)}</p>
+            ${a.statement ? `<a class="link" href="mission.html#statement">Read ${G.esc(a.fullName ? a.fullName.split(' ')[0] : a.name)}'s full artist statement</a>` : ''}
             <div class="stats">
               <div><b>${n.toLocaleString()}</b><span>collectors</span></div>
               <div><b>${a.sold}</b><span>works collected</span></div>
@@ -181,7 +182,7 @@
               <h2 style="font-size:2rem">${G.esc(a.commission.title)}</h2>
               <p class="lede" style="color:var(--ink)">${G.esc(a.commission.text)}</p>
               <ol>
-                <li><div><b>Book the hours.</b><br><span class="muted">In the studio or on video. Most people book one or two hours.</span></div></li>
+                <li><div><b>Book the hours.</b><br><span class="muted">In person wherever Justin is painting, or on video. Most people book one or two hours.</span></div></li>
                 <li><div><b>Talk. Justin listens.</b><br><span class="muted">Stories, people, places, things you've never said out loud. Nothing is recorded.</span></div></li>
                 <li><div><b>A painting made from it.</b><br><span class="muted">Justin quotes the painting after the session. Your session fee counts toward it.</span></div></li>
               </ol>
@@ -251,7 +252,7 @@
     const c = a.commission, days = Array.from({ length: 6 }, (_, i) => { const d = new Date(G.TODAY); d.setDate(d.getDate() + 3 + i); return d; });
     let hours = 1, where = 'studio';
     const body = G.sheet(`<p class="eyebrow">${G.esc(c.title)}</p><h2 style="font-size:2rem;margin:8px 0 14px">Time with ${G.esc(a.name)}</h2>
-      <div class="field"><span class="lbl">Where</span><div class="slots" id="lw"><button type="button" class="pill" aria-pressed="true" data-w="studio">In the studio</button><button type="button" class="pill" aria-pressed="false" data-w="video">On video</button></div></div>
+      <div class="field"><span class="lbl">Where</span><div class="slots" id="lw"><button type="button" class="pill" aria-pressed="true" data-w="studio">In person</button><button type="button" class="pill" aria-pressed="false" data-w="video">On video</button></div></div>
       <div class="field" style="margin-top:14px"><span class="lbl">Hours</span><div class="slots" id="lh">${[1, 2, 3, 4].map((h) => `<button type="button" class="pill" aria-pressed="${h === 1}" data-h="${h}">${h} hour${h > 1 ? 's' : ''}</button>`).join('')}</div></div>
       <div class="field" style="margin-top:14px"><span class="lbl">Day</span><div class="slots" id="ld">${days.map((d, i) => `<button type="button" class="pill" aria-pressed="${i === 0}">${d.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })}</button>`).join('')}</div></div>
       <p id="lt" style="margin-top:16px;font-size:var(--t-s)"></p>
@@ -260,7 +261,7 @@
     const n = G.collectors(a.slug);
     const upd = () => {
       const total = c.rate * hours, ch = G.chipsFor(total, n, G.myRate());
-      body.querySelector('#lt').innerHTML = `${hours} hour${hours > 1 ? 's' : ''} ${where === 'video' ? 'on video' : 'in the studio'}: <b style="font-family:var(--mono)">${G.usd(total)}</b>. Earns <b style="color:var(--cobalt)">${G.chips(ch)} $${a.ticker}</b>.`;
+      body.querySelector('#lt').innerHTML = `${hours} hour${hours > 1 ? 's' : ''} ${where === 'video' ? 'on video' : 'in person'}: <b style="font-family:var(--mono)">${G.usd(total)}</b>. Earns <b style="color:var(--cobalt)">${G.chips(ch)} $${a.ticker}</b>.`;
       body.querySelector('#lgo').textContent = `Book · ${G.usd(total)}`;
     };
     const group = (sel, fn) => body.querySelector(sel).addEventListener('click', (e) => { const b = e.target.closest('button'); if (!b) return; body.querySelectorAll(sel + ' button').forEach((x) => x.setAttribute('aria-pressed', String(x === b))); fn(b); upd(); });

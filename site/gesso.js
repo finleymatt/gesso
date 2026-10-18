@@ -29,15 +29,17 @@
   const ARTISTS = [
     {
       slug: 'hamel', name: 'HAMEL', ticker: 'HAMEL', color: '#E3156B', on: '#FFFFFF', style: 'hamel',
-      handle: '@justintime7189', ig: 'https://www.instagram.com/justintime7189/', city: '',
+      handle: '@justintime7189', ig: 'https://www.instagram.com/justintime7189/', city: 'Nomadic artist', fullName: 'Justin Andrew Hamel',
       collectors: 312, joined: 'Founding artist since 2026', sold: 41, real: true,
       quote: 'KEEP GOING.',
       commission: { rate: 150, min: 1, max: 4, title: 'Listening session', text: 'Book an hour with Justin. You talk, Justin listens: the stories, the things you might not say to anyone else. Then Justin paints from what was heard.' },
       photos: { avatar: 'art/justin/j26.jpg', portrait: 'art/justin/j29.jpg', p1: 'art/justin/j25.jpg', p2: 'art/hamel-mural.jpg', p3: 'art/hamel-studio.jpg' },
       // cover strip: Justin's own photos of the work
       banner: ['art/justin/j02.jpg', 'art/justin/j16.jpg', 'art/justin/j11.jpg', 'art/justin/j06.jpg', 'art/justin/j19.jpg', 'art/justin/j20.jpg', 'art/justin/j12.jpg'],
-      short: 'Loud color, thick black line, and eyes in everything.',
-      bio: 'HAMEL paints the way a city sounds: packed, overlapping, and wide awake. Black contour holds neon fields together, faces hide in the patterns, and every surface (canvas, panel, brick) gets the same treatment. HAMEL was the first artist on Gesso and the reason it exists.'
+      short: 'Faces you find yourself, in bold color and tangled black line.',
+      // Justin's own words (artist statement, October 2026)
+      bio: 'People find faces in my paintings that I never intended to paint, and what fascinates me is what they discover that I never knew was there. Through bold colors, tangled black lines, and an intuitive process, I explore the relationship between chaos and order, intention and surrender. As a nomadic artist, my surroundings constantly change, but my curiosity remains the same: how do we construct meaning from what we see, and how much of it comes from ourselves? I don’t want to tell people what to see or feel; I want to invite them to question, play, and discover something uniquely their own.',
+      statement: ['People find faces in my paintings that I never intended to paint. What fascinates me isn’t just what I’ve created, but what someone else discovers that I never knew was there.', 'I work with bold colors, thick black lines, overlapping patterns, and characters that seem to appear and disappear depending on how you look at them. My process is intuitive, repetitive, and often unpredictable. I rarely know what a painting will become when I begin. Lines accumulate, forms emerge, disappear beneath new layers, and sometimes something I never planned becomes the most important part of the composition. I’m interested in that relationship between intention and surrender, between chaos and order, and what happens when neither needs to defeat the other.', 'As a nomadic artist, I have no fixed geographical home. My surroundings, the people I encounter, and the places where I create are constantly changing. Painting has become a way of exploring what remains constant within all that movement. Beneath the changing environments, I keep returning to the same curiosity: how do we construct meaning from what we see, and how much of that meaning comes from ourselves?', 'I don’t want to tell people what my paintings mean. I want them to look, question, laugh, feel something unexpected, and perhaps discover something entirely different from the person standing beside them. I want to create space for uncertainty, contradiction, and play in a world so eager to explain and categorize everything.', 'Because sometimes the most interesting thing about a painting isn’t what the artist put into it, but what the viewer brings to it.']
     },
     {
       slug: 'odalys', name: 'Odalys Fuente', ticker: 'ODLY', color: '#2A2930', on: '#F4F4F0', style: 'mono',
@@ -189,7 +191,7 @@
   /* ================= places to see the work in person ================= */
   // HAMEL's entries are placeholders until HAMEL confirms where work can be seen.
   const VENUES = [
-    { id: 'hamel-studio', artist: 'hamel', type: 'Studio', name: "HAMEL's studio", area: 'Address shared when your visit is confirmed', city: '', hours: 'Visits by appointment', book: true, tbd: true },
+    { id: 'hamel-studio', artist: 'hamel', type: 'Studio', name: 'Wherever HAMEL is painting', area: "Justin works nomadically. The city and address are shared when your visit is confirmed", city: '', hours: 'Visits by appointment', book: true, tbd: true },
     { id: 'hamel-mural', artist: 'hamel', type: 'Mural', name: 'The Message', area: 'Street mural, location shared with collectors', city: '', hours: 'Outdoors, always open', img: 'art/hamel-mural.jpg', tbd: true },
     { id: 'odalys-taller', artist: 'odalys', type: 'Studio', name: 'Taller Fuente', area: 'Jalatlaco', city: 'Oaxaca, MX', hours: 'Thu to Sat, 11:00 to 18:00', days: [4, 5, 6] },
     { id: 'odalys-show', artist: 'odalys', type: 'Exhibition', name: 'Líneas, a group show', area: 'Centro', city: 'Oaxaca, MX', hours: 'Nov 7 to Dec 20, Tue to Sun 10:00 to 19:00', soon: 'Opens Nov 7' },
