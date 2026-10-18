@@ -1,13 +1,13 @@
 /* Layout: salon hang — art hangs edge to edge like a crowded studio wall;
    the interface speaks in gallery wall labels and paint-chip swatches. */
 :root {
-  /* bright gesso white */
-  --wall: #FFFFFF;
-  --wall-2: #F2F3EF;
-  --card: #FFFFFF;
+  /* creamy gesso white */
+  --wall: #FBF7EF;
+  --wall-2: #F2ECE0;
+  --card: #FFFDF8;
   --ink: #16151B;
-  --ink-2: #5A5C66;
-  --rule: #D3D6CE;
+  --ink-2: #625D55;
+  --rule: #E2DACB;
   /* ultramarine, straight from the tube: the one interface color */
   --cobalt: #2140E3;
   --cobalt-soft: #E4E8FD;
@@ -41,28 +41,6 @@
   color-scheme: light;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) {
-    /* the studio after hours */
-    --wall: #111216;
-    --wall-2: #1A1B21;
-    --card: #1B1C22;
-    --ink: #F0F0EB;
-    --ink-2: #A0A2AD;
-    --rule: #2E3038;
-    --cobalt: #7088FF;
-    --cobalt-soft: #1E2547;
-    --on-cobalt: #0B0D1C;
-    --marker: #FF5596;
-    --up: #3DCB84;
-    --down: #FF6E5E;
-    --sold: #FF4A4A;
-    --hang: 0 1px 1px rgba(0, 0, 0, .4), 12px 18px 30px -14px rgba(0, 0, 0, .8);
-    --weave: rgba(255, 255, 255, .022);
-    --scrim: rgba(0, 0, 0, .62);
-    color-scheme: dark;
-  }
-}
 :root[data-theme="dark"] {
   --wall: #111216;
   --wall-2: #1A1B21;
@@ -205,11 +183,11 @@ p { margin: 0; }
 .badge:empty { display: none; }
 
 /* ---------- first-visit explainer ---------- */
-.intro { background: var(--cobalt); color: var(--on-cobalt); }
+.intro { background: var(--wall-2); color: var(--ink); border-bottom: 1px solid var(--rule); }
 .intro .wrap { display: flex; align-items: center; gap: 12px 20px; padding-block: 10px; font-size: var(--t-s); }
 .intro p { flex: 1; min-width: 0; }
-.intro a { color: inherit; font-weight: 700; white-space: nowrap; text-underline-offset: 3px; }
-.intro button { flex: none; width: 32px; height: 32px; border: 0; border-radius: 50%; background: color-mix(in srgb, var(--on-cobalt) 14%, transparent); color: inherit; font-size: 18px; line-height: 1; cursor: pointer; }
+.intro a { color: var(--cobalt); font-weight: 700; white-space: nowrap; text-underline-offset: 3px; }
+.intro button { flex: none; width: 32px; height: 32px; border: 0; border-radius: 50%; background: var(--card); border: 1px solid var(--rule); color: inherit; font-size: 18px; line-height: 1; cursor: pointer; }
 @media (max-width: 560px) { .intro .wrap { flex-wrap: wrap; } .intro p { flex-basis: calc(100% - 52px); } .intro a { order: 3; } }
 
 /* ---------- mobile tab bar ---------- */

@@ -6,78 +6,78 @@
 <title>Gesso</title>
 <meta name="description" content="Gesso: an art market owned by the people who collect it. Buy art, earn the artist's chips, spend them on more art.">
 <meta name="theme-color" content="#0B0C0F">
+<script>
+  // Returning visitors go straight in; the intro is for the first visit (or index.html#intro).
+  try { if (localStorage.getItem('gesso:entered') && location.hash !== '#intro') location.replace('now.html'); } catch (e) {}
+</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wdth,wght@12..96,75..100,300..800&family=DM+Mono:wght@400;500&family=Permanent+Marker&family=VT323&display=swap">
 <link rel="stylesheet" href="gesso.css">
 <style>
-  body { min-height: 100vh; display: flex; flex-direction: column; }
-  .stage { flex: 1; display: grid; place-items: center; padding: clamp(32px, 8vh, 96px) var(--gut); }
-  .center { display: grid; justify-items: center; gap: 22px; text-align: center; width: 100%; max-width: 980px; }
-  .enter { border: 0; background: none; padding: 0; cursor: pointer; border-radius: 50%; }
-  .enter .glogo { --s: clamp(190px, 34vw, 300px); box-shadow: 0 30px 60px -30px rgba(0,0,0,.45); }
-  .enter .glogo span { transform: rotate(-9deg); }
-  .enter:hover .glogo { transform: rotate(-6deg) scale(1.03); }
-  .enter:focus-visible { outline: 3px solid var(--cobalt); outline-offset: 8px; }
-  .tag { font-size: clamp(1.05rem, 2vw, 1.3rem); color: var(--ink-2); max-width: 30em; }
-  .hint { font-family: var(--board); font-size: 22px; letter-spacing: .08em; color: var(--ink-2); animation: blink 1.4s steps(2) infinite; }
-  @keyframes blink { 50% { opacity: .35; } }
-  .opened .enter .glogo { --s: clamp(110px, 16vw, 150px); }
-  .opened .hint { display: none; }
+  body { min-height: 100vh; display: flex; flex-direction: column; overflow-x: hidden; }
+  .stage { flex: 1; display: grid; place-items: center; padding: clamp(28px, 6vh, 72px) var(--gut) clamp(28px, 5vh, 56px); }
+  .center { display: grid; justify-items: center; gap: clamp(18px, 3vh, 28px); text-align: center; }
 
-  .doors { width: 100%; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; text-align: left; margin-top: 10px; }
-  .door { position: relative; display: grid; grid-template-rows: auto 1fr; min-height: 210px; background: var(--card); border: 2px solid var(--ink); text-decoration: none; overflow: hidden; animation: pop .45s cubic-bezier(.2,1.3,.4,1) backwards; animation-delay: calc(var(--i) * 55ms); transition: transform .2s, box-shadow .2s; }
-  .door:hover { transform: translate(-3px, -3px); box-shadow: 6px 6px 0 var(--ink); }
-  @keyframes pop { from { transform: translateY(14px) scale(.96); opacity: 0; } }
-  .door .pic { height: 96px; background: var(--c, var(--wall-2)) center / cover; border-bottom: 2px solid var(--ink); }
-  .door .txt { padding: 14px 40px 16px 16px; display: grid; gap: 4px; align-content: start; }
-  .door .k { font-family: var(--board); font-size: 20px; color: var(--ink-2); letter-spacing: .06em; }
-  .door b { font-family: var(--display); font-weight: 800; font-size: 1.7rem; letter-spacing: -.035em; line-height: 1; font-variation-settings: "wdth" 82; }
-  .door span { font-size: var(--t-s); color: var(--ink-2); }
-  .door .arrow { position: absolute; right: 14px; bottom: 12px; font-size: 1.3rem; }
-  .smalls { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px 22px; font-size: var(--t-s); margin-top: 8px; }
-  .smalls a { color: var(--ink-2); }
-  @media (max-width: 760px) { .doors { grid-template-columns: repeat(2, minmax(0, 1fr)); } .door { min-height: 180px; } .door .pic { height: 72px; } .door b { font-size: 1.35rem; } }
-  @media (prefers-reduced-motion: reduce) { .hint { animation: none; } }
+  /* the logo, with Justin's work slowly orbiting it */
+  .orbit { --r: clamp(150px, 27vw, 230px); --t: clamp(46px, 7.5vw, 74px); position: relative; width: min(100%, calc(var(--r) * 2 + var(--t))); aspect-ratio: 1; display: grid; place-items: center; }
+  .ring { position: absolute; inset: 0; animation: spin 90s linear infinite; }
+  .ring img { position: absolute; left: 50%; top: 50%; width: var(--t); height: var(--t); margin: calc(var(--t) / -2) 0 0 calc(var(--t) / -2); border-radius: 50%; object-fit: cover; border: 3px solid var(--wall); box-shadow: 0 8px 18px -8px rgba(40, 30, 10, .45);
+    transform: rotate(var(--a)) translate(var(--r)) rotate(calc(-1 * var(--a))); }
+  .ring img:nth-child(even) { width: calc(var(--t) * .78); height: calc(var(--t) * .78); margin: calc(var(--t) * -.39) 0 0 calc(var(--t) * -.39); }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .track-line { position: absolute; inset: calc(var(--t) / 2); border-radius: 50%; border: 1px dashed var(--rule); }
+
+  .enter { position: relative; z-index: 2; border: 0; background: none; padding: 0; cursor: pointer; border-radius: 50%; }
+  .enter .glogo { --s: clamp(150px, 24vw, 220px); box-shadow: 0 26px 50px -26px rgba(30, 20, 5, .55); transition: transform .5s cubic-bezier(.2,1.2,.3,1); }
+  .enter .glogo span { transform: rotate(-9deg); }
+  .enter:hover .glogo { transform: rotate(-6deg) scale(1.04); }
+  .enter:focus-visible { outline: 3px solid var(--cobalt); outline-offset: 8px; }
+  .enter .cue { position: absolute; left: 50%; bottom: 15%; transform: translateX(-50%); font: 400 17px/1 var(--board); letter-spacing: .14em; color: var(--wall); opacity: .75; white-space: nowrap; animation: blink 1.6s steps(2) infinite; }
+  @keyframes blink { 50% { opacity: .25; } }
+
+  /* one tap: the black circle swallows the screen, then the site opens */
+  .go .enter .glogo { transform: scale(18); transition: transform .65s cubic-bezier(.7,0,.3,1); }
+  .go .enter .glogo span, .go .enter .cue, .go .ring, .go .track-line, .go .after { opacity: 0; transition: opacity .2s; }
+
+  .tag { font-size: clamp(1.1rem, 2.1vw, 1.35rem); color: var(--ink-2); max-width: 26em; text-wrap: balance; }
+  .tag b { color: var(--ink); font-weight: 700; }
+  .quick { display: flex; flex-wrap: wrap; justify-content: center; gap: 4px 6px; }
+  .quick a { font: 400 21px/1 var(--board); letter-spacing: .1em; text-decoration: none; color: var(--ink); padding: 8px 10px; border-radius: 4px; }
+  .quick a:hover { background: var(--ink); color: var(--wall); }
+  .quick span { font: 400 21px/1 var(--board); color: var(--rule); align-self: center; }
+  @media (max-width: 520px) { .quick a, .quick span { font-size: 18px; } .quick a { padding: 6px; } }
+  @media (prefers-reduced-motion: reduce) { .ring, .enter .cue { animation: none; } .go .enter .glogo { transition: none; } }
 </style>
 </head>
 <body>
 <div id="board"></div>
 <main class="stage">
   <div class="center" id="center">
-    <button class="enter" type="button" id="enter" aria-expanded="false" aria-controls="doors" aria-label="Enter Gesso"></button>
-    <p class="tag">An art market owned by the people who collect it.</p>
-    <p class="hint" id="hint">▶ TAP THE CIRCLE TO ENTER</p>
-    <nav class="doors" id="doors" hidden aria-label="Gesso"></nav>
-    <div class="smalls" id="smalls" hidden><a href="collection.html">Your collection</a><a href="how-it-works.html">How chips work</a><a href="project.html">Projects</a><a href="visit.html">Visit</a><a href="for-artists.html">Sell on Gesso</a></div>
+    <div class="orbit"><span class="track-line" aria-hidden="true"></span><div class="ring" id="ring" aria-hidden="true"></div>
+      <button class="enter" type="button" id="enter" aria-label="Enter Gesso"></button></div>
+    <p class="tag after">An art market owned by the people who collect it. <b>Buy art, earn the artist's chips, spend them on more art.</b></p>
+    <nav class="quick after" aria-label="Go straight to"></nav>
   </div>
 </main>
 <script src="gesso.js"></script>
 <script>
 (function () {
   document.getElementById('board').outerHTML = G.pulse();
-  document.getElementById('enter').innerHTML = G.logo();
-  // keep the chosen theme (white unless someone picks dark)
-  const t = G.store.get('theme', 'light'); if (t !== 'system') document.documentElement.setAttribute('data-theme', t);
-  const art = (id) => G.workArt(G.work(id), 560);
-  const doors = [
-    ['artists.html', 'Artists', `${G.artists.length} artists and growing`, art('hamel-j16')],
-    ['mission.html', 'Mission', 'Why Gesso exists, and how collectors vote', art('hamel-j17')],
-    ['now.html', 'Now', "What's new, the chip board, live projects", art('hamel-j11')],
-    ['discover.html', 'Shop', 'Originals, prints, hoodies and wallpaper', art('hamel-j19')],
-    ['book.html', 'FAME', 'Book chefs, DJs, musicians and makers', 'art/justin/j29.jpg'],
-    ['partners.html', 'Partners', 'Places and brands that take chips', art('hamel-j20')]
-  ];
-  const d = document.getElementById('doors');
-  d.innerHTML = doors.map(([h, b, s, img], i) => `<a class="door" href="${h}" style="--i:${i}"><div class="pic" style="background-image:url('${img}')"></div><div class="txt"><span class="k">0${i + 1}</span><b>${b}</b><span>${s}</span></div><span class="arrow" aria-hidden="true">→</span></a>`).join('');
-  const open = () => {
-    const c = document.getElementById('center'), b = document.getElementById('enter'), was = !d.hidden;
-    d.hidden = was; document.getElementById('smalls').hidden = was; c.classList.toggle('opened', !was);
-    b.setAttribute('aria-expanded', String(!was));
-    if (!was) G.store.set('entered', true);
-  };
-  document.getElementById('enter').addEventListener('click', open);
-  if (location.hash === '#menu') open();
+  document.getElementById('enter').innerHTML = G.logo() + '<span class="cue" aria-hidden="true">ENTER</span>';
+  const t = G.store.get('theme', 'light'); document.documentElement.setAttribute('data-theme', t === 'dark' ? 'dark' : 'light');
+  const ids = ['hamel-j16', 'hamel-j11', 'hamel-j19', 'hamel-j20', 'hamel-j06', 'hamel-j12', 'hamel-j02', 'hamel-j17', 'hamel-j22', 'hamel-j01'];
+  document.getElementById('ring').innerHTML = ids.map((id, i) => `<img src="${G.workArt(G.work(id), 200)}" alt="" style="--a:${(360 / ids.length) * i}deg">`).join('');
+  const links = [['now.html', 'NOW'], ['artists.html', 'ARTISTS'], ['discover.html', 'SHOP'], ['book.html', 'FAME'], ['mission.html', 'MISSION'], ['partners.html', 'PARTNERS']];
+  document.querySelector('.quick').innerHTML = links.map(([h, l]) => `<a href="${h}">${l}</a>`).join('<span aria-hidden="true">·</span>');
+  const remember = () => G.store.set('entered', true);
+  document.querySelectorAll('.quick a').forEach((a) => a.addEventListener('click', remember));
+  document.getElementById('enter').addEventListener('click', () => {
+    remember();
+    if (matchMedia('(prefers-reduced-motion: reduce)').matches) { location.href = 'now.html'; return; }
+    document.getElementById('center').classList.add('go');
+    setTimeout(() => (location.href = 'now.html'), 600);
+  });
 })();
 </script>
 </body>
