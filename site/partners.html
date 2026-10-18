@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Partners · Gesso</title>
+<meta name="description" content="Stores, cafés, framers and makers that accept Gesso chips, and the planned Gesso House.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wdth,wght@12..96,75..100,300..800&family=DM+Mono:wght@400;500&family=Permanent+Marker&family=VT323&display=swap">
+<link rel="stylesheet" href="gesso.css">
+<style>
+  .hero { padding-block: clamp(36px, 6vw, 80px) 28px; display: grid; gap: 18px; max-width: 48em; }
+  .house { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, .9fr); background: #0B0C0F; color: #F2F2EE; border: 2px solid #0B0C0F; }
+  .house .pic { min-height: 320px; background: center / cover; }
+  .house .txt { padding: clamp(22px, 4vw, 40px); display: grid; gap: 16px; align-content: center; }
+  .house .txt p { color: #B9BAC2; }
+  .house .k { font-family: var(--board); font-size: 22px; color: #FFC247; letter-spacing: .06em; }
+  .house ul { margin: 0; padding-left: 1.1em; display: grid; gap: 6px; color: #DADBE0; }
+  .pgrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 280px), 1fr)); gap: 16px; margin-top: 18px; }
+  .pc { display: grid; grid-template-columns: 56px minmax(0, 1fr); gap: 14px; padding: 18px; background: var(--card); border: 1px solid var(--rule); align-items: start; }
+  .pc .mark { width: 56px; height: 56px; border-radius: 50%; background: var(--c); color: #fff; display: grid; place-items: center; font: 400 22px var(--hand); }
+  .pc h3 { font-size: 1.2rem; }
+  .pc .k { font: 500 var(--t-xs) var(--mono); text-transform: uppercase; letter-spacing: .1em; color: var(--ink-2); }
+  .pc p { font-size: var(--t-s); color: var(--ink-2); }
+  .apply { display: grid; grid-template-columns: minmax(0, .9fr) minmax(0, 1.1fr); gap: clamp(24px, 5vw, 64px); align-items: start; }
+  .apply form { background: var(--card); border: 1px solid var(--rule); padding: clamp(18px, 3vw, 28px); display: grid; gap: 14px; }
+  @media (max-width: 860px) { .house, .apply { grid-template-columns: minmax(0, 1fr); } .house .pic { min-height: 220px; } }
+</style>
+</head>
+<body>
+<div id="chrome-top"></div>
+<main class="wrap">
+  <section class="hero"><p class="eyebrow">Partners</p><h1 class="display" style="font-size:clamp(2.6rem,7vw,5rem)">Spend chips out in the world</h1>
+    <p class="lede">Chips work beyond the site. Art stores, framers, cafés and makers that partner with Gesso take chips at their counters, and Gesso House will be the place to spend them in person.</p></section>
+
+  <section class="house" aria-labelledby="house-h">
+    <div class="pic" style="background-image:url('art/justin/j31.jpg')" role="img" aria-label="HAMEL mural"></div>
+    <div class="txt">
+      <span class="k">▶ PLANNED · FLAGSHIP</span>
+      <h2 id="house-h" style="color:#fff">Gesso House</h2>
+      <p>A physical space where the site comes off the screen: a gallery wall that changes every month, a café counter, and a room for FAME nights with chefs, DJs and live painting.</p>
+      <ul><li>Pay for art, coffee and events with chips</li><li>Studio visits and listening sessions with Justin</li><li>Collector previews before work goes online</li></ul>
+      <a class="btn" href="mission.html#votes" style="justify-self:start;border-color:#fff;color:#fff">Vote on opening it</a>
+    </div>
+  </section>
+
+  <section class="section" aria-labelledby="p-h" style="padding-bottom:0">
+    <div class="section-head"><div><p class="eyebrow">Where chips work</p><h2 id="p-h">Partners</h2></div><p class="muted" style="max-width:30em">Sample partners for the preview. Each one takes chips on up to half of a purchase, the same as on Gesso.</p></div>
+    <div class="pgrid" id="pgrid"></div>
+  </section>
+
+  <section class="section apply" id="apply" aria-labelledby="a-h">
+    <div style="display:grid;gap:14px"><p class="eyebrow">Become a partner</p><h2 id="a-h">Take chips at your counter</h2><p class="muted">Collectors spend chips with you, Gesso settles in cash weekly, and your brand sits next to the artists they love. Sponsorships for projects and FAME nights are open too.</p></div>
+    <form id="form" novalidate>
+      <div class="grid-2"><div class="field"><label for="f-name">Business name</label><input class="input" id="f-name" placeholder="Your store or brand"></div><div class="field"><label for="f-city">City</label><input class="input" id="f-city" placeholder="Where customers find you"></div></div>
+      <div class="field"><label for="f-kind">What you do</label><select class="input" id="f-kind"><option>Art supply</option><option>Framing</option><option>Café or restaurant</option><option>Clothing or goods</option><option>Venue or space</option><option>Sponsorship only</option></select></div>
+      <div class="field"><label for="f-email">Email</label><input class="input" id="f-email" type="email" placeholder="you@business.com"></div>
+      <button class="btn primary" type="submit">Send</button><p class="mono muted" style="font-size:var(--t-xs)">Preview: nothing is sent.</p>
+    </form>
+  </section>
+</main>
+<div id="chrome-bottom"></div>
+<script src="gesso.js"></script>
+<script>
+(function () {
+  G.chrome('partners');
+  document.getElementById('pgrid').innerHTML = G.partners.filter((p) => !p.planned).map((p) => `<article class="pc"><span class="mark" style="--c:${p.color}">${G.esc(p.name[0])}</span><div style="display:grid;gap:6px"><span class="k">${G.esc(p.kind)} · ${G.esc(p.city)}</span><h3>${G.esc(p.name)}</h3><p>${G.esc(p.text)}</p></div></article>`).join('');
+  document.getElementById('form').addEventListener('submit', (e) => { e.preventDefault(); const n = document.getElementById('f-name').value.trim() || 'there'; e.target.outerHTML = `<div class="tierup" style="padding:20px;background:var(--cobalt-soft);border-left:4px solid var(--cobalt)"><h3>Thanks, ${G.esc(n)}.</h3><p class="muted">In the live app the partnerships team replies within a week. Nothing was sent in this preview.</p></div>`; });
+})();
+</script>
+</body>
+</html>

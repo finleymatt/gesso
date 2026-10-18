@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Mission · Gesso</title>
+<meta name="description" content="Why Gesso exists, how it's run, and the decisions collectors vote on.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wdth,wght@12..96,75..100,300..800&family=DM+Mono:wght@400;500&family=Permanent+Marker&family=VT323&display=swap">
+<link rel="stylesheet" href="gesso.css">
+<style>
+  .hero { padding-block: clamp(36px, 6vw, 88px) clamp(24px, 4vw, 48px); display: grid; gap: 22px; max-width: 52em; }
+  .hero .display { font-size: clamp(2.6rem, 7vw, 5.4rem); }
+  .vm { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1px; background: var(--rule); border: 1px solid var(--rule); }
+  .vm article { background: var(--wall); padding: clamp(20px, 3vw, 32px); display: grid; gap: 12px; align-content: start; }
+  .vm h2 { font-size: 1.8rem; }
+  .vm p { color: var(--ink-2); }
+  .statement { display: grid; grid-template-columns: minmax(0, .8fr) minmax(0, 1.2fr); gap: clamp(24px, 5vw, 64px); align-items: center; }
+  .statement img { width: 100%; aspect-ratio: 9 / 13; object-fit: cover; }
+  .statement blockquote { margin: 0; font-size: clamp(1.2rem, 2.2vw, 1.6rem); line-height: 1.4; letter-spacing: -.01em; }
+  .pending { font: 500 var(--t-xs) var(--mono); padding: 8px 12px; border: 1.5px dashed var(--ink-2); color: var(--ink-2); justify-self: start; }
+  .board { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
+  .seat { border: 2px solid var(--ink); padding: 18px; display: grid; gap: 6px; background: var(--card); }
+  .seat.open { border-style: dashed; border-color: var(--ink-2); background: transparent; }
+  .seat .k { font: 500 var(--t-xs) var(--mono); color: var(--ink-2); text-transform: uppercase; letter-spacing: .1em; }
+  .seat b { font-size: 1.15rem; }
+  .split { display: flex; height: 44px; border: 2px solid var(--ink); margin-top: 18px; font: 500 var(--t-s) var(--mono); }
+  .split div { display: grid; align-content: center; padding: 0 12px; white-space: nowrap; overflow: hidden; }
+  .votes { display: grid; gap: 14px; }
+  .vote { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 10px 24px; align-items: center; padding: 18px; background: var(--card); border: 1px solid var(--rule); }
+  .vote h3 { font-size: 1.25rem; }
+  .vote p { color: var(--ink-2); font-size: var(--t-s); }
+  .vote .bar { grid-column: 1 / -1; height: 10px; background: var(--wall-2); display: flex; }
+  .vote .bar i { background: var(--up); }
+  .vote .meta { grid-column: 1 / -1; display: flex; justify-content: space-between; gap: 10px; font: var(--t-xs) var(--mono); color: var(--ink-2); }
+  .vote .act { display: flex; gap: 8px; }
+  @media (max-width: 860px) { .vm, .statement { grid-template-columns: minmax(0, 1fr); } .board { grid-template-columns: repeat(2, minmax(0, 1fr)); } .vote { grid-template-columns: minmax(0, 1fr); } }
+</style>
+</head>
+<body>
+<div id="chrome-top"></div>
+<main class="wrap">
+  <section class="hero">
+    <p class="eyebrow">Mission</p>
+    <h1 class="display">Art should pay back the people who believe in it early.</h1>
+    <p class="lede">Gesso is an art market owned by the people who collect it. Artists keep most of every sale. Collectors earn a stake in the artists they back, and get a say in where Gesso goes next.</p>
+  </section>
+
+  <section class="vm" aria-label="Vision and mission">
+    <article><p class="eyebrow">Vision</p><h2>A culture where backing an artist is an investment in your own life.</h2><p>Art, food, music and experiences, all in one place, where every purchase or booking builds something for the person who made it and the person who paid for it.</p></article>
+    <article><p class="eyebrow">Mission</p><h2>Make collecting rewarding, and make the work last.</h2><p>Pay artists 80%. Reward collectors with chips that rise as artists grow. Make everything physical in natural materials, and open spaces where people can see the work and spend their chips in person.</p></article>
+  </section>
+
+  <section class="section statement" aria-labelledby="st-h">
+    <img src="art/justin/j29.jpg" alt="Justin, who paints as HAMEL, sitting outside the studio" loading="lazy">
+    <div style="display:grid;gap:20px">
+      <p class="eyebrow">Founding artist</p>
+      <h2 id="st-h">HAMEL</h2>
+      <blockquote>"KEEP GOING."</blockquote>
+      <p class="muted">Justin paints as HAMEL: loud color, thick black line and eyes in everything, on paper, canvas and brick. Thirteen years as a chef before that, which is where FAME comes from: food, art, music and experience.</p>
+      <p class="pending">Justin's full artist statement is being updated and goes here.</p>
+      <a class="btn primary" href="artist.html#hamel" style="justify-self:start">See HAMEL's wall</a>
+    </div>
+  </section>
+
+  <section aria-labelledby="run-h">
+    <div class="section-head"><div><p class="eyebrow">How Gesso is run</p><h2 id="run-h">Four founding seats, and a vote for everyone who's in</h2></div>
+      <p class="muted" style="max-width:34em">The four founding members hold 51% of every vote. Everyone who has spent or pledged on Gesso shares the other 49%, weighted by what they've put in. Collectors also get first looks at new work and launches.</p></div>
+    <div class="board">
+      <div class="seat"><span class="k">Seat 1</span><b>Justin (HAMEL)</b><span class="muted" style="font-size:var(--t-s)">Founding artist</span></div>
+      <div class="seat"><span class="k">Seat 2</span><b>Co-founder</b><span class="muted" style="font-size:var(--t-s)">Product and platform</span></div>
+      <div class="seat open"><span class="k">Seat 3</span><b>Open</b><span class="muted" style="font-size:var(--t-s)">To be filled</span></div>
+      <div class="seat open"><span class="k">Seat 4</span><b>Open</b><span class="muted" style="font-size:var(--t-s)">To be filled</span></div>
+    </div>
+    <div class="split" aria-label="Vote weight: founders 51 percent, collectors 49 percent"><div style="flex:51;background:var(--ink);color:var(--wall)">Founders 51%</div><div style="flex:49;background:var(--cobalt-soft)">Collectors 49%</div></div>
+  </section>
+
+  <section class="section" id="votes" aria-labelledby="v-h">
+    <div class="section-head"><div><p class="eyebrow">Open votes</p><h2 id="v-h">What should Gesso do next?</h2></div><p class="muted" id="weight" style="max-width:30em"></p></div>
+    <div class="votes" id="vlist"></div>
+  </section>
+</main>
+<div id="chrome-bottom"></div>
+<script src="gesso.js"></script>
+<script>
+(function () {
+  G.chrome('mission');
+  const spent = G.spent(), mine = G.store.get('votes', {}) || {};
+  document.getElementById('weight').innerHTML = spent > 0
+    ? `You've put <b style="color:var(--ink)">${G.usd(spent)}</b> into Gesso, so your vote counts. Votes are weighted by what you've spent or pledged.`
+    : 'Buy or back anything on Gesso to get a vote.';
+  const render = () => {
+    document.getElementById('vlist').innerHTML = G.proposals.map((p) => {
+      const v = mine[p.id], yes = Math.min(99, p.yes + (v === 'yes' ? 1 : v === 'no' ? -1 : 0));
+      return `<article class="vote"><div style="display:grid;gap:6px"><h3>${G.esc(p.title)}</h3><p>${G.esc(p.text)}</p></div>
+        <div class="act">${spent > 0 ? `<button class="btn small ${v === 'yes' ? 'primary' : ''}" type="button" data-v="yes" data-p="${p.id}" aria-pressed="${v === 'yes'}">Yes</button><button class="btn small ${v === 'no' ? 'ink' : ''}" type="button" data-v="no" data-p="${p.id}" aria-pressed="${v === 'no'}">No</button>` : '<a class="btn small" href="discover.html">Get a vote</a>'}</div>
+        <div class="bar" aria-hidden="true"><i style="width:${yes}%"></i></div>
+        <div class="meta"><span>${yes}% yes${v ? ` · you voted ${v}` : ''}</span><span>${p.ends}</span></div></article>`;
+    }).join('');
+    document.querySelectorAll('[data-v]').forEach((b) => b.addEventListener('click', () => { mine[b.dataset.p] = b.dataset.v; G.store.set('votes', mine); render(); G.toast('Vote recorded (preview)'); }));
+  };
+  render();
+})();
+</script>
+</body>
+</html>

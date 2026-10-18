@@ -32,8 +32,10 @@
       handle: '@justintime7189', ig: 'https://www.instagram.com/justintime7189/', city: '',
       collectors: 312, joined: 'Founding artist since 2026', sold: 41, real: true,
       quote: 'KEEP GOING.',
-      photos: { avatar: 'art/hamel-avatar.jpg', p1: 'art/hamel-03.jpg', p2: 'art/hamel-mural.jpg', p3: 'art/hamel-studio.jpg' },
-      banner: ['hamel-01', 'hamel-04', 'hamel-02', 'hamel-07', 'hamel-05', 'hamel-08'],
+      commission: { rate: 150, min: 1, max: 4, title: 'Listening session', text: 'Book an hour with Justin. You talk, Justin listens: the stories, the things you might not say to anyone else. Then Justin paints from what was heard.' },
+      photos: { avatar: 'art/justin/j26.jpg', portrait: 'art/justin/j29.jpg', p1: 'art/justin/j25.jpg', p2: 'art/hamel-mural.jpg', p3: 'art/hamel-studio.jpg' },
+      // cover strip: Justin's own photos of the work
+      banner: ['art/justin/j02.jpg', 'art/justin/j16.jpg', 'art/justin/j11.jpg', 'art/justin/j06.jpg', 'art/justin/j19.jpg', 'art/justin/j20.jpg', 'art/justin/j12.jpg'],
       short: 'Loud color, thick black line, and eyes in everything.',
       bio: 'HAMEL paints the way a city sounds: packed, overlapping, and wide awake. Black contour holds neon fields together, faces hide in the patterns, and every surface (canvas, panel, brick) gets the same treatment. HAMEL was the first artist on Gesso and the reason it exists.'
     },
@@ -88,12 +90,20 @@
   const WORKS = [].concat(
     // HAMEL's real paintings (photos from Instagram). Titles, sizes and prices are placeholders until HAMEL confirms them.
     W('hamel', [
+      ...[['j16', 'Breathe'], ['j11', 'Blue Bird'], ['j02', 'Pink Machine'], ['j06', 'Crowns'], ['j19', 'Love and Energy'], ['j12', 'Happy Birthday'],
+        ['j01', 'Hand and Heart'], ['j18', 'Street to the Museum'], ['j20', 'Petals'], ['j17', 'Trust, Love, Joy'], ['j03', 'Big Loop'], ['j05', 'Feathers and Eyes'],
+        ['j07', 'Politics'], ['j08', 'Dark Green'], ['j09', 'Blue Lines'], ['j10', 'Green Figure'], ['j13', 'Maze'], ['j14', 'Black and White I'],
+        ['j15', 'Black and White II'], ['j27', 'Black and White III'], ['j04', 'Written Over'], ['j21', 'What Does It Mean to Be Free']
+      ].map(([k, t], i) => [k, `Untitled (${t})`, 2026, 'Acrylic and paint marker on paper', 11.81, 15.75, [380, 420, 450, 480, 520, 560, 620][i % 7], null, { img: `art/justin/${k}.jpg`, cm: [30, 40] }]),
+      ['j22', 'Untitled (Blue Field)', 2026, 'Acrylic on canvas', 23.6, 31.5, 1600, null, { img: 'art/justin/j22.jpg', cm: [60, 80] }],
+      ['j23', 'Untitled (Pink Field)', 2026, 'Acrylic on canvas', 23.6, 31.5, 1600, null, { img: 'art/justin/j23.jpg', cm: [60, 80] }],
+      ['j24', 'Untitled (Gray Field)', 2026, 'Acrylic on canvas', 31.5, 33.9, 1900, null, { img: 'art/justin/j24.jpg', cm: [80, 86] }],
       ['01', 'Untitled (Neon Faces)', 2026, 'Acrylic and paint marker on canvas', 35, 40, 1850, null, { img: 'art/hamel-01.jpg' }],
       ['02', 'Untitled (Green Eyes)', 2026, 'Acrylic and spray paint on canvas', 30, 40, 960, null, { img: 'art/hamel-02.jpg' }],
-      ['03', 'Untitled (Ribbons)', 2026, 'Acrylic on canvas', 36, 24, 1400, null, { img: 'art/hamel-03.jpg' }],
-      ['04', 'Untitled (Gray Matter)', 2026, 'Acrylic and ink on canvas', 30, 40, 1200, null, { img: 'art/hamel-04.jpg' }],
+      ['03', 'Untitled (Ribbons)', 2026, 'Acrylic on canvas', 31, 40, 1400, null, { img: 'art/justin/j25.jpg' }],
+      ['04', 'Untitled (Gray Matter)', 2026, 'Acrylic and ink on canvas', 28, 40, 1200, null, { img: 'art/justin/j28.jpg' }],
       ['05', 'Untitled (Dope)', 2026, 'Acrylic and spray paint on canvas', 36, 48, 2400, null, { img: 'art/hamel-05.jpg', sold: true, by: 128 }],
-      ['06', 'Untitled (Ribbons), print', 2026, 'Giclée on cotton rag', 18, 12, 140, 'Edition of 40', { img: 'art/hamel-03.jpg' }],
+      ['06', 'Untitled (Ribbons), print', 2026, 'Giclée on cotton rag', 12, 16, 140, 'Edition of 40', { img: 'art/justin/j25.jpg' }],
       ['07', 'Untitled (Chaos Here, Peace There)', 2026, 'Spray paint and marker on canvas', 30, 40, 880, null, { img: 'art/hamel-07.jpg' }],
       ['08', 'Untitled (Spray Study)', 2026, 'Spray paint and acrylic on canvas', 26, 36, 620, null, { img: 'art/hamel-08.jpg' }]
     ]),
@@ -137,22 +147,25 @@
 
   G.artists = ARTISTS;
   G.works = WORKS;
-  G.artist = (slug) => ARTISTS.find((a) => a.slug === slug);
+  G.artist = (slug) => ARTISTS.find((a) => a.slug === slug) || TALENT.find((t) => t.slug === slug);
+  G.creatorUrl = (slug) => (ARTISTS.find((a) => a.slug === slug) ? `artist.html#${slug}` : `book.html#${slug}`);
   G.work = (id) => WORKS.find((w) => w.id === id);
   G.worksBy = (slug) => WORKS.filter((w) => w.artist === slug);
 
   /* ================= objects: print-on-demand goods made from an artist's work ================= */
   const TYPES = {
     wallpaper: { name: 'Wallpaper', price: 120, unit: 'roll', opts: ['Peel and stick', 'Traditional paste'], desc: 'Matte, made to order. Each roll covers 20.5 in × 33 ft (about 56 sq ft).' },
-    apron: { name: 'Studio apron', price: 48, opts: ['One size'], desc: 'Heavy cotton canvas with cross-back straps and a split front pocket.' },
-    tote: { name: 'Canvas tote', price: 32, opts: ['One size'], desc: '16 oz natural canvas, 15 × 16 in, with a full-color print.' },
-    tee: { name: 'T-shirt', price: 38, opts: ['S', 'M', 'L', 'XL', 'XXL'], desc: 'Heavyweight cotton, relaxed fit, printed in the US.' },
+    apron: { name: 'Studio apron', price: 48, opts: ['One size'], desc: 'Hemp and organic cotton canvas with cross-back straps and a split front pocket.' },
+    tote: { name: 'Hemp tote', price: 32, opts: ['One size'], desc: 'Natural hemp canvas, 15 × 16 in, with a full-color print.' },
+    tee: { name: 'T-shirt', price: 38, opts: ['S', 'M', 'L', 'XL', 'XXL'], desc: 'Heavyweight organic cotton, relaxed fit. Never polyester.' },
+    hoodie: { name: 'Build-your-own hoodie', price: 118, opts: ['S', 'M', 'L', 'XL', 'XXL'], desc: 'Choose the art for the front, back and sleeves, the fabric and the thread. Hemp, organic cotton or linen only.', custom: true },
+    print: { name: 'Print', price: 45, opts: ['12 × 16 in poster', '18 × 24 in giclée', '24 × 32 in giclée'], optPrice: [45, 95, 160], desc: 'Archival print of the original, made to order. Add a frame and it ships ready to hang.' },
     deck: { name: 'Skate deck', price: 85, opts: ['8.0 in', '8.25 in', '8.5 in'], desc: 'Seven-ply Canadian maple. Ride it or hang it.' },
-    pillow: { name: 'Throw pillow', price: 55, opts: ['18 × 18 in', '22 × 22 in'], desc: 'Printed on both sides, with a feather insert.' },
+    pillow: { name: 'Throw pillow', price: 55, opts: ['18 × 18 in', '22 × 22 in'], desc: 'Linen cover printed on both sides, with a plant-fiber kapok insert.' },
     mug: { name: 'Mug', price: 24, opts: ['11 oz', '15 oz'], desc: 'Ceramic, printed all the way around. Dishwasher safe.' }
   };
   const PRODUCTS = [];
-  [['hamel', { wallpaper: 'hamel-03', apron: 'hamel-01', tote: 'hamel-07', tee: 'hamel-02', deck: 'hamel-01', pillow: 'hamel-04', mug: 'hamel-03' }],
+  [['hamel', { hoodie: 'hamel-j16', wallpaper: 'hamel-03', apron: 'hamel-j11', tote: 'hamel-j19', tee: 'hamel-j02', deck: 'hamel-j06', pillow: 'hamel-04', mug: 'hamel-03' }],
    ['odalys', { wallpaper: 'odalys-01', tee: 'odalys-02', mug: 'odalys-04' }],
    ['teo', { pillow: 'teo-01', tote: 'teo-02' }],
    ['ama', { wallpaper: 'ama-01', pillow: 'ama-03', apron: 'ama-02' }],
@@ -161,10 +174,17 @@
    ['mika', { pillow: 'mika-03', mug: 'mika-01' }]
   ].forEach(([artist, map]) => Object.entries(map).forEach(([type, src]) =>
     PRODUCTS.push(Object.assign({ id: artist + '-' + type, artist, type, src }, TYPES[type]))));
+  // every work also comes as a print
+  WORKS.forEach((w) => { if (w.edition === 'Original') PRODUCTS.push(Object.assign({ id: w.id + '-print', artist: w.artist, type: 'print', src: w.id }, TYPES.print, { name: 'Print of ' + w.title })); });
   G.types = TYPES;
   G.products = PRODUCTS;
   G.product = (id) => PRODUCTS.find((p) => p.id === id);
-  G.productsBy = (slug) => PRODUCTS.filter((p) => p.artist === slug);
+  G.productsBy = (slug) => PRODUCTS.filter((p) => p.artist === slug && p.type !== 'print');
+  G.optPrice = (p, opt) => (p.optPrice ? p.optPrice[Math.max(0, p.opts.indexOf(opt))] : p.price);
+
+  /* framing, by framing partners who ship the piece ready to hang */
+  G.FRAMES = { none: { name: 'No frame', rate: 0 }, black: { name: 'Black wood', rate: 1.6 }, oak: { name: 'Natural oak', rate: 2.0 }, float: { name: 'White mat, black frame', rate: 2.4 } };
+  G.framePrice = (w, f) => (!f || f === 'none' ? 0 : Math.round(2 * (w.w + w.h) * G.FRAMES[f].rate + 25));
 
   /* ================= places to see the work in person ================= */
   // HAMEL's entries are placeholders until HAMEL confirms where work can be seen.
@@ -186,6 +206,40 @@
   G.directions = (v) => (v.tbd ? null : 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(v.area + ', ' + v.city));
 
   /* ================= projects: fund something specific an artist wants to make ================= */
+  // Sample creators for FAME (Food, Art, Music, Experience). Booking them earns their chips.
+  const TALENT = [
+    { slug: 'justin-chef', name: 'Justin (HAMEL)', kind: 'Chef', city: 'Shared when you book', ticker: 'HAMEL', color: '#E3156B', on: '#fff', collectors: 312, rate: 900, unit: 'dinner for 8', example: true,
+      line: 'Thirteen years as a chef. A private dinner with live painting at the table.', tags: ['Private dinner', 'Live painting'], img: 'art/justin/j29.jpg' },
+    { slug: 'nia-dj', name: 'Nia Osei', kind: 'DJ', city: 'Chicago, IL', ticker: 'NIA', color: '#7B3BFF', on: '#fff', collectors: 64, rate: 450, unit: '3-hour set', line: 'House and Afrobeat for rooftops, openings and long dinners.', tags: ['House', 'Afrobeat', 'Openings'] },
+    { slug: 'leo-chef', name: 'Leo Martín', kind: 'Chef', city: 'Mexico City, MX', ticker: 'LEO', color: '#D4931C', on: '#1D1608', collectors: 41, rate: 650, unit: 'dinner for 10', line: 'Wood-fire tasting menus built around what the market had that morning.', tags: ['Wood fire', 'Tasting menu'] },
+    { slug: 'ines-film', name: 'Inès Laurent', kind: 'Filmmaker', city: 'Paris, FR', ticker: 'INES', color: '#2A2930', on: '#F4F4F0', collectors: 28, rate: 1200, unit: 'day', line: 'Short documentaries about artists at work. Studio days and event films.', tags: ['Documentary', 'Event film'] },
+    { slug: 'kofi-music', name: 'Kofi Mensah Trio', kind: 'Musician', city: 'Accra, GH', ticker: 'KOFI', color: '#16865A', on: '#fff', collectors: 57, rate: 800, unit: 'evening', line: 'Highlife and jazz for dinners, galleries and weddings.', tags: ['Highlife', 'Jazz', 'Live'] },
+    { slug: 'mara-ceramics', name: 'Mara Vos', kind: 'Artisan', city: 'Rotterdam, NL', ticker: 'MARA', color: '#C47C5C', on: '#fff', collectors: 33, rate: 85, unit: 'workshop seat', line: 'Wheel-thrown tableware and two-hour throwing workshops.', tags: ['Ceramics', 'Workshops'] },
+    { slug: 'sam-dj', name: 'Sam Rivera', kind: 'DJ', city: 'Los Angeles, CA', ticker: 'SAMR', color: '#00A8FF', on: '#04121C', collectors: 19, rate: 380, unit: '3-hour set', line: 'Soul, disco and edits. Brings their own records.', tags: ['Soul', 'Disco', 'Vinyl'] },
+    { slug: 'tomas-chef', name: 'Tomás Reyes', kind: 'Chef', city: 'Albuquerque, NM', ticker: 'TOMS', color: '#16865A', on: '#fff', collectors: 22, rate: 520, unit: 'dinner for 8', line: 'New Mexican chile, heirloom corn and blue-corn everything.', tags: ['Regional', 'Family style'] }
+  ];
+  G.talent = TALENT;
+  G.KINDS = ['Chef', 'DJ', 'Musician', 'Filmmaker', 'Artisan'];
+
+  /* ================= partners: places that take chips ================= */
+  // Sample partners for the preview. Gesso House is the planned flagship space.
+  G.partners = [
+    { name: 'Gesso House', kind: 'Flagship space', city: 'City to be announced', text: 'Gallery, café and event room. Spend chips on art, coffee and FAME nights.', planned: true, color: '#16151B' },
+    { name: 'Tinted Art Supply', kind: 'Art supply store', city: 'Chicago, IL', text: 'Pay up to half of any order in chips. Artists on Gesso get 15% off.', color: '#D4931C' },
+    { name: 'Frame Society', kind: 'Framing partner', city: 'Ships nationwide', text: 'Frames every Gesso piece that ships framed. Chips accepted on custom framing.', color: '#B98A57' },
+    { name: 'Common Thread', kind: 'Hemp clothing', city: 'Portland, OR', text: 'Makes the Gesso hoodies and tees. Hemp, organic cotton and linen only.', color: '#16865A' },
+    { name: 'Low Tide Coffee', kind: 'Café', city: 'Los Angeles, CA', text: 'Rotating Gesso artist on the wall. Chips cover your coffee.', color: '#2140E3' },
+    { name: 'Second Press', kind: 'Print studio', city: 'Osaka, JP', text: "Prints Gesso's risograph editions. Chips accepted on open print days.", color: '#FF4FA0' }
+  ];
+
+  /* ================= collector votes ================= */
+  // The four founding members hold 51% of every vote; everyone who has put money in shares the other 49%, weighted by what they've spent.
+  G.proposals = [
+    { id: 'hoodies', title: 'Launch the hemp hoodie line', text: 'Build-your-own hoodies in hemp, organic cotton and linen, made by Common Thread.', yes: 72, ends: 'Ends Oct 24' },
+    { id: 'house', title: 'Open the first Gesso House', text: 'A gallery, café and event room where chips can be spent in person.', yes: 64, ends: 'Ends Nov 2' },
+    { id: 'fame', title: 'Bring chefs and DJs onto Gesso (FAME)', text: 'Book food, music and experiences on Gesso, and earn the creator\'s chips for every booking.', yes: 81, ends: 'Ends Oct 30' }
+  ];
+
   const PROJECTS = [
     { id: 'hamel-wall', artist: 'hamel', example: true, title: 'Scale it up: a 40-foot wall', img: 'art/hamel-mural.jpg',
       goal: 15000, raised: 9420, backers: 138, daysLeft: 19,
@@ -220,13 +274,14 @@
     { name: 'Gesso', at: 0, rate: 0.10, perks: ['10% back in chips on everything'] },
     { name: 'Primer', at: 250, rate: 0.10, perks: ['See new work 24 hours before everyone else'] },
     { name: 'Underpainting', at: 1000, rate: 0.11, perks: ['11% back in chips', 'Book studio visits with any artist'] },
-    { name: 'Glaze', at: 5000, rate: 0.12, perks: ['12% back in chips', 'Free white-glove install on every original'] },
+    { name: 'Glaze', at: 5000, rate: 0.12, perks: ['12% back in chips', 'Weekly drip: 1% of your chips paid to your bank each week', 'Free white-glove install on every original'] },
     { name: 'Varnish', at: 10000, rate: 0.13, perks: ['13% back in chips', 'A hosted studio visit every year', 'First look at every artist project'] },
     { name: 'Masterwork', at: 20000, rate: 0.15, perks: ['15% back in chips', 'Commission a piece from any Gesso artist', 'Your name on the Gesso founders wall', 'A seat at the annual collectors dinner'] }
   ];
   G.tierOf = (spent) => G.TIERS.filter((t) => spent >= t.at).pop();
   G.nextTier = (spent) => G.TIERS.find((t) => t.at > spent) || null;
   G.spent = () => G.wallet().spent || 0;
+  G.DRIP_AT = 5000; G.DRIP_RATE = 0.01;
   G.myRate = () => G.tierOf(G.spent()).rate;
 
   /* ================= paying over time ================= */
@@ -234,6 +289,7 @@
     const p = [
       { id: 'full', name: 'Pay in full', today: total, n: 0, each: 0, note: 'Ships right away' },
       { id: 'pay4', name: 'Pay in 4', today: total / 4, n: 3, each: total / 4, every: 'every 2 weeks', note: 'Ships right away, 0% interest' },
+      { id: 'layw', name: 'Layaway, weekly', today: total / 12, n: 11, each: total / 12, every: 'a week', note: '12 weekly payments, held for you, 0% interest' },
       { id: 'lay6', name: 'Layaway, 6 months', today: total / 6, n: 5, each: total / 6, every: 'a month', note: 'Held for you, ships after the last payment, 0% interest' }
     ];
     if (total >= 1000) p.push({ id: 'lay10', name: 'Layaway, 10 months', today: total / 10, n: 9, each: total / 10, every: 'a month', note: 'Held for you, ships after the last payment, 0% interest' });
@@ -282,17 +338,22 @@
       const [id, opt, qty] = key.slice(2).split('|'), p = G.product(id);
       if (!p) return null;
       const q = Math.max(1, +qty || 1);
-      return { key, kind: 'product', id, artist: p.artist, title: p.name, sub: `${opt}${q > 1 ? ' · ' + q + ' ' + (p.unit ? p.unit + 's' : 'pieces') : ''}`, opt, qty: q, unit: p.price, price: p.price * q, href: `product.html#${id}`, p };
+      const parts = opt.split(' · ');
+      let unit = G.optPrice(p, parts[0]);
+      if (p.type === 'print' && G.FRAMES[parts[1]]) { const m = parts[0].match(/(\d+) × (\d+)/); unit += G.framePrice({ w: +m[1], h: +m[2] }, parts[1]); }
+      return { key, kind: 'product', id, artist: p.artist, title: p.name, sub: `${p.type === 'print' ? opt.replace(/ · (\w+)$/, (m, k) => ' · ' + (G.FRAMES[k] ? G.FRAMES[k].name.toLowerCase() + ' frame' : k)) : opt}${q > 1 ? ' · ' + q + ' ' + (p.unit ? p.unit + 's' : 'pieces') : ''}`, opt, qty: q, unit, price: unit * q, href: `product.html#${id}`, p };
     }
-    const w = G.work(key);
+    const [wid, frame] = key.split('|'), w = G.work(wid);
     if (!w || G.isSold(w)) return null;
-    return { key, kind: 'work', id: key, artist: w.artist, title: `${w.title}, ${w.year}`, sub: `${w.medium} · ${w.w} × ${w.h} in`, qty: 1, unit: w.price, price: w.price, href: `piece.html#${key}`, w };
+    const fp = G.framePrice(w, frame);
+    return { key, kind: 'work', id: wid, artist: w.artist, title: `${w.title}, ${w.year}`, sub: `${w.medium} · ${G.size(w)}${fp ? ' · framed, ' + G.FRAMES[frame].name.toLowerCase() : ''}`, qty: 1, unit: w.price + fp, price: w.price + fp, frame, href: `piece.html#${wid}`, w };
   };
   G.bag = () => (store.get('bag', []) || []).filter((k) => G.item(k));
   G.setBag = (b) => { store.set('bag', b); G.refreshBadges(); };
   G.addToBag = (key) => {
     let b = G.bag();
     if (key.startsWith('p:')) { const base = key.split('|').slice(0, 2).join('|'); b = b.filter((k) => !k.startsWith(base + '|')); }
+    if (!key.startsWith('p:')) b = b.filter((k) => k.split('|')[0] !== key.split('|')[0]);
     if (!b.includes(key)) b.push(key);
     G.setBag(b);
     const it = G.item(key);
@@ -321,7 +382,9 @@
   };
   G.chips = (x) => x.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
   G.pct = (x) => (x >= 0 ? '+' : '−') + Math.abs(x * 100).toFixed(1) + '%';
-  G.dims = (w) => `${w.w} × ${w.h} in · ${(w.w * 2.54).toFixed(1)} × ${(w.h * 2.54).toFixed(1)} cm`;
+  const r1 = (x) => String(Math.round(x * 10) / 10);
+  G.dims = (w) => (w.cm ? `${w.cm[0]} × ${w.cm[1]} cm · ${r1(w.w)} × ${r1(w.h)} in` : `${w.w} × ${w.h} in · ${r1(w.w * 2.54)} × ${r1(w.h * 2.54)} cm`);
+  G.size = (w) => (w.cm ? `${w.cm[0]} × ${w.cm[1]} cm` : `${w.w} × ${w.h} in`);
   G.ordinal = (n) => { const s = ['th', 'st', 'nd', 'rd'], v = n % 100; return n + (s[(v - 20) % 10] || s[v] || s[0]); };
 
   /* sparkline as an SVG string, scaled to its own min/max, endpoint emphasized */
@@ -367,7 +430,7 @@
       <div class="walllabel">
         <span class="who"><i class="dot" style="--c:${a.color}"></i>${esc(a.name)}</span>
         <span class="title"><b>${esc(w.title)}</b>, ${w.year}</span>
-        <span class="meta">${esc(w.medium)} · ${w.w} × ${w.h} in${w.edition !== 'Original' ? ' · ' + esc(w.edition) : ''}</span>
+        <span class="meta">${esc(w.medium)} · ${G.size(w)}${w.edition !== 'Original' ? ' · ' + esc(w.edition) : ''}</span>
         <span class="price">${sold ? '<span class="sold-tag">Collected</span>' : `<span class="usd">${G.usd(w.price)}</span>`}
           <span class="earn" ${sold ? '' : `title="${G.chips(earn)} $${a.ticker} chips at today's price"`}>${sold ? `by collector #${w.by || n}` : `${G.usd(Math.round(earn * G.price(n)))} back in chips`}</span></span>
       </div></a>`;
@@ -580,7 +643,8 @@
     return url;
   };
   G.workArt = (w, px = 520) => {
-    if (w.img) return w.img;
+    // Justin's photos come in two sizes: small for cards, full for the artwork page
+    if (w.img) return px <= 600 && /^art\/justin\/j/.test(w.img) ? w.img.replace('art/justin/', 'art/justin/t/') : w.img;
     const a = G.artist(w.artist), ar = w.w / w.h;
     const W = ar >= 1 ? px : Math.round(px * ar), H = ar >= 1 ? Math.round(px / ar) : px;
     return G.renderArt(w.id, a.style, W, H, { variant: w.variant });
@@ -691,6 +755,51 @@
       ctx.fillStyle = '#F2F1ED'; ctx.beginPath(); ctx.ellipse(47 * u, 27 * u, 19 * u, 4 * u, 0, 0, 7); ctx.fill();
       ctx.fillStyle = '#CFCDC6'; ctx.beginPath(); ctx.ellipse(47 * u, 27.4 * u, 17.4 * u, 3.1 * u, 0, 0, 7); ctx.fill();
     },
+    print(ctx, S, img) {
+      const u = S / 100;
+      ctx.fillStyle = '#EDECE7'; ctx.fillRect(0, 0, S, S);
+      const g = ctx.createLinearGradient(0, 0, S, 0); g.addColorStop(0, 'rgba(255,255,255,.4)'); g.addColorStop(1, 'rgba(0,0,0,.06)'); ctx.fillStyle = g; ctx.fillRect(0, 0, S, S);
+      const ar = img.width / img.height, h = 70 * u, w = Math.min(60 * u, h * ar), hh = w / ar, x = (S - w) / 2, y = (S - hh) / 2 - 2 * u, m = 6 * u, f = 1.6 * u;
+      ctx.save(); ctx.shadowColor = 'rgba(0,0,0,.3)'; ctx.shadowBlur = 3 * u; ctx.shadowOffsetX = 0.8 * u; ctx.shadowOffsetY = 1.4 * u;
+      ctx.fillStyle = '#17161B'; ctx.fillRect(x - m - f, y - m - f, w + 2 * (m + f), hh + 2 * (m + f)); ctx.restore();
+      ctx.fillStyle = '#FBFAF7'; ctx.fillRect(x - m, y - m, w + 2 * m, hh + 2 * m);
+      ctx.drawImage(img, x, y, w, hh);
+    },
+    hoodie(ctx, S, img, o = {}) {
+      // two views side by side: front and back
+      const u = S / 100, base = o.base || '#E9E3D6', cord = o.cord || '#F4F1EA', front = o.front || 'logo';
+      ctx.fillStyle = '#ECEBE6'; ctx.fillRect(0, 0, S, S);
+      const draw = (cx, back) => {
+        const k = 0.5, X = (v) => cx + (v - 50) * u * k * 1.85, Y = (v) => (12 + v * 0.8) * u;
+        const body = new Path2D();
+        body.moveTo(X(38), Y(10)); body.quadraticCurveTo(X(50), Y(back ? 4 : 2), X(62), Y(10)); body.lineTo(X(80), Y(18)); body.lineTo(X(96), Y(64)); body.lineTo(X(86), Y(68));
+        body.lineTo(X(74), Y(38)); body.lineTo(X(74), Y(96)); body.lineTo(X(26), Y(96)); body.lineTo(X(26), Y(38)); body.lineTo(X(14), Y(68)); body.lineTo(X(4), Y(64)); body.lineTo(X(20), Y(18)); body.closePath();
+        ctx.save(); ctx.shadowColor = 'rgba(0,0,0,.18)'; ctx.shadowBlur = 2 * u; ctx.shadowOffsetY = 1 * u; ctx.fillStyle = base; ctx.fill(body); ctx.restore();
+        ctx.save(); ctx.clip(body);
+        const art = (im, x0, y0, x1, y1) => { if (!im) return; const w = (x1 - x0), h = (y1 - y0), r = Math.max(w / im.width, h / im.height); ctx.save(); ctx.beginPath(); ctx.rect(x0, y0, w, h); ctx.clip(); ctx.drawImage(im, x0 + (w - im.width * r) / 2, y0 + (h - im.height * r) / 2, im.width * r, im.height * r); ctx.restore(); };
+        if (o.sleeves) { art(o.sleeves, X(4), Y(18), X(26), Y(70)); art(o.sleeves, X(74), Y(18), X(96), Y(70)); }
+        if (back) art(o.back || img, X(30), Y(24), X(70), Y(74));
+        else if (front === 'art') art(o.frontImg || img, X(40), Y(30), X(60), Y(50));
+        const g = ctx.createLinearGradient(X(4), 0, X(96), 0); g.addColorStop(0, 'rgba(0,0,0,.12)'); g.addColorStop(0.5, 'rgba(255,255,255,.04)'); g.addColorStop(1, 'rgba(0,0,0,.14)'); ctx.fillStyle = g; ctx.fillRect(0, 0, S, S);
+        ctx.fillStyle = 'rgba(0,0,0,.07)'; ctx.fillRect(X(26), Y(88), X(74) - X(26), Y(96) - Y(88));
+        ctx.restore();
+        ctx.strokeStyle = 'rgba(0,0,0,.18)'; ctx.lineWidth = 0.35 * u; ctx.stroke(body);
+        // hood
+        ctx.fillStyle = base; ctx.beginPath(); ctx.moveTo(X(38), Y(10)); ctx.quadraticCurveTo(X(50), Y(back ? -10 : -6), X(62), Y(10)); ctx.quadraticCurveTo(X(50), Y(back ? 14 : 18), X(38), Y(10)); ctx.fill();
+        ctx.fillStyle = 'rgba(0,0,0,.12)'; ctx.fill();
+        if (!back) {
+          ctx.strokeStyle = cord; ctx.lineWidth = 0.7 * u; ctx.lineCap = 'round';
+          ctx.beginPath(); ctx.moveTo(X(46), Y(14)); ctx.lineTo(X(45), Y(30)); ctx.moveTo(X(54), Y(14)); ctx.lineTo(X(55), Y(30)); ctx.stroke();
+          ctx.fillStyle = 'rgba(0,0,0,.07)'; ctx.fillRect(X(34), Y(62), X(66) - X(34), Y(78) - Y(62));
+          if (front === 'logo') {
+            ctx.fillStyle = o.logoInk || '#16151B'; ctx.beginPath(); ctx.arc(X(50), Y(38), 4.6 * u * k * 1.85 / 1.85 * 1.4, 0, 7); ctx.fill();
+            ctx.fillStyle = base; ctx.font = `${1.5 * u}px 'Permanent Marker', cursive`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText('gesso', X(50), Y(38));
+          }
+        }
+        ctx.fillStyle = 'rgba(0,0,0,.45)'; ctx.font = `500 ${2.3 * u}px 'DM Mono', monospace`; ctx.textAlign = 'center'; ctx.fillText(back ? 'BACK' : 'FRONT', cx, 96 * u);
+      };
+      draw(27 * u, false); draw(73 * u, true);
+    },
     wallpaper(ctx, S, img) {
       const u = S / 100;
       G.tileImg(ctx, img, 0, 0, S, 79 * u, 24 * u);
@@ -714,6 +823,13 @@
       return c.toDataURL('image/jpeg', 0.88);
     })();
     mockCache.set(k, job); return job;
+  };
+  G.renderHoodie = async (o, px = 900) => {
+    const load = async (id) => (id ? loadImg(G.workArt(G.work(id), 700)) : null);
+    const [front, back, sleeves] = await Promise.all([load(o.front === 'art' ? o.frontArt : null), load(o.backArt), load(o.sleeveArt)]);
+    const c = document.createElement('canvas'); c.width = c.height = px;
+    MOCK.hoodie(c.getContext('2d'), px, back, { base: o.base, cord: o.cord, front: o.front, frontImg: front, back, sleeves, logoInk: o.logoInk });
+    return c.toDataURL('image/jpeg', 0.88);
   };
   G.productImg = (p, px = 480, cls = 'art') => `<img class="${cls}" data-prod="${p.id}" data-px="${px}" style="--ar:1" width="600" height="600" alt="${esc(p.name)} printed with ${esc(G.work(p.src).title)} by ${esc(G.artist(p.artist).name)}" decoding="async">`;
 
@@ -827,13 +943,30 @@
   };
   G.icons = I;
 
+  const AFFIRM = ['YOU ARE RIGHT ON TIME', 'DRINK WATER. MAKE ART.', 'YOUR TASTE IS GOOD', 'REST IS PART OF THE WORK', 'KEEP GOING', 'CALL SOMEONE YOU LOVE', 'BUY ART, NOT STUFF', 'SHOULDERS DOWN, EYES UP', 'CHAOS HERE, PEACE THERE', 'THE WALL IS LISTENING'];
+  // the NASDAQ-style board with a heartbeat: every artist's chip, plus a few things worth hearing
+  G.pulse = () => {
+    const items = [];
+    G.artists.forEach((a, i) => {
+      const ch = G.change(a.slug);
+      items.push(`<span class="q"><b>$${a.ticker}</b> ${G.price(G.collectors(a.slug)).toFixed(2)} <i class="${ch >= 0 ? 'u' : 'd'}">${ch >= 0 ? '▲' : '▼'}${Math.abs(ch * 100).toFixed(1)}%</i></span>`);
+      items.push(`<span class="aff">✶ ${AFFIRM[i % AFFIRM.length]}</span>`);
+    });
+    const idx = G.artists.reduce((s, a) => s + G.change(a.slug), 0) / G.artists.length;
+    const row = items.join('');
+    return `<div class="pulse" role="marquee" aria-label="Gesso board: artist chip prices and affirmations">
+      <a class="pulse-l" href="now.html#board"><svg class="ekg" viewBox="0 0 120 24" aria-hidden="true"><path d="M0 13 H34 L39 13 L43 4 L48 21 L53 8 L57 13 H82 L85 10 L88 13 H120"/></svg><span>GESSO</span><i class="u">▲${(idx * 100).toFixed(2)}%</i></a>
+      <div class="pulse-v"><div class="pulse-t">${row}${row}</div></div></div>`;
+  };
+  G.logo = (cls = '') => `<span class="glogo ${cls}" aria-hidden="true"><span>gesso</span></span>`;
+
   G.chrome = (page) => {
-    const nav = [['discover.html', 'Discover', 'discover'], ['project.html', 'Projects', 'projects'], ['visit.html', 'Visit', 'visit'], ['how-it-works.html', 'How chips work', 'how'], ['for-artists.html', 'For artists', 'artists']];
-    const menu = [['index.html', 'Home'], ['discover.html', 'Discover art'], ['discover.html#objects', 'Wallpaper, aprons and more'], ['project.html', 'Back a project'], ['visit.html', 'See art in person'], ['collection.html', 'Your collection and milestones'], ['how-it-works.html', 'How chips work'], ['for-artists.html', 'Sell on Gesso']];
+    const nav = [['now.html', 'Now', 'now'], ['artists.html', 'Artists', 'artists'], ['discover.html', 'Shop', 'discover'], ['book.html', 'FAME', 'book'], ['partners.html', 'Partners', 'partners'], ['mission.html', 'Mission', 'mission']];
+    const menu = [['now.html', 'Now on Gesso'], ['artists.html', 'Artists'], ['discover.html', 'Shop art'], ['discover.html#objects', 'Hoodies, wallpaper and more'], ['book.html', 'FAME: book chefs, DJs and more'], ['project.html', 'Back a project'], ['visit.html', 'See art in person'], ['partners.html', 'Partners and Gesso House'], ['mission.html', 'Mission and votes'], ['collection.html', 'Your collection and milestones'], ['how-it-works.html', 'How chips work'], ['for-artists.html', 'Sell on Gesso']];
     const top = document.getElementById('chrome-top');
-    if (top) top.outerHTML = `
+    if (top) top.outerHTML = `${G.pulse()}
       <header class="topbar"><div class="wrap">
-        <a class="wordmark" href="index.html" aria-label="Gesso home">gesso<span class="drip" aria-hidden="true"></span></a>
+        <a class="logo-link" href="index.html" aria-label="Gesso home">${G.logo()}</a>
         <nav class="nav" aria-label="Main">${nav.map(([h, l, k]) => `<a href="${h}" ${k === page ? 'aria-current="page"' : ''}>${l}</a>`).join('')}</nav>
         <div class="tools">
           <a class="wallet-pill" href="collection.html" title="What your chips are worth. Tap to see your collection."><span class="stack" data-wallet-stack></span><span class="num" data-wallet-val></span><span class="label muted">in chips</span></a>
@@ -844,28 +977,28 @@
     const bottom = document.getElementById('chrome-bottom');
     if (bottom) bottom.outerHTML = `
       <nav class="tabbar" aria-label="Tabs">
-        <a href="index.html" ${page === 'home' ? 'aria-current="page"' : ''}>${I.home}Home</a>
-        <a href="discover.html" ${page === 'discover' ? 'aria-current="page"' : ''}>${I.wall}Discover</a>
-        <a href="visit.html" ${page === 'visit' ? 'aria-current="page"' : ''}>${I.pin}Visit</a>
+        <a href="now.html" ${page === 'now' ? 'aria-current="page"' : ''}>${I.home}Now</a>
+        <a href="discover.html" ${page === 'discover' ? 'aria-current="page"' : ''}>${I.wall}Shop</a>
+        <a href="artists.html" ${page === 'artists' ? 'aria-current="page"' : ''}>${I.brush}Artists</a>
         <a href="collection.html" ${page === 'collection' ? 'aria-current="page"' : ''}>${I.coll}Collection</a>
         <a href="checkout.html" ${page === 'checkout' ? 'aria-current="page"' : ''}>${I.bag}Bag<span class="badge" data-bag-count></span></a>
       </nav>
       <footer class="footer"><div class="wrap">
         <div class="brand">
-          <a class="wordmark" href="index.html" style="font-size:2.4rem">gesso<span class="drip" aria-hidden="true"></span></a>
+          <a class="logo-link" href="index.html" aria-label="Gesso home">${G.logo('big')}</a>
           <p class="muted">An art market owned by the people who collect it. Buy the art, earn the artist's chips, spend them on more art.</p>
           <div class="theme-toggle" role="group" aria-label="Theme"><button type="button" data-theme-set="system">Auto</button><button type="button" data-theme-set="light">Light</button><button type="button" data-theme-set="dark">Dark</button></div>
         </div>
-        <div><h4>Collect</h4><ul><li><a href="discover.html">Discover art</a></li><li><a href="discover.html#objects">Objects and wallpaper</a></li><li><a href="project.html">Back a project</a></li><li><a href="visit.html">See art in person</a></li><li><a href="collection.html">Your collection</a></li></ul></div>
-        <div><h4>Learn</h4><ul><li><a href="how-it-works.html">How chips work</a></li><li><a href="how-it-works.html#milestones">Milestones</a></li><li><a href="how-it-works.html#pay">Paying over time</a></li><li><a href="how-it-works.html#faq">Questions</a></li></ul></div>
+        <div><h4>Collect</h4><ul><li><a href="artists.html">Artists</a></li><li><a href="discover.html">Shop art</a></li><li><a href="discover.html#objects">Hoodies, wallpaper, more</a></li><li><a href="book.html">FAME bookings</a></li><li><a href="project.html">Back a project</a></li><li><a href="visit.html">See art in person</a></li></ul></div>
+        <div><h4>Learn</h4><ul><li><a href="mission.html">Mission and votes</a></li><li><a href="partners.html">Partners</a></li><li><a href="how-it-works.html">How chips work</a></li><li><a href="how-it-works.html#milestones">Milestones</a></li><li><a href="how-it-works.html#pay">Paying over time</a></li><li><a href="how-it-works.html#faq">Questions</a></li></ul></div>
         <div><h4>Create</h4><ul><li><a href="for-artists.html">Sell on Gesso</a></li><li><a href="for-artists.html#compare">Fees compared</a></li><li><a href="for-artists.html#apply">Apply</a></li></ul></div>
-        <div class="fine"><span>Design preview. HAMEL's paintings are real (photos from Instagram); their titles, sizes and prices are placeholders. Other artists are sample creators with generated stand-in art. No payments are taken.</span><button type="button" class="link" style="background:none;border:0;padding:0;cursor:pointer;font-size:inherit" data-reset>Reset preview</button></div>
+        <div class="fine"><span>Design preview. HAMEL's paintings and photos are real; titles and prices are placeholders. Other artists, FAME creators and partners are samples with generated art. No payments are taken.</span><button type="button" class="link" style="background:none;border:0;padding:0;cursor:pointer;font-size:inherit" data-reset>Reset preview</button></div>
       </div></footer>`;
     document.body.insertAdjacentHTML('beforeend', '<div class="toast" role="status" aria-live="polite" id="toast"></div>');
     document.querySelector('.topbar').insertAdjacentHTML('beforeend', `<nav class="menu" id="menu" hidden aria-label="All pages"><div class="wrap">${menu.map(([h, l]) => `<a href="${h}">${l}<span aria-hidden="true">→</span></a>`).join('')}</div></nav>`);
     const mb = document.getElementById('menu-btn'), mn = document.getElementById('menu');
     mb.addEventListener('click', () => { mn.hidden = !mn.hidden; mb.setAttribute('aria-expanded', String(!mn.hidden)); });
-    if (!store.get('introDone', false) && page !== 'how' && page !== 'checkout') {
+    if (!store.get('introDone', false) && !['how', 'checkout', 'splash'].includes(page)) {
       document.querySelector('.topbar').insertAdjacentHTML('afterend', `<div class="intro" id="intro"><div class="wrap">
         <p><b>New here?</b> Every piece you buy pays you back 10% in that artist's chips, and chips gain value as the artist gains collectors.</p>
         <a href="how-it-works.html">How it works →</a><button type="button" aria-label="Dismiss" id="intro-x">×</button></div></div>`);
@@ -877,7 +1010,7 @@
       if (t === 'system') document.documentElement.removeAttribute('data-theme'); else document.documentElement.setAttribute('data-theme', t);
       document.querySelectorAll('[data-theme-set]').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.themeSet === t)));
     };
-    applyTheme(store.get('theme', 'system'));
+    applyTheme(store.get('theme', 'light'));
     document.addEventListener('click', (e) => {
       const t = e.target.closest('[data-theme-set]');
       if (t) { store.set('theme', t.dataset.themeSet); applyTheme(t.dataset.themeSet); }

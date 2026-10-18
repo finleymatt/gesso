@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>FAME · Gesso</title>
+<meta name="description" content="FAME: Food, Art, Music, Experience. Book chefs, DJs, musicians, filmmakers and makers, and earn their chips for every booking.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wdth,wght@12..96,75..100,300..800&family=DM+Mono:wght@400;500&family=Permanent+Marker&family=VT323&display=swap">
+<link rel="stylesheet" href="gesso.css">
+<style>
+  .hero { display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(0, .8fr); gap: 24px 48px; align-items: end; padding-block: clamp(32px, 5vw, 72px) 28px; }
+  .fame { font-family: var(--display); font-weight: 800; font-size: clamp(4rem, 14vw, 10rem); line-height: .8; letter-spacing: -.06em; font-variation-settings: "wdth" 75; margin: 0; }
+  .fame span { display: inline-block; }
+  .fame span:nth-child(1) { color: #D4931C; } .fame span:nth-child(2) { color: #E3156B; } .fame span:nth-child(3) { color: #2140E3; } .fame span:nth-child(4) { color: #16865A; }
+  .spell { font-family: var(--board); font-size: 24px; letter-spacing: .08em; color: var(--ink-2); margin-top: 8px; }
+  .how { display: grid; gap: 10px; padding: 18px; background: var(--card); border: 1px solid var(--rule); font-size: var(--t-s); }
+  .how b { font-size: var(--t-m); }
+  .bar { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-bottom: 22px; }
+  .bar select.input { width: auto; min-height: 36px; border-radius: 999px; padding: 0 34px 0 12px; font-size: var(--t-s); font-weight: 600; margin-left: auto; }
+  .tal { display: grid; grid-template-rows: auto 1fr; background: var(--card); border: 1px solid var(--rule); overflow: hidden; min-width: 0; }
+  .tal .pic { position: relative; aspect-ratio: 4 / 3; background: var(--c) center / cover; }
+  .tal .kind { position: absolute; left: 12px; top: 12px; background: var(--ink); color: var(--wall); font: 400 18px/1 var(--board); letter-spacing: .06em; padding: 5px 8px; }
+  .tal .ex { position: absolute; right: 12px; top: 12px; font: 500 10px var(--mono); text-transform: uppercase; background: var(--card); padding: 4px 7px; }
+  .tal .body { padding: 16px 18px 18px; display: grid; gap: 8px; align-content: start; }
+  .tal h3 { font-size: 1.3rem; }
+  .tal .city { font-size: var(--t-s); color: var(--ink-2); display: flex; gap: 6px; align-items: center; }
+  .tal .tags { display: flex; flex-wrap: wrap; gap: 6px; }
+  .tal .tags span { font-size: var(--t-xs); padding: 3px 8px; border: 1px solid var(--rule); border-radius: 999px; }
+  .tal .foot { display: flex; justify-content: space-between; align-items: center; gap: 10px; margin-top: 6px; padding-top: 12px; border-top: 1px solid var(--rule); }
+  .tal .rate { font-family: var(--mono); font-size: var(--t-s); }
+  .tal .rate b { font-weight: 500; font-size: 1.05rem; }
+  .apply { margin-top: clamp(40px, 6vw, 72px); display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 18px; align-items: center; padding: clamp(20px, 4vw, 36px); border: 2px dashed var(--rule); }
+  @media (max-width: 800px) { .hero, .apply { grid-template-columns: minmax(0, 1fr); } }
+</style>
+</head>
+<body>
+<div id="chrome-top"></div>
+<main class="wrap">
+  <section class="hero">
+    <div><p class="fame" aria-label="FAME"><span>F</span><span>A</span><span>M</span><span>E</span></p><p class="spell">FOOD · ART · MUSIC · EXPERIENCE</p>
+      <p class="lede" style="margin-top:16px">Book the people who make a night: chefs, DJs, musicians, filmmakers and makers. Every booking earns you their chips, the same way buying art does.</p></div>
+    <div class="how"><b>How booking works</b><span>1. Pick a creator in your city and a date.</span><span>2. They confirm within a day. You pay when they do.</span><span>3. After the event, 10% comes back to you in their chips.</span></div>
+  </section>
+  <div class="bar" id="bar" role="group" aria-label="Filter creators"></div>
+  <div class="cards" id="list"></div>
+  <p class="muted" id="empty" hidden style="padding:30px 0">No one matches that yet. Try another city.</p>
+  <div class="apply"><div style="display:grid;gap:8px"><h2 style="font-size:1.8rem">Chef, DJ, musician or maker?</h2><p class="muted">Apply to be bookable on FAME. You keep 85% of every booking, and your regulars hold your chips.</p></div><a class="btn primary" href="for-artists.html#apply">Apply to FAME</a></div>
+</main>
+<div id="chrome-bottom"></div>
+<script src="gesso.js"></script>
+<script>
+(function () {
+  G.chrome('book');
+  const STYLE = { Chef: 'field', DJ: 'riso', Musician: 'topo', Filmmaker: 'photo', Artisan: 'bauhaus' };
+  const st = { kind: 'all', city: 'all' };
+  const cities = [...new Set(G.talent.map((t) => t.city).filter((c) => !/Shared/.test(c)))].sort();
+  const bar = document.getElementById('bar');
+  bar.innerHTML = `<button class="pill" type="button" data-k="all">Everyone</button>${G.KINDS.map((k) => `<button class="pill" type="button" data-k="${k}">${k}s</button>`).join('')}
+    <label class="sr" for="city" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)">City</label><select class="input" id="city"><option value="all">All cities</option>${cities.map((c) => `<option>${G.esc(c)}</option>`).join('')}</select>`;
+  bar.addEventListener('click', (e) => { const b = e.target.closest('[data-k]'); if (b) { st.kind = b.dataset.k; render(); } });
+  document.getElementById('city').addEventListener('change', (e) => { st.city = e.target.value; render(); });
+  const pic = (t) => t.img || G.renderArt(t.slug + ':cover', STYLE[t.kind], 640, 480);
+
+  function render() {
+    bar.querySelectorAll('[data-k]').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.k === st.kind)));
+    const list = G.talent.filter((t) => (st.kind === 'all' || t.kind === st.kind) && (st.city === 'all' || t.city === st.city));
+    document.getElementById('empty').hidden = list.length > 0;
+    document.getElementById('list').innerHTML = list.map((t) => `<article class="tal" id="${t.slug}">
+      <div class="pic" style="--c:${t.color};background-image:url('${pic(t)}')"><span class="kind">${t.kind.toUpperCase()}</span>${t.example ? '<span class="ex">Example</span>' : ''}</div>
+      <div class="body"><h3>${G.esc(t.name)}</h3><span class="city">${G.icons.pin.replace('<svg', '<svg width="15" height="15"')}${G.esc(t.city)}</span>
+        <p class="muted" style="font-size:var(--t-s)">${G.esc(t.line)}</p>
+        <div class="tags">${t.tags.map((x) => `<span>${G.esc(x)}</span>`).join('')}</div>
+        <div class="foot"><span class="rate"><b>${G.usd(t.rate)}</b> / ${G.esc(t.unit)}</span><button class="btn small primary" type="button" data-book-t="${t.slug}">Book</button></div></div></article>`).join('');
+    document.querySelectorAll('[data-book-t]').forEach((b) => b.addEventListener('click', () => book(G.talent.find((t) => t.slug === b.dataset.bookT))));
+  }
+
+  function book(t) {
+    const n = G.collectors(t.slug), days = Array.from({ length: 6 }, (_, i) => { const d = new Date(G.TODAY); d.setDate(d.getDate() + 7 + i * 2); return d; });
+    let qty = 1;
+    const body = G.sheet(`<p class="eyebrow">Book on FAME</p><h2 style="font-size:2rem;margin:8px 0 4px">${G.esc(t.name)}</h2><p class="muted">${G.esc(t.kind)} · ${G.esc(t.city)}</p>
+      <div class="field" style="margin-top:16px"><span class="lbl">Date</span><div class="slots" id="bd">${days.map((d, i) => `<button type="button" class="pill" aria-pressed="${i === 0}">${d.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })}</button>`).join('')}</div></div>
+      <div class="field" style="margin-top:14px"><span class="lbl">How many (${G.esc(t.unit)})</span><div class="qty" style="display:inline-flex;align-items:center;border:1.5px solid var(--rule);background:var(--card);justify-self:start"><button type="button" data-q="-1" style="width:44px;height:44px;border:0;background:none;font-size:1.2rem;cursor:pointer" aria-label="Fewer">−</button><output id="bq" style="min-width:36px;text-align:center;font-family:var(--mono)">1</output><button type="button" data-q="1" style="width:44px;height:44px;border:0;background:none;font-size:1.2rem;cursor:pointer" aria-label="More">+</button></div></div>
+      <div class="field" style="margin-top:14px"><label for="bn">What's the occasion?</label><textarea class="input" id="bn" placeholder="A birthday dinner for 8, an opening, a backyard set…"></textarea></div>
+      <p id="bt" style="margin-top:14px;font-size:var(--t-s)"></p>
+      <button class="btn primary block" type="button" id="bgo" style="margin-top:12px"></button>
+      <p class="mono muted" style="font-size:var(--t-xs);margin-top:10px">You're charged only when ${G.esc(t.name)} confirms. Preview: nothing is sent.</p>`);
+    const upd = () => {
+      const total = t.rate * qty, c = G.chipsFor(total, n, G.myRate());
+      body.querySelector('#bq').textContent = qty;
+      body.querySelector('#bt').innerHTML = `Total <b style="font-family:var(--mono)">${G.usd(total)}</b>. Earns <b style="color:var(--cobalt)">${G.chips(c)} $${t.ticker}</b> after the event, worth ${G.usd(c * G.price(n), true)} today.`;
+      body.querySelector('#bgo').textContent = `Request booking · ${G.usd(total)}`;
+    };
+    body.querySelector('#bd').addEventListener('click', (e) => { const b = e.target.closest('button'); if (b) body.querySelectorAll('#bd button').forEach((x) => x.setAttribute('aria-pressed', String(x === b))); });
+    body.querySelectorAll('[data-q]').forEach((b) => b.addEventListener('click', () => { qty = Math.max(1, Math.min(10, qty + +b.dataset.q)); upd(); }));
+    body.querySelector('#bgo').addEventListener('click', () => {
+      const total = t.rate * qty, c = G.chipsFor(total, n, G.myRate()), w = G.wallet(), date = body.querySelector('#bd [aria-pressed="true"]').textContent;
+      w.pending[t.slug] = (w.pending[t.slug] || 0) + c; w.spent = (w.spent || 0) + total; w.sample = false;
+      w.log.unshift({ t: '2026-10-18', text: `Booked ${t.name} for ${date}`, chips: 0, a: t.slug }); G.saveWallet(w); G.refreshBadges();
+      body.innerHTML = `<p class="eyebrow">Requested</p><h2 style="font-size:2rem;margin:8px 0">${G.esc(t.name)} on ${G.esc(date)}</h2><p class="muted">${G.chips(c)} $${t.ticker} chips are waiting in your collection and arrive after the event. Nothing was sent in this preview.</p><div class="cta-row" style="margin-top:18px"><button class="btn primary" type="button" data-close>Done</button><a class="btn" href="collection.html">Your collection</a></div>`;
+    });
+    upd();
+  }
+  render();
+  const h = location.hash.slice(1); if (h) { const el = document.getElementById(h); if (el) el.scrollIntoView(); }
+})();
+</script>
+</body>
+</html>

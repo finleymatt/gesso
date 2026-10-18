@@ -7,7 +7,7 @@
 <meta name="description" content="An artwork on Gesso, with its wall label, provenance, and the chips it earns you.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wdth,wght@12..96,75..100,300..800&family=DM+Mono:wght@400;500&family=Permanent+Marker&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wdth,wght@12..96,75..100,300..800&family=DM+Mono:wght@400;500&family=Permanent+Marker&family=VT323&display=swap">
 <link rel="stylesheet" href="gesso.css">
 <style>
   .crumbs { display: flex; flex-wrap: wrap; gap: 8px; font-size: var(--t-s); color: var(--ink-2); padding-block: 20px; }
@@ -107,6 +107,9 @@
               <p>Worth ${G.usd(earn * px, true)} today at ${G.usd(px, true)} per chip${G.isFounding(n) ? ', including the founding 2× bonus' : ''}${G.myRate() > G.EARN ? `, at your ${G.tierOf(G.spent()).name} rate of ${Math.round(G.myRate() * 100)}%` : ''}. ${alreadyCollector ? `You're already ${G.esc(a.name)}'s collector #${wallet.collectorNo[w.artist]}, so this buy adds chips without changing the count.` : `You'd become ${G.esc(a.name)}'s collector #${n + 1}, which raises every $${a.ticker} chip to ${G.usd(G.price(n + 1), true)}.`}</p>
               <p>You hold ${G.usd(G.walletValue(wallet), true)} in chips. Up to <b style="color:var(--ink)">${G.usd(canChip, true)}</b> of this piece can be paid with them.</p>
             </div>
+            <div class="pays"><p class="eyebrow">Framing</p><div class="slots" id="frames">${Object.entries(G.FRAMES).map(([k, f]) => `<button type="button" class="pill" data-frame-pick="${k}" aria-pressed="${k === 'none'}">${f.name}${G.framePrice(w, k) ? ' +' + G.usd(G.framePrice(w, k)) : ''}</button>`).join('')}</div>
+              <span class="muted" style="font-size:var(--t-xs)">Framed by our framing partner and shipped ready to hang. Preview frames in the room view.</span></div>
+            ${w.edition === 'Original' ? `<a class="link" href="product.html#${w.id}-print" style="font-size:var(--t-s)">Prefer a print? From ${G.usd(G.types.print.optPrice[0])}</a>` : ''}
             <div class="pays"><p class="eyebrow">Ways to pay</p><div class="plans" id="plans">${G.plans(w.price).map((pl) => `
               <label class="plan"><input type="radio" name="plan" value="${pl.id}" ${pl.id === (G.store.get('plan', 'full')) ? 'checked' : ''}><span><span class="n">${pl.name}</span><br><span class="d">${pl.note}</span></span>
                 <span class="p">${G.usd(pl.today, true)}<small>${pl.n ? `today, then ${pl.n} × ${G.usd(pl.each, true)}` : 'once'}</small></span></label>`).join('')}</div></div>
@@ -140,14 +143,23 @@
       document.querySelector('.viewer').classList.toggle('roommode', mode !== 'art');
       if (mode === 'art') { stage.innerHTML = G.artImg(w, 1100, 'art hung'); G.hydrate(stage); }
       else if (!mounted) { mounted = true; G.roomStudio(studio, { img: G.workArt(w, 1000), dims: { w: w.w, h: w.h } }); }
-      vnote.textContent = mode === 'art' ? `${w.w} × ${w.h} in` : '';
+      vnote.textContent = mode === 'art' ? G.size(w) : '';
       document.querySelectorAll('[data-mode]').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.mode === mode)));
     };
     document.querySelector('.seg').addEventListener('click', (e) => { const b = e.target.closest('[data-mode]'); if (b) { mode = b.dataset.mode; show(); } });
     show();
     document.querySelectorAll('input[name="plan"]').forEach((r) => r.addEventListener('change', () => G.store.set('plan', r.value)));
     const bn = document.getElementById('buynow');
-    if (bn) bn.addEventListener('click', () => { const b = G.bag(); if (!b.includes(id)) b.push(id); G.setBag(b); });
+    let frame = 'none';
+    const key = () => (frame === 'none' ? id : `${id}|${frame}`);
+    const fr = document.getElementById('frames');
+    if (fr) fr.addEventListener('click', (e) => {
+      const b = e.target.closest('[data-frame-pick]'); if (!b) return; frame = b.dataset.framePick;
+      fr.querySelectorAll('button').forEach((x) => x.setAttribute('aria-pressed', String(x === b)));
+      const add = document.querySelector('[data-add]'); if (add) add.dataset.add = key();
+      const u = document.querySelector('.pricebox .usd'); if (u) u.textContent = G.usd(w.price + G.framePrice(w, frame));
+    });
+    if (bn) bn.addEventListener('click', () => { const k = key(); G.setBag(G.bag().filter((x) => x.split('|')[0] !== id).concat(k)); });
     G.hydrate();
     window.scrollTo(0, 0);
   }

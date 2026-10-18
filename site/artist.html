@@ -7,7 +7,7 @@
 <meta name="description" content="An artist's wall on Gesso: their work, their chip, and the people who collect them.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wdth,wght@12..96,75..100,300..800&family=DM+Mono:wght@400;500&family=Permanent+Marker&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wdth,wght@12..96,75..100,300..800&family=DM+Mono:wght@400;500&family=Permanent+Marker&family=VT323&display=swap">
 <link rel="stylesheet" href="gesso.css">
 <style>
   .banner { height: clamp(170px, 26vw, 360px); background-size: cover; background-position: center; background-color: var(--c); border-bottom: 2px solid var(--ink); }
@@ -70,6 +70,15 @@
   @media (max-width: 760px) { .storebar { grid-template-columns: minmax(0, 1fr); } }
   .shophead { display: flex; justify-content: space-between; align-items: end; gap: 12px; margin: 8px 0 22px; }
   .objs { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 200px), 1fr)); gap: clamp(16px, 3vw, 28px); }
+  .comm { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, .9fr); gap: clamp(24px, 4vw, 48px); align-items: start; }
+  .comm ol { margin: 0; padding: 0; list-style: none; display: grid; gap: 14px; counter-reset: c; }
+  .comm li { display: grid; grid-template-columns: 40px minmax(0, 1fr); gap: 12px; }
+  .comm li::before { counter-increment: c; content: counter(c); width: 40px; height: 40px; border-radius: 50%; background: var(--ink); color: var(--wall); display: grid; place-items: center; font: 400 22px var(--board); }
+  .comm .price { background: var(--card); border: 2px solid var(--ink); padding: 20px; display: grid; gap: 12px; }
+  .comm .price .usd { font: 500 2rem var(--mono); }
+  .buychips { margin-top: 10px; display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; font-size: var(--t-xs); }
+  .tagplan { font: 500 10px var(--mono); text-transform: uppercase; letter-spacing: .08em; padding: 3px 7px; border: 1px dashed var(--ink-2); color: var(--ink-2); }
+  @media (max-width: 860px) { .comm { grid-template-columns: minmax(0, 1fr); } }
   .more { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 12px; }
   @media (max-width: 1000px) { .more { display: flex; overflow-x: auto; margin-inline: calc(-1 * var(--gut)); padding-inline: var(--gut); padding-bottom: 12px; } .more .chip { flex: 0 0 168px; } }
 </style>
@@ -109,7 +118,7 @@
     const venues = G.venuesBy(slug), proj = G.projectBy(slug), objs = G.productsBy(slug), v0 = venues[0];
 
     document.getElementById('main').innerHTML = `
-      ${a.banner ? `<div class="banner strip" style="--c:${a.color}">${a.banner.map((id) => `<img src="${G.work(id).img}" alt="" loading="lazy">`).join('')}</div>`
+      ${a.banner ? `<div class="banner strip" style="--c:${a.color}">${a.banner.map((id) => `<img src="${G.work(id) ? G.workArt(G.work(id), 560) : id.replace('art/justin/', 'art/justin/t/')}" alt="">`).join('')}</div>`
         : `<div class="banner" style="--c:${a.color}" data-artist-art="${slug},banner,1600,520" role="img" aria-label="Detail of a work by ${G.esc(a.name)}"></div>`}
       <section class="wrap">
         <div class="prof">
@@ -147,6 +156,7 @@
               <span class="eyebrow">Price per chip</span>
               <div class="pxrow"><span class="usd">${G.usd(p, true)}</span><span class="mono ${G.change(slug) >= 0 ? 'up' : 'down'}">${G.pct(G.change(slug))} in 30 days</span></div>
               <div id="pchart"></div>
+              <div class="buychips"><button class="btn small" type="button" id="buychips">Buy $${a.ticker} directly</button><span class="tagplan">Planned</span></div>
               <p class="earnline">A ${G.usd(500)} purchase today earns <b>${G.chips(G.chipsFor(500, n))} $${a.ticker}</b>, worth <b>${G.usd(G.chipsFor(500, n) * p, true)}</b>${G.isFounding(n) ? ' with the founding 2× bonus' : ''}.</p>
             </div>
           </div>
@@ -155,6 +165,7 @@
         <div class="tabs" role="tablist" id="tabs">
           <button role="tab" aria-selected="true" data-tab="works" id="works">Shop <span class="n">${works.length + objs.length}</span></button>
           <button role="tab" aria-selected="false" data-tab="visit">Visit <span class="n">${venues.length}</span></button>
+          ${a.commission ? '<button role="tab" aria-selected="false" data-tab="commission">Commission</button>' : ''}
           <button role="tab" aria-selected="false" data-tab="studio">Studio <span class="n">${posts.length}</span></button>
           <button role="tab" aria-selected="false" data-tab="collectors">Collectors <span class="n">${n.toLocaleString()}</span></button>
         </div>
@@ -164,6 +175,21 @@
           ${objs.length ? `<div class="shophead" style="margin-top:20px"><h2 style="font-size:1.8rem">Objects</h2><span class="muted mono" style="font-size:var(--t-xs)">Made to order · ${G.esc(a.name)} earns 30%</span></div>
           <div class="objs">${objs.map(G.productCard).join('')}</div>` : ''}
         </div>
+        ${a.commission ? `<div class="panel" data-panel="commission" hidden>
+          <div class="comm">
+            <div style="display:grid;gap:18px">
+              <h2 style="font-size:2rem">${G.esc(a.commission.title)}</h2>
+              <p class="lede" style="color:var(--ink)">${G.esc(a.commission.text)}</p>
+              <ol>
+                <li><div><b>Book the hours.</b><br><span class="muted">In the studio or on video. Most people book one or two hours.</span></div></li>
+                <li><div><b>Talk. Justin listens.</b><br><span class="muted">Stories, people, places, things you've never said out loud. Nothing is recorded.</span></div></li>
+                <li><div><b>A painting made from it.</b><br><span class="muted">Justin quotes the painting after the session. Your session fee counts toward it.</span></div></li>
+              </ol>
+            </div>
+            <div class="price"><span class="eyebrow">Per hour</span><span class="usd">${G.usd(a.commission.rate)}</span>
+              <span class="muted" style="font-size:var(--t-s)">Earns ${Math.round(G.myRate() * 100)}% back in $${a.ticker}. Counts toward your milestones.</span>
+              <button class="btn primary block" type="button" id="listen">Book a listening session</button></div>
+          </div></div>` : ''}
         <div class="panel" data-panel="visit" hidden>
           <div class="shophead"><h2 style="font-size:1.8rem">See it in person</h2></div>
           <div class="cards">${venues.map((v) => G.venueCard(v)).join('')}</div>
@@ -207,6 +233,9 @@
       document.querySelectorAll('[data-panel]').forEach((p) => (p.hidden = p.dataset.panel !== b.dataset.tab));
       G.hydrate();
     });
+    const lb = document.getElementById('listen');
+    if (lb) lb.addEventListener('click', () => listen(a));
+    document.getElementById('buychips').addEventListener('click', () => buyChips(a));
     document.querySelectorAll('[data-goto-tab]').forEach((b) => b.addEventListener('click', () => { tabs.querySelector(`[data-tab="${b.dataset.gotoTab}"]`).click(); tabs.scrollIntoView({ behavior: 'smooth' }); }));
     document.getElementById('collect').addEventListener('click', (e) => { e.preventDefault(); tabs.querySelector('[data-tab="works"]').click(); tabs.scrollIntoView({ behavior: 'smooth' }); });
     document.getElementById('follow').addEventListener('click', (e) => {
@@ -218,6 +247,45 @@
     G.hydrate();
     window.scrollTo(0, 0);
   }
+  function listen(a) {
+    const c = a.commission, days = Array.from({ length: 6 }, (_, i) => { const d = new Date(G.TODAY); d.setDate(d.getDate() + 3 + i); return d; });
+    let hours = 1, where = 'studio';
+    const body = G.sheet(`<p class="eyebrow">${G.esc(c.title)}</p><h2 style="font-size:2rem;margin:8px 0 14px">Time with ${G.esc(a.name)}</h2>
+      <div class="field"><span class="lbl">Where</span><div class="slots" id="lw"><button type="button" class="pill" aria-pressed="true" data-w="studio">In the studio</button><button type="button" class="pill" aria-pressed="false" data-w="video">On video</button></div></div>
+      <div class="field" style="margin-top:14px"><span class="lbl">Hours</span><div class="slots" id="lh">${[1, 2, 3, 4].map((h) => `<button type="button" class="pill" aria-pressed="${h === 1}" data-h="${h}">${h} hour${h > 1 ? 's' : ''}</button>`).join('')}</div></div>
+      <div class="field" style="margin-top:14px"><span class="lbl">Day</span><div class="slots" id="ld">${days.map((d, i) => `<button type="button" class="pill" aria-pressed="${i === 0}">${d.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })}</button>`).join('')}</div></div>
+      <p id="lt" style="margin-top:16px;font-size:var(--t-s)"></p>
+      <button class="btn primary block" type="button" id="lgo" style="margin-top:12px"></button>
+      <p class="mono muted" style="font-size:var(--t-xs);margin-top:10px">Preview: nothing is booked or charged.</p>`);
+    const n = G.collectors(a.slug);
+    const upd = () => {
+      const total = c.rate * hours, ch = G.chipsFor(total, n, G.myRate());
+      body.querySelector('#lt').innerHTML = `${hours} hour${hours > 1 ? 's' : ''} ${where === 'video' ? 'on video' : 'in the studio'}: <b style="font-family:var(--mono)">${G.usd(total)}</b>. Earns <b style="color:var(--cobalt)">${G.chips(ch)} $${a.ticker}</b>.`;
+      body.querySelector('#lgo').textContent = `Book · ${G.usd(total)}`;
+    };
+    const group = (sel, fn) => body.querySelector(sel).addEventListener('click', (e) => { const b = e.target.closest('button'); if (!b) return; body.querySelectorAll(sel + ' button').forEach((x) => x.setAttribute('aria-pressed', String(x === b))); fn(b); upd(); });
+    group('#lw', (b) => (where = b.dataset.w)); group('#lh', (b) => (hours = +b.dataset.h)); group('#ld', () => {});
+    body.querySelector('#lgo').addEventListener('click', () => {
+      const total = c.rate * hours, ch = G.chipsFor(total, n, G.myRate()), w = G.wallet(), day = body.querySelector('#ld [aria-pressed="true"]').textContent;
+      w.chips[a.slug] = (w.chips[a.slug] || 0) + ch; w.spent = (w.spent || 0) + total; w.sample = false;
+      w.log.unshift({ t: '2026-10-18', text: `Booked a ${hours}-hour listening session for ${day}`, chips: ch, a: a.slug }); G.saveWallet(w); G.refreshBadges();
+      body.innerHTML = `<p class="eyebrow">Booked</p><h2 style="font-size:2rem;margin:8px 0">${G.esc(day)}, ${hours} hour${hours > 1 ? 's' : ''}</h2><p class="muted">Justin confirms and sends details in the live app. ${G.chips(ch)} $${a.ticker} added to your collection. Nothing was charged in this preview.</p><button class="btn block" type="button" data-close style="margin-top:18px">Done</button>`;
+    });
+    upd();
+  }
+
+  function buyChips(a) {
+    const n = G.collectors(a.slug), px = G.price(n);
+    const body = G.sheet(`<p class="eyebrow">Open market · planned</p><h2 style="font-size:2rem;margin:8px 0 10px">Buy $${a.ticker} directly</h2>
+      <p class="muted" style="font-size:var(--t-s)">Back ${G.esc(a.name)} without buying a piece. You pay today's price per chip, and the money goes to the artist and the reserve the same way a sale does.</p>
+      <div class="field" style="margin-top:14px"><label for="bc">Amount (USD)</label><input class="input mono" id="bc" type="number" min="5" value="100"></div>
+      <p id="bcr" class="mono" style="margin-top:10px;font-size:var(--t-s);color:var(--cobalt)"></p>
+      <button class="btn primary block" type="button" disabled style="margin-top:12px">Coming after legal review</button>
+      <p class="mono muted" style="font-size:var(--t-xs);margin-top:10px">Selling chips on their own, or letting people trade them, makes them a financial product. This turns on only once the legal side is settled.</p>`);
+    const i = body.querySelector('#bc'), upd = () => (body.querySelector('#bcr').textContent = `${G.chips(Math.max(0, +i.value || 0) / px)} $${a.ticker} at ${G.usd(px, true)} each`);
+    i.addEventListener('input', upd); upd();
+  }
+
   window.addEventListener('hashchange', render);
   render();
 })();

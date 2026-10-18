@@ -7,7 +7,7 @@
 <meta name="description" content="Originals and prints from artists on Gesso. Every purchase earns you the artist's chips.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wdth,wght@12..96,75..100,300..800&family=DM+Mono:wght@400;500&family=Permanent+Marker&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wdth,wght@12..96,75..100,300..800&family=DM+Mono:wght@400;500&family=Permanent+Marker&family=VT323&display=swap">
 <link rel="stylesheet" href="gesso.css">
 <style>
   .head { display: flex; flex-wrap: wrap; align-items: end; justify-content: space-between; gap: 20px 40px; padding-block: clamp(32px, 5vw, 64px) 24px; }
@@ -136,6 +136,7 @@
       const a = G.artist(p.artist);
       if (state.artist !== 'all' && p.artist !== state.artist) return false;
       if (state.kind !== 'all' && p.type !== state.kind) return false;
+      if (state.kind === 'all' && p.type === 'print') return false;
       if (state.price !== 'any') { const [lo, hi] = state.price.split('-').map(Number); if (p.price < lo || p.price >= hi) return false; }
       if (state.q && !(p.name + ' ' + a.name + ' ' + G.work(p.src).title).toLowerCase().includes(state.q)) return false;
       return true;

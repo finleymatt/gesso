@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Artists · Gesso</title>
+<meta name="description" content="Every artist on Gesso, their chip, and where to see their work.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wdth,wght@12..96,75..100,300..800&family=DM+Mono:wght@400;500&family=Permanent+Marker&family=VT323&display=swap">
+<link rel="stylesheet" href="gesso.css">
+<style>
+  .head { display: flex; flex-wrap: wrap; align-items: end; justify-content: space-between; gap: 20px 40px; padding-block: clamp(32px, 5vw, 64px) 28px; }
+  .head > div { display: grid; gap: 14px; max-width: 40em; }
+  .roster { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 340px), 1fr)); gap: clamp(16px, 2.4vw, 24px); }
+  .acard { display: grid; background: var(--card); border: 1px solid var(--rule); text-decoration: none; overflow: hidden; transition: transform .25s cubic-bezier(.2,.8,.2,1), box-shadow .25s; }
+  .acard:hover { transform: translateY(-4px); box-shadow: 0 18px 40px -24px rgba(0,0,0,.45); }
+  .acard .strip { display: flex; height: 150px; }
+  .acard .strip img { flex: 1 1 0; min-width: 0; height: 100%; object-fit: cover; }
+  .acard .row { display: grid; grid-template-columns: 64px minmax(0, 1fr) auto; gap: 14px; align-items: center; padding: 14px 16px 16px; }
+  .acard .av { width: 64px; height: 64px; margin-top: -40px; border: 4px solid var(--card); background: var(--c) center / cover; }
+  .acard h2 { font-size: 1.5rem; }
+  .acard .sub { font-size: var(--t-s); color: var(--ink-2); }
+  .acard .px { text-align: right; font-family: var(--mono); font-size: var(--t-s); }
+  .acard .px b { display: block; font-weight: 500; font-size: 1.05rem; }
+  .acard .line { padding: 0 16px 16px; font-size: var(--t-s); color: var(--ink-2); display: flex; flex-wrap: wrap; gap: 6px 14px; }
+  .join { margin-top: clamp(40px, 6vw, 72px); display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 18px; align-items: center; padding: clamp(20px, 4vw, 36px); border: 2px dashed var(--rule); }
+  @media (max-width: 640px) { .join { grid-template-columns: minmax(0, 1fr); } }
+</style>
+</head>
+<body>
+<div id="chrome-top"></div>
+<main class="wrap">
+  <section class="head">
+    <div><p class="eyebrow">Artists</p><h1 class="display" style="font-size:clamp(2.6rem,7vw,5rem)">The roster</h1>
+      <p class="lede">Every artist on Gesso has a wall, a chip, and somewhere you can see the work in person. More artists join in small batches.</p></div>
+    <a class="btn" href="book.html">Chefs, DJs and makers on FAME →</a>
+  </section>
+  <div class="roster" id="roster"></div>
+  <div class="join"><div style="display:grid;gap:8px"><h2 style="font-size:1.8rem">Know an artist who belongs here?</h2><p class="muted">Gesso opens new walls a few at a time. Artists keep 80% of every sale.</p></div><a class="btn primary" href="for-artists.html#apply">Apply or refer an artist</a></div>
+</main>
+<div id="chrome-bottom"></div>
+<script src="gesso.js"></script>
+<script>
+(function () {
+  G.chrome('artists');
+  const list = G.artists.slice().sort((a, b) => (b.real ? 1 : 0) - (a.real ? 1 : 0) || G.collectors(b.slug) - G.collectors(a.slug));
+  document.getElementById('roster').innerHTML = list.map((a) => {
+    const works = G.worksBy(a.slug), avail = works.filter((w) => !G.isSold(w)), v = G.venuesBy(a.slug)[0], n = G.collectors(a.slug);
+    const pics = works.slice(0, 3).map((w) => `<img ${w.img ? `src="${G.workArt(w, 360)}"` : `data-art="${w.id}" data-px="360"`} alt="">`).join('');
+    return `<a class="acard" href="artist.html#${a.slug}">
+      <div class="strip">${pics}</div>
+      <div class="row"><div class="av" style="--c:${a.color}" data-artist-art="${a.slug},avatar,200,200"></div>
+        <div style="min-width:0"><h2>${G.esc(a.name)}</h2><div class="sub">${G.esc(a.short)}</div></div>
+        <div class="px"><b>$${a.ticker}</b>${G.usd(G.price(n), true)}</div></div>
+      <div class="line"><span>${n.toLocaleString()} collectors</span><span>${avail.length} available</span>${v ? `<span>${G.esc(v.type)}${v.city ? ' · ' + G.esc(v.city) : ''}</span>` : ''}${a.commission ? '<span style="color:var(--cobalt)">Takes commissions</span>' : ''}</div></a>`;
+  }).join('');
+  G.hydrate();
+})();
+</script>
+</body>
+</html>

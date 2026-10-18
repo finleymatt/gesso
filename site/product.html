@@ -7,7 +7,7 @@
 <meta name="description" content="Wallpaper, aprons, totes and more, printed with an artist's work. Every purchase earns you their chips.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wdth,wght@12..96,75..100,300..800&family=DM+Mono:wght@400;500&family=Permanent+Marker&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wdth,wght@12..96,75..100,300..800&family=DM+Mono:wght@400;500&family=Permanent+Marker&family=VT323&display=swap">
 <link rel="stylesheet" href="gesso.css">
 <style>
   .crumbs { display: flex; flex-wrap: wrap; gap: 8px; font-size: var(--t-s); color: var(--ink-2); padding-block: 20px; }
@@ -37,6 +37,16 @@
   .buy { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
   .facts { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; font-size: var(--t-s); color: var(--ink-2); }
   .facts li::before { content: "·"; margin-right: 8px; }
+  .builder { display: grid; gap: 16px; padding: 18px; background: var(--card); border: 2px solid var(--ink); }
+  .builder .lbl { font: 500 var(--t-xs) var(--mono); text-transform: uppercase; letter-spacing: .1em; color: var(--ink-2); }
+  .picks { display: flex; gap: 6px; overflow-x: auto; scrollbar-width: none; padding: 3px; }
+  .picks button { flex: none; width: 46px; height: 58px; border: 2px solid var(--rule); background: center / cover; cursor: pointer; padding: 0; }
+  .picks button[aria-pressed="true"] { border-color: var(--cobalt); box-shadow: 0 0 0 2px var(--cobalt); }
+  .picks button.none { background: var(--wall-2); font: 500 10px var(--mono); color: var(--ink-2); }
+  .dots { display: flex; gap: 8px; }
+  .dots button { width: 30px; height: 30px; border-radius: 50%; background: var(--c); border: 2px solid var(--card); box-shadow: 0 0 0 1.5px var(--rule); cursor: pointer; padding: 0; }
+  .dots button[aria-pressed="true"] { box-shadow: 0 0 0 2.5px var(--ink); }
+  .fabric { font-size: var(--t-xs); color: var(--up); font-family: var(--mono); }
   .objs { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 200px), 1fr)); gap: clamp(16px, 3vw, 28px); }
   @media (max-width: 900px) {
     .pg { grid-template-columns: minmax(0, 1fr); }
@@ -60,7 +70,13 @@
     const id = G.product(location.hash.slice(1)) ? location.hash.slice(1) : 'hamel-wallpaper';
     const p = G.product(id), a = G.artist(p.artist), w = G.work(p.src), n = G.collectors(p.artist);
     const isPaper = p.type === 'wallpaper';
-    let opt = p.opts[0], qty = isPaper ? 3 : 1;
+    let opt = p.opts[0], qty = isPaper ? 3 : 1, pframe = 'none';
+    const isPrint = p.type === 'print', custom = !!p.custom;
+    const HW = G.worksBy('hamel').filter((x) => x.img).slice(0, 16).map((x) => x.id);
+    const CFG = { front: 'logo', frontArt: HW[0], backArt: p.src, sleeveArt: null, base: '#E9E3D6', cord: '#F4F1EA', fabric: 'Hemp and organic cotton' };
+    const BASES = [['Bone', '#E9E3D6'], ['Black', '#1C1B1F'], ['Sage', '#A9B49B'], ['Clay', '#B8775A']];
+    const CORDS = [['White', '#F4F1EA'], ['Black', '#1C1B1F'], ['Pink', '#E3156B'], ['Blue', '#2140E3']];
+    const FABRICS = ['Hemp and organic cotton', 'Organic cotton', 'Linen blend'];
     document.title = p.name + ' · ' + a.name + ' · Gesso';
     const more = G.productsBy(p.artist).filter((x) => x.id !== id);
 
@@ -77,9 +93,19 @@
             <h1>${G.esc(p.name)}</h1>
             <p class="muted">${G.esc(p.desc)}</p>
           </div>
-          <a class="src" href="piece.html#${w.id}">${G.artImg(w, 160, 'art')}<span><span class="eyebrow">Printed with</span><br><b>${G.esc(w.title)}</b>, ${w.year}<br><span class="muted" style="font-size:var(--t-s)">See the original →</span></span></a>
+          ${custom ? '' : `<a class="src" href="piece.html#${w.id}">${G.artImg(w, 160, 'art')}<span><span class="eyebrow">Printed with</span><br><b>${G.esc(w.title)}</b>, ${w.year}<br><span class="muted" style="font-size:var(--t-s)">See the original →</span></span></a>`}
           <div class="price" id="price"></div>
-          <div class="field"><span class="lbl">${isPaper ? 'Finish' : p.type === 'tee' ? 'Size' : 'Option'}</span><div class="opts" id="opts">${p.opts.map((o, i) => `<button type="button" class="pill" aria-pressed="${i === 0}" data-opt="${G.esc(o)}">${G.esc(o)}</button>`).join('')}</div></div>
+          <div class="field"><span class="lbl">${isPaper ? 'Finish' : ['tee', 'hoodie'].includes(p.type) ? 'Size' : isPrint ? 'Size and paper' : 'Option'}</span><div class="opts" id="opts">${p.opts.map((o, i) => `<button type="button" class="pill" aria-pressed="${i === 0}" data-opt="${G.esc(o)}">${G.esc(o)}${p.optPrice ? ' · ' + G.usd(p.optPrice[i]) : ''}</button>`).join('')}</div></div>
+          ${isPrint ? `<div class="field"><span class="lbl">Frame</span><div class="opts" id="pframes">${Object.entries(G.FRAMES).map(([k, f]) => `<button type="button" class="pill" data-pf="${k}" aria-pressed="${k === 'none'}">${f.name}</button>`).join('')}</div><span class="muted" style="font-size:var(--t-xs)">Framed by our framing partner and shipped ready to hang.</span></div>` : ''}
+          ${custom ? `<div class="builder" id="builder">
+            <div class="field"><span class="lbl">Front</span><div class="opts" id="bfront"><button type="button" class="pill" data-front="logo" aria-pressed="true">Gesso logo</button><button type="button" class="pill" data-front="art" aria-pressed="false">Art</button><button type="button" class="pill" data-front="none" aria-pressed="false">Blank</button></div>
+              <div class="picks" id="pfront" hidden>${HW.map((x, i) => `<button type="button" data-pick="frontArt" data-id="${x}" aria-pressed="${i === 0}" style="background-image:url('${G.workArt(G.work(x), 200)}')" aria-label="${G.esc(G.work(x).title)}"></button>`).join('')}</div></div>
+            <div class="field"><span class="lbl">Back</span><div class="picks">${HW.map((x) => `<button type="button" data-pick="backArt" data-id="${x}" aria-pressed="${x === p.src}" style="background-image:url('${G.workArt(G.work(x), 200)}')" aria-label="${G.esc(G.work(x).title)}"></button>`).join('')}</div></div>
+            <div class="field"><span class="lbl">Sleeves</span><div class="picks"><button type="button" class="none" data-pick="sleeveArt" data-id="" aria-pressed="true">None</button>${HW.map((x) => `<button type="button" data-pick="sleeveArt" data-id="${x}" aria-pressed="false" style="background-image:url('${G.workArt(G.work(x), 200)}')" aria-label="${G.esc(G.work(x).title)}"></button>`).join('')}</div></div>
+            <div class="grid-2" style="grid-template-columns:1fr 1fr"><div class="field"><span class="lbl">Color</span><div class="dots">${BASES.map(([n, c], i) => `<button type="button" data-base="${c}" style="--c:${c}" aria-pressed="${i === 0}" aria-label="${n}" title="${n}"></button>`).join('')}</div></div>
+              <div class="field"><span class="lbl">Drawcord and thread</span><div class="dots">${CORDS.map(([n, c], i) => `<button type="button" data-cord="${c}" style="--c:${c}" aria-pressed="${i === 0}" aria-label="${n}" title="${n}"></button>`).join('')}</div></div></div>
+            <div class="field"><span class="lbl">Fabric</span><div class="opts">${FABRICS.map((f, i) => `<button type="button" class="pill" data-fabric="${f}" aria-pressed="${i === 0}">${f}</button>`).join('')}</div><span class="fabric">Natural fibers only. No polyester, no microfiber.</span></div>
+          </div>` : ''}
           ${isPaper ? `<div class="calc">
             <span class="lbl" style="font:500 var(--t-xs) var(--mono);text-transform:uppercase;letter-spacing:.1em;color:var(--ink-2)">How many rolls?</span>
             <div class="grid-2" style="grid-template-columns:1fr 1fr"><div class="field"><label for="ww">Wall width (ft)</label><input class="input" id="ww" type="number" min="1" value="12"></div><div class="field"><label for="wh">Wall height (ft)</label><input class="input" id="wh" type="number" min="1" value="9"></div></div>
@@ -93,11 +119,19 @@
       ${more.length ? `<section class="section" style="padding-bottom:0" aria-labelledby="more-h"><div class="section-head"><div><p class="eyebrow">More objects</p><h2 id="more-h">${G.esc(a.name)} on other things</h2></div><a class="btn small" href="discover.html#objects">All objects</a></div>
         <div class="objs">${more.map(G.productCard).join('')}</div></section>` : ''}`;
 
-    const key = () => `p:${id}|${opt}|${qty}`;
+    const title = (x) => G.work(x).title.replace(/^Untitled \((.*)\)$/, '$1');
+    const fullOpt = () => {
+      if (isPrint) return opt + (pframe !== 'none' ? ' · ' + pframe : '');
+      if (custom) return [opt, CFG.fabric, BASES.find((b) => b[1] === CFG.base)[0], CFG.front === 'art' ? 'front ' + title(CFG.frontArt) : CFG.front === 'logo' ? 'logo front' : 'blank front', 'back ' + title(CFG.backArt), CFG.sleeveArt ? 'sleeves ' + title(CFG.sleeveArt) : null].filter(Boolean).join(' · ');
+      return opt;
+    };
+    const key = () => `p:${id}|${fullOpt()}|${qty}`;
+    const unit = () => G.item(key()).unit;
+    const drawHoodie = () => { if (!custom) return; G.renderHoodie(Object.assign({ logoInk: CFG.base === '#1C1B1F' ? '#F4F1EA' : '#16151B' }, CFG)).then((u) => { const im = document.querySelector('#shot img'); if (im) im.src = u; }); };
     const update = () => {
       document.getElementById('qty').textContent = qty;
-      document.getElementById('price').textContent = G.usd(p.price * qty) + (isPaper ? ` · ${qty} roll${qty > 1 ? 's' : ''}` : '');
-      const c = G.chipsFor(p.price * qty, n, G.myRate());
+      document.getElementById('price').textContent = G.usd(unit() * qty) + (isPaper ? ` · ${qty} roll${qty > 1 ? 's' : ''}` : '');
+      const c = G.chipsFor(unit() * qty, n, G.myRate());
       document.getElementById('earn').innerHTML = `Earns you <b>${G.chips(c)} $${a.ticker}</b>, worth ${G.usd(c * G.price(n), true)} today. <a class="link" href="how-it-works.html">What are chips?</a>`;
     };
     const calc = () => {
@@ -106,7 +140,20 @@
       document.getElementById('res').innerHTML = `${ww} × ${wh} ft is ${ww * wh} sq ft. With 15% extra for matching the pattern, you need <b>${rolls} roll${rolls > 1 ? 's' : ''}</b>. <button type="button" class="link" id="userolls" style="background:none;border:0;padding:0;cursor:pointer;font-size:inherit">Use ${rolls}</button>`;
       document.getElementById('userolls').onclick = () => { qty = rolls; update(); };
     };
-    document.getElementById('opts').addEventListener('click', (e) => { const b = e.target.closest('[data-opt]'); if (!b) return; opt = b.dataset.opt; document.querySelectorAll('[data-opt]').forEach((x) => x.setAttribute('aria-pressed', String(x === b))); });
+    document.getElementById('opts').addEventListener('click', (e) => { const b = e.target.closest('[data-opt]'); if (!b) return; opt = b.dataset.opt; document.querySelectorAll('[data-opt]').forEach((x) => x.setAttribute('aria-pressed', String(x === b))); update(); });
+    const pf = document.getElementById('pframes');
+    if (pf) pf.addEventListener('click', (e) => { const b = e.target.closest('[data-pf]'); if (!b) return; pframe = b.dataset.pf; pf.querySelectorAll('button').forEach((x) => x.setAttribute('aria-pressed', String(x === b))); update(); });
+    const bd = document.getElementById('builder');
+    if (bd) bd.addEventListener('click', (e) => {
+      const b = e.target.closest('button'); if (!b) return;
+      const sib = (sel) => b.parentElement.querySelectorAll(sel).forEach((x) => x.setAttribute('aria-pressed', String(x === b)));
+      if (b.dataset.front) { CFG.front = b.dataset.front; sib('[data-front]'); document.getElementById('pfront').hidden = CFG.front !== 'art'; }
+      if (b.dataset.pick) { CFG[b.dataset.pick] = b.dataset.id || null; sib('[data-pick]'); }
+      if (b.dataset.base) { CFG.base = b.dataset.base; sib('[data-base]'); }
+      if (b.dataset.cord) { CFG.cord = b.dataset.cord; sib('[data-cord]'); }
+      if (b.dataset.fabric) { CFG.fabric = b.dataset.fabric; sib('[data-fabric]'); }
+      drawHoodie(); update();
+    });
     document.querySelectorAll('[data-q]').forEach((b) => b.addEventListener('click', () => { qty = Math.max(1, Math.min(40, qty + +b.dataset.q)); update(); }));
     if (isPaper) { ['ww', 'wh'].forEach((i) => document.getElementById(i).addEventListener('input', calc)); calc(); }
     document.getElementById('add').addEventListener('click', () => G.addToBag(key()));
@@ -120,7 +167,7 @@
       document.querySelector('.viewer').classList.toggle('roommode', mode !== 'shot');
       if (mode === 'room' && !mounted) { mounted = true; G.roomStudio(document.getElementById('studio'), { wallpaper: G.workArt(w, 700) }); }
     });
-    update(); G.hydrate(); window.scrollTo(0, 0);
+    update(); G.hydrate(); drawHoodie(); window.scrollTo(0, 0);
   }
   window.addEventListener('hashchange', render);
   render();

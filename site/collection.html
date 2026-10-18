@@ -7,7 +7,7 @@
 <meta name="description" content="Your Gesso collection: the chips you hold, the art you own, and what your chips can buy.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wdth,wght@12..96,75..100,300..800&family=DM+Mono:wght@400;500&family=Permanent+Marker&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wdth,wght@12..96,75..100,300..800&family=DM+Mono:wght@400;500&family=Permanent+Marker&family=VT323&display=swap">
 <link rel="stylesheet" href="gesso.css">
 <style>
   .top { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 20px 40px; align-items: end; padding-block: clamp(32px, 5vw, 64px) clamp(24px, 4vw, 40px); }
@@ -33,6 +33,11 @@
   .spend .work .walllabel .price .earn { color: var(--cobalt); }
   @media (max-width: 800px) { .spend { grid-template-columns: repeat(2, minmax(0, 1fr)); } .spend > :nth-child(3) { display: none; } }
 
+  .drip { display: grid; gap: 14px; padding: clamp(20px, 3vw, 28px); margin-bottom: clamp(32px, 5vw, 56px); border: 2px solid var(--ink); background: var(--card); }
+  .drip.on { background: var(--cobalt-soft); border-color: var(--cobalt); }
+  .tagp { font: 500 10px var(--mono); padding: 2px 6px; border: 1px dashed var(--ink-2); margin-left: 6px; }
+  .dripbar { height: 10px; background: var(--wall-2); border-radius: 999px; overflow: hidden; }
+  .dripbar i { display: block; height: 100%; background: linear-gradient(90deg, var(--cobalt), var(--up)); }
   .log { width: 100%; border-collapse: collapse; font-size: var(--t-s); }
   .log td { padding: 14px 10px; border-bottom: 1px solid var(--rule); vertical-align: top; }
   .log td:first-child { font-family: var(--mono); font-size: var(--t-xs); color: var(--ink-2); white-space: nowrap; padding-left: 0; }
@@ -81,11 +86,19 @@
       <div class="tiers" style="margin-top:28px">${G.TIERS.map((t) => `<div class="tier ${spent >= t.at ? 'on' : ''} ${t === tier ? 'cur' : ''}">${t === tier ? '<span class="tag">You</span>' : ''}<span class="amt">${t.at ? G.usd(t.at) + ' collected' : 'Start here'}</span><h3>${t.name}</h3><ul>${t.perks.map((x) => `<li>${G.esc(x)}</li>`).join('')}</ul></div>`).join('')}</div>
     </section>
 
+    <section class="drip ${spent >= G.DRIP_AT ? 'on' : ''}" aria-labelledby="h-drip">
+      <div style="display:grid;gap:8px"><p class="eyebrow">Weekly drip <span class="tagp">Planned</span></p>
+        <h2 id="h-drip" style="font-size:1.9rem">${spent >= G.DRIP_AT ? `About ${G.usd(total * G.DRIP_RATE, true)} lands in your bank every Monday` : `Unlocks at ${G.usd(G.DRIP_AT)} spent`}</h2>
+        <p class="muted">${spent >= G.DRIP_AT ? 'Each week 1% of your chips converts to cash and pays out to your bank. The rest keeps riding with the artists.' : `You're ${G.usd(G.DRIP_AT - spent)} away. At today's chip value it would pay about ${G.usd(total * G.DRIP_RATE, true)} a week, and grow as your artists gain collectors.`}</p></div>
+      <div class="dripbar" aria-hidden="true"><i style="width:${Math.min(100, spent / G.DRIP_AT * 100)}%"></i></div>
+      <p class="mono muted" style="font-size:var(--t-xs)">Paying chips out as cash needs legal and banking review before it can launch.</p>
+    </section>
+
     <section aria-labelledby="h-chips">
       <div class="section-head"><div><p class="eyebrow">Chips</p><h2 id="h-chips">What you hold</h2></div><p class="muted" style="max-width:30em">Each one rises when a new person collects that artist. Your collector number never changes.</p></div>
       <div class="holds">${holds.map((h) => {
         const gain = h.basis ? h.v / h.basis - 1 : 0;
-        return `<a class="hold" href="artist.html#${h.k}" style="--c:${h.a.color};--on:${h.a.on}">
+        return `<a class="hold" href="${G.creatorUrl(h.k)}" style="--c:${h.a.color};--on:${h.a.on}">
           <div class="sw">${w.collectorNo[h.k] ? `<span class="no">#${w.collectorNo[h.k]}${w.collectorNo[h.k] <= 25 ? ' ★' : ''}</span>` : ''}<span class="tick">$${h.a.ticker}</span><span class="cnt">${G.chips(h.c)}<small>chips</small></span></div>
           <div class="st"><div class="r big"><span>Worth</span><span class="num">${G.usd(h.v, true)}</span></div>
             <div class="r muted"><span>Per chip</span><span class="num">${G.usd(h.px, true)}</span></div>
