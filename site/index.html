@@ -30,7 +30,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <link rel="stylesheet" href="gesso.css">
 <style>
-  /* Justin's ask: just gesso, black and white, with the countries circling it */
+  /* Justin's ask: just gesso, black and white. Click it, you're in. */
   :root { --wall: #FFFFFF; --ink: #000000; --ink-2: #555555; --rule: #D9D9D9; }
   html, body { background: #FFFFFF; color: #000000; }
   body { min-height: 100vh; display: flex; flex-direction: column; overflow-x: hidden; }
@@ -74,27 +74,19 @@
 <div id="board"></div>
 <main class="stage">
   <div class="center" id="center">
-    <div class="orbit"><span class="track-line" aria-hidden="true"></span><nav class="ring" id="ring" aria-label="Hubs by country"></nav>
-      <button class="enter" type="button" id="enter" aria-label="Enter Gesso"></button></div>
+    <div class="orbit"><button class="enter" type="button" id="enter" aria-label="Enter Gesso"></button></div>
     <p class="invited after" id="invited" hidden></p>
-    <p class="tag after"><b>Buy original art. Artists keep 80%.</b> You earn the artist's chips, which rise as they grow.</p>
-    <nav class="quick after" aria-label="Go straight to"></nav>
   </div>
 </main>
 <script src="gesso.js"></script>
 <script>
 (function () {
-  document.getElementById('board').outerHTML = G.looksBar() + G.pulse();
+  document.getElementById('board').outerHTML = G.looksBar();
   document.getElementById('enter').innerHTML = G.logo() + '<span class="cue" aria-hidden="true">ENTER</span>';
   document.documentElement.setAttribute('data-theme', 'light');
-  const HUBS = [['US', 'UNITED STATES'], ['MX', 'MEXICO'], ['CO', 'COLOMBIA'], ['IT', 'ITALY'], ['GH', 'GHANA'], ['JP', 'JAPAN'], ['FI', 'FINLAND'], ['FR', 'FRANCE'], ['NL', 'NETHERLANDS'], ['XX', 'EVERYWHERE']];
-  document.getElementById('ring').innerHTML = HUBS.map(([cc, n], i) => `<a href="network.html#${cc}" style="--a:${(360 / HUBS.length) * i - 90}deg"><span>${n}</span></a>`).join('');
-  const links = [['now.html', 'ENTER'], ['network.html', 'NETWORK'], ['discover.html', 'SHOP'], ['artists.html', 'ARTISTS'], ['how-it-works.html', 'HOW IT WORKS'], ['mission.html', 'MISSION']];
-  document.querySelector('.quick').innerHTML = links.map(([h, l]) => `<a href="${h}">${l}</a>`).join('<span aria-hidden="true">·</span>');
   const ref = G.store.get('referredBy', null);
   if (ref) { const el = document.getElementById('invited'); el.hidden = false; el.textContent = `A collector invited you (${ref}). Your first piece comes with ${G.usd(G.REF_BONUS)} in chips.`; }
   const remember = () => G.store.set('entered', true);
-  document.querySelectorAll('.quick a, .ring a').forEach((a) => a.addEventListener('click', remember));
   document.getElementById('enter').addEventListener('click', () => {
     remember();
     if (matchMedia('(prefers-reduced-motion: reduce)').matches) { location.href = 'now.html'; return; }

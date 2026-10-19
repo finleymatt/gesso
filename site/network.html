@@ -4,11 +4,11 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>The Network · Gesso</title>
-<meta name="description" content="Artists, chefs, DJs, artisans, healers and the cafés and studios that host them, country by country.">
+<meta name="description" content="Artists and the studios that show their work, country by country.">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Gesso">
 <meta property="og:title" content="The Network · Gesso">
-<meta property="og:description" content="Artists, chefs, DJs, artisans, healers and the cafés and studios that host them, country by country.">
+<meta property="og:description" content="Artists and the studios that show their work, country by country.">
 <meta property="og:url" content="https://finleymatt.github.io/gesso/network.html">
 <meta property="og:image" content="https://finleymatt.github.io/gesso/og.jpg">
 <meta property="og:image:width" content="1200">
@@ -43,7 +43,7 @@
   .tape { display: flex; gap: 22px; overflow-x: auto; padding: 10px 14px; background: #0B0C0F; color: #E9E6DD; font: 400 20px/1 var(--board); letter-spacing: .06em; border-radius: 6px; scrollbar-width: none; }
   .tape span { flex: none; white-space: nowrap; }
   .tape .u { color: #3DCB84; } .tape .d { color: #FF6E5E; }
-  .groups { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 18px; }
+  .groups { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; }
   .grp h3 { font: 500 11px var(--mono); text-transform: uppercase; letter-spacing: .1em; color: var(--ink-2); margin-bottom: 10px; }
   .grp ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
   .ent { display: grid; grid-template-columns: 44px minmax(0, 1fr); gap: 12px; align-items: center; padding: 10px; background: var(--card); border: 1px solid var(--rule); border-radius: 10px; text-decoration: none; color: var(--ink); transition: border-color .2s, transform .2s; }
@@ -68,7 +68,7 @@
   <section class="nhead">
     <p class="eyebrow">The network</p>
     <h1 class="display">Every country has its hub.</h1>
-    <p class="lede">Gesso connects collectors with artists, chefs, DJs, artisans and healers, and the cafés and studios that host them. Pick a country to see who's there. Everyone here is vetted and invited.</p>
+    <p class="lede">Artists and the studios that show their work, country by country. Pick a country to see who's there. Everyone here is vetted and invited.</p>
     <div class="totals" id="totals"></div>
   </section>
   <nav class="cnav" id="cnav" aria-label="Countries"></nav>
@@ -92,15 +92,13 @@
   const hub = {};
   const add = (cc, kind, item) => { if (!cc) return; (hub[cc] = hub[cc] || { artists: [], creators: [], places: [], cities: new Set() })[kind].push(item); hub[cc].cities.add(cityOf(item.city)); };
   G.artists.forEach((a) => add(countryOf(a.city), 'artists', a));
-  G.talent.forEach((t) => add(countryOf(t.city), 'creators', t));
-  G.partners.forEach((p) => add(countryOf(p.city), 'places', { name: p.name, kind: p.kind, city: p.city, color: p.color, href: 'partners.html' }));
   G.venues.filter((v) => v.city && !v.tbd).forEach((v) => add(countryOf(v.city), 'places', { name: v.name, kind: v.type, city: v.city, color: G.artist(v.artist).color, href: 'visit.html' }));
   const order = Object.keys(hub).sort((a, b) => (b === 'US') - (a === 'US') || (hub[b].artists.length + hub[b].creators.length) - (hub[a].artists.length + hub[a].creators.length));
   const nomads = G.artists.filter((a) => !countryOf(a.city));
 
   const people = Object.values(hub).reduce((s, h) => s + h.artists.length + h.creators.length, 0) + nomads.length;
   const places = Object.values(hub).reduce((s, h) => s + h.places.length, 0);
-  document.getElementById('totals').innerHTML = `<div><b>${order.length}</b><span>countries</span></div><div><b>${people}</b><span>artists and creators</span></div><div><b>${places}</b><span>cafés, studios, partners</span></div>`;
+  document.getElementById('totals').innerHTML = `<div><b>${order.length}</b><span>countries</span></div><div><b>${people}</b><span>artists</span></div><div><b>${places}</b><span>studios and shows</span></div>`;
 
   const tick = (a) => { const ch = G.change(a.slug); return `<span>$${a.ticker} ${G.price(G.collectors(a.slug)).toFixed(2)} <i class="${ch >= 0 ? 'u' : 'd'}" style="font-style:normal">${ch >= 0 ? '▲' : '▼'}${Math.abs(ch * 100).toFixed(1)}%</i></span>`; };
   const avatar = (a) => { const ph = a.photos && a.photos.avatar; return `<span class="av" style="--c:${a.color};--on:${a.on || '#fff'}${ph ? `;background-image:url(${ph})` : ''}">${ph ? '' : G.esc(a.name[0])}</span>`; };
@@ -113,7 +111,7 @@
       <div class="ch"><h2 id="h-${cc}">${label}<small>${cc}</small></h2><span class="cities">${[...h.cities].filter(Boolean).join(' · ')}</span></div>
       ${h.artists.length + h.creators.length ? `<div class="tape" aria-label="Chip prices in ${label}">${h.artists.concat(h.creators).map(tick).join('')}</div>` : ''}
       ${cc === 'XX' ? `<div class="groups">${list('Nomadic artists', h.artists, artistRow, '')}<p class="muted" style="grid-column:span 2;align-self:center">Some artists don't live anywhere in particular. They paint wherever the road goes, and visits are arranged wherever they are.</p></div>`
-        : `<div class="groups">${list('Artists', h.artists, artistRow, 'The first artist here is being invited now.')}${list('Chefs, DJs, artisans, healers', h.creators, creatorRow, 'No FAME creators here yet.')}${list('Cafés, studios and partners', h.places, placeRow, 'Looking for the first partner space.')}</div>`}</section>`;
+        : `<div class="groups">${list('Artists', h.artists, artistRow, 'The first artist here is being invited now.')}${list('Studios and shows', h.places, placeRow, 'No studio open to visit yet.')}</div>`}</section>`;
   document.getElementById('countries').innerHTML = (nomads.length ? section('XX', { artists: nomads, creators: [], places: [], cities: new Set(['On the road']) }, 'Everywhere') : '')
     + order.map((cc) => section(cc, hub[cc], NAMES[cc])).join('');
 

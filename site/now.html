@@ -82,6 +82,27 @@
   .pair2 img:first-child { transform: rotate(-6deg); } .pair2 img:last-child { transform: rotate(5deg) translateY(8px); margin-left: 8px; }
   .way:hover .faces3 i:nth-child(2) { transform: scale(1.08); } .faces3 i { transition: transform .3s; }
   @media (max-width: 760px) { .ways { grid-template-columns: minmax(0, 1fr); } .way { gap: 14px; padding: 16px; } .faces3, .pair2 { height: 76px; } .faces3 i { width: 46px; height: 46px; margin-left: -14px; } .faces3 i:nth-child(2) { width: 56px; height: 56px; } .pair2 img { width: 46px; height: 62px; } }
+  .founders { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; }
+  .founder { display: grid; grid-template-rows: auto 1fr; background: var(--card); border: 1px solid var(--rule); border-radius: 14px; overflow: hidden; text-decoration: none; color: var(--ink); transition: transform .25s, border-color .25s; }
+  .founder:hover { transform: translateY(-4px); border-color: var(--c); }
+  .fpics { display: grid; grid-template-columns: 1.6fr 1fr; height: clamp(220px, 28vw, 340px); background: var(--c); gap: 3px; overflow: hidden; }
+  .fpics img { width: 100%; height: 100% !important; aspect-ratio: auto !important; object-fit: cover; box-shadow: none; }
+  .fbody { display: grid; gap: 8px; padding: clamp(16px, 2.4vw, 24px); }
+  .fbody b { font: 800 clamp(2rem, 4.4vw, 3.2rem)/.9 var(--display); letter-spacing: -.045em; }
+  .fgo { font-weight: 700; color: var(--c); }
+  .split100 { display: flex; gap: 3px; height: clamp(84px, 10vw, 110px); border-radius: 12px; overflow: hidden; }
+  .split100 .s { display: grid; align-content: center; gap: 2px; padding: 0 clamp(8px, 1.6vw, 18px); min-width: 0; overflow: hidden; }
+  .split100 b { font: 500 clamp(1.3rem, 3vw, 2.2rem)/1 var(--mono); }
+  .split100 span { font-size: var(--t-xs); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .split100 .s1 { background: var(--ink); color: var(--wall); }
+  .split100 .s2 { background: var(--marker); color: #fff; }
+  .split100 .s3 { background: var(--wall-2); color: var(--ink); }
+  .three { list-style: none; margin: 18px 0 0; padding: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; counter-reset: t; }
+  .three li { display: grid; gap: 4px; padding-top: 12px; border-top: 2px solid var(--ink); counter-increment: t; }
+  .three b { font: 800 1.5rem/1 var(--display); letter-spacing: -.03em; }
+  .three b::before { content: counter(t) ". "; color: var(--marker); }
+  .three span { color: var(--ink-2); }
+  @media (max-width: 760px) { .founders, .three { grid-template-columns: minmax(0, 1fr); } .split100 .s2 span, .split100 .s3 span { display: none; } }
   .feature.alt { --wall: #EFF8F6; --ink: #062B27; --marker: #3FE0C8; border-color: #0B3F39; }
   .feature.alt .who { font-size: clamp(3.2rem, 8.5vw, 7rem); }
   .feature { --wall: #F0EEE8; --ink: #130A10; --marker: #FF4F93; background: var(--ink); color: var(--wall); overflow: hidden; border-block: 1px solid #2A1C24; }
@@ -158,118 +179,53 @@
     <div class="hero-copy">
       <p class="eyebrow">Gesso</p>
       <h1 class="display">Buy original art. Artists keep <span class="rise">80%<svg viewBox="0 0 200 20" preserveAspectRatio="none" aria-hidden="true"><path d="M4 12 C 50 4, 120 18, 196 7"/></svg></span>.</h1>
-      <p class="lede">You earn the artist's chips, which rise as they grow. Spend them on your next piece. Every chip is backed by cash in that artist's reserve.</p>
+      <p class="lede">Every piece pays you back in the artist's chips. Spend them on your next piece.</p>
       <div class="cta-row">
-        <a class="btn primary" href="discover.html">Start collecting</a>
-        <a class="btn" href="how-it-works.html">How chips work</a>
-      </div>
-      <dl class="hero-stats">
-        <div><dt>80%</dt><dd>of every sale to the artist</dd></div>
-        <div><dt>12%</dt><dd>back to you in the artist's chips</dd></div>
-        <div><dt>100%</dt><dd>of chips backed by cash</dd></div>
-      </dl>
-    </div>
-    <div class="hang" id="hang" aria-label="Works hung salon style, with HAMEL's chip"></div>
-  </section>
-
-  <section class="wrap section" aria-labelledby="loop-h">
-    <div class="section-head">
-      <div><p class="eyebrow">How it works</p><h2 id="loop-h">Three steps: buy, earn, spend.</h2></div>
-      <a class="link" href="how-it-works.html">Read the full mechanics</a>
-    </div>
-    <div class="loop" id="loop"></div>
-    <p class="loop-back"><svg viewBox="0 0 28 18" aria-hidden="true"><path d="M26 4 H6 a4 4 0 0 0 0 8 h6 M9 15 l3 -3 -3 -3"/></svg>Spending chips makes you a collector of another artist, which earns you their chips. The loop keeps going.</p>
-  </section>
-
-  <section class="feature" aria-labelledby="feat-h">
-    <div class="wrap">
-      <div class="stack" id="feat-art"></div>
-      <div class="copy">
-        <p class="eyebrow">Founding artist</p>
-        <div>
-          <h2 class="who" id="feat-h">HAMEL</h2>
-          <span class="keep">KEEP GOING.</span>
-        </div>
-        <p id="feat-bio"></p>
-        <div class="fstats" id="feat-stats"></div>
-        <div class="cta-row">
-          <a class="btn solid" href="artist.html#hamel">See HAMEL's work</a>
-          <a class="btn" href="https://www.instagram.com/justintime7189/" target="_blank" rel="noopener">Instagram ↗</a>
-        </div>
+        <a class="btn primary" href="discover.html">Shop art</a>
+        <a class="btn" href="#chips">How chips work</a>
       </div>
     </div>
+    <div class="hang" id="hang" aria-label="Works by HAMEL hung salon style, with HAMEL's chip"></div>
   </section>
 
-  <section class="feature alt" aria-labelledby="chor-h">
-    <div class="wrap">
-      <div class="copy">
-        <p class="eyebrow">Founding artist</p>
-        <div>
-          <h2 class="who" id="chor-h">Chor Boogie</h2>
-          <span class="keep">THE COLOR SHAMAN.</span>
-        </div>
-        <p id="chor-bio"></p>
-        <div class="fstats" id="chor-stats"></div>
-        <div class="cta-row">
-          <a class="btn solid" href="artist.html#chor">See Chor's work</a>
-          <a class="btn" href="https://chorboogie.com/" target="_blank" rel="noopener">chorboogie.com ↗</a>
-        </div>
-      </div>
-      <div class="stack" id="chor-art"></div>
-    </div>
+  <section class="wrap section" aria-labelledby="artists-h">
+    <div class="section-head"><div><p class="eyebrow">The artists</p><h2 id="artists-h">Every artist has a page.</h2></div><a class="btn small" href="artists.html">All artists</a></div>
+    <div class="founders" id="founders"></div>
   </section>
 
-  <section class="wrap section" id="board" aria-labelledby="board-h">
-    <div class="section-head">
-      <div><p class="eyebrow">Chip board</p><h2 id="board-h">Every artist has a chip.</h2></div>
-      <p class="muted" style="max-width:34em">Each artist's chip rises as more people collect them and eases back when collectors spend chips. Every one is backed by cash. Tap a chip to see the artist.</p>
-    </div>
-    <div class="board" id="board-grid"></div>
-  </section>
-
-  <section class="wrap" aria-labelledby="fresh-h">
-    <div class="section-head">
-      <div><p class="eyebrow">Just listed</p><h2 id="fresh-h">New this week</h2></div>
-      <a class="btn small" href="discover.html">See all work</a>
-    </div>
+  <section class="wrap" aria-labelledby="shop-h">
+    <div class="section-head"><div><p class="eyebrow">Shop</p><h2 id="shop-h">Originals and prints</h2></div><a class="btn small" href="discover.html">See all</a></div>
     <div class="salon" id="fresh"></div>
+    <p class="muted" style="margin-top:14px;font-size:var(--t-s)">Try any piece on your own wall before you buy: open it and tap <b style="color:var(--ink)">See it in a room</b>.</p>
   </section>
 
-  <section class="wrap section" aria-labelledby="room-h">
-    <div class="roomfeat">
-      <div style="display:grid;gap:18px;align-content:start">
-        <p class="eyebrow">See it on your wall</p>
-        <h2 id="room-h">Hang it before you buy it.</h2>
-        <p class="muted">Every piece can be previewed to scale in six rooms, with your choice of wall color, frame and light. Or add a photo of your own wall: an AI model running on your device finds the wall and hangs the piece on it. Your photo never leaves your phone.</p>
-        <ul class="ticks"><li>Six rooms, drawn to scale in inches</li><li>Your own walls, saved for every piece</li><li>Frames and light, previewed before you pay</li></ul>
-        <div class="cta-row"><a class="btn primary" href="piece.html#hamel-01">Try it with HAMEL's work</a></div>
-      </div>
-      <div id="homestudio"></div>
-    </div>
+  <section class="wrap section" aria-labelledby="obj-h">
+    <div class="section-head"><div><p class="eyebrow">Merch</p><h2 id="obj-h">Wear it, hang it, drink from it.</h2></div><a class="btn small" href="discover.html#objects">All merch</a></div>
+    <div class="objgrid" id="objs"></div>
   </section>
 
-  <section class="wrap section" aria-labelledby="fees-h" style="padding-top:0">
-    <div class="fees">
-      <div style="display:grid;gap:18px">
-        <p class="eyebrow">For artists</p>
-        <h2 id="fees-h">Artists keep 80%. Collectors stay because they're invested.</h2>
-        <p class="muted">Big marketplaces take a third or more of each sale. Gesso keeps 8%, puts 12% in your reserve as the collector's chips, and sends the rest to you, in dollars. Non-exclusive, and you set the price.</p>
-        <div class="cta-row"><a class="btn primary" href="for-artists.html">Sell on Gesso</a></div>
-      </div>
-      <div class="bars">
-        <div class="bar us" style="--w:80%"><div class="top"><span>Gesso</span><span class="num">80%</span></div><div class="track"><div class="fill"></div></div></div>
-        <div class="bar" style="--w:62%"><div class="top"><span>Saatchi Art</span><span class="num">60–65%</span></div><div class="track"><div class="fill"></div></div></div>
-        <div class="bar" style="--w:50%"><div class="top"><span>Singulart</span><span class="num">~50%</span></div><div class="track"><div class="fill"></div></div></div>
-        <div class="bar" style="--w:10%"><div class="top"><span>Society6 (prints)</span><span class="num">~10%</span></div><div class="track"><div class="fill"></div></div></div>
-        <p class="src">Share of the sale price paid to the artist. Competitor figures come from public seller guides and change often.</p>
-      </div>
+  <section class="wrap section" id="chips" aria-labelledby="chips-h" style="padding-top:0">
+    <div class="section-head"><div><p class="eyebrow">How chips work</p><h2 id="chips-h">Where $100 goes.</h2></div><a class="link" href="how-it-works.html">The full breakdown</a></div>
+    <div class="split100" aria-label="Of every 100 dollars: 80 to the artist, 12 back to you as chips, 8 to Gesso">
+      <div class="s s1" style="flex:80"><b>$80</b><span>to the artist</span></div>
+      <div class="s s2" style="flex:12"><b>$12</b><span>your chips</span></div>
+      <div class="s s3" style="flex:8"><b>$8</b><span>Gesso</span></div>
     </div>
+    <ol class="three">
+      <li><b>Buy</b><span>a piece you love.</span></li>
+      <li><b>Earn</b><span>12% back in that artist's chips. They rise as the artist grows.</span></li>
+      <li><b>Spend</b><span>chips on up to half of your next piece.</span></li>
+    </ol>
+  </section>
+
+  <section class="wrap section" aria-labelledby="proj-h" style="padding-top:0">
+    <div class="section-head"><div><p class="eyebrow">Back an artist</p><h2 id="proj-h">Help make what's next.</h2></div><a class="btn small" href="project.html">All projects</a></div>
+    <div class="cards" id="projs"></div>
   </section>
 </main>
 
 <div id="chrome-bottom"></div>
 <script src="gesso.js"></script>
-<script src="room.js"></script>
 <script>
 (function () {
   G.chrome('now');
@@ -277,13 +233,9 @@
   const hangIds = ['hamel-j16', 'hamel-j11', 'hamel-j24', 'hamel-j20', 'hamel-j14', 'hamel-j19', 'hamel-j12'];
   const hang = document.getElementById('hang');
   hang.innerHTML = hangIds.map((id, i) => `<a href="piece.html#${id}" class="p${i + 1}" style="display:block">${G.artImg(G.work(id), i === 0 ? 720 : 420, 'art hung')}</a>`).join('')
-    + G.chipCard('hamel', { tag: 'div' }).replace('<span class="notch"></span>', '<span class="notch"></span><span class="newbie" id="newbie"></span>')
-    ;
+    + G.chipCard('hamel', { tag: 'div' }).replace('<span class="notch"></span>', '<span class="notch"></span><span class="newbie" id="newbie"></span>');
   hang.querySelector('.chip').insertAdjacentHTML('beforeend', `<div class="annot" aria-hidden="true"><svg width="34" height="26" viewBox="0 0 34 26"><path d="M30 22 C 22 20, 10 16, 6 4 M2 10 L6 3 L11 9"/></svg>rises as new people collect</div>`);
-  // the hung pieces are links; the absolute positioning class sits on the link
   hang.querySelectorAll('a[class^="p"]').forEach((a) => { a.style.position = 'absolute'; });
-
-  // live demo: a new collector arrives and the price moves
   const names = ['Rosa M.', 'Kenji T.', 'Imani B.', 'Theo W.', 'Noor A.', 'Dante R.'];
   let extra = 0, k = 0;
   const chip = hang.querySelector('.chip');
@@ -298,50 +250,17 @@
   };
   if (!matchMedia('(prefers-reduced-motion: reduce)').matches) setInterval(tickChip, 4200);
 
+  // the artists: one card each, linking to their page
+  const pics = { hamel: ['hamel-01', 'hamel-j11'], chor: ['chor-giver', 'chor-14'] };
+  document.getElementById('founders').innerHTML = G.artists.filter((a) => pics[a.slug]).map((a) => `
+    <a class="founder" href="artist.html#${a.slug}" style="--c:${a.color}">
+      <span class="fpics">${pics[a.slug].map((id, i) => G.artImg(G.work(id), i ? 360 : 560, 'art')).join('')}</span>
+      <span class="fbody"><span class="eyebrow">Founding artist</span><b>${G.esc(a.name)}</b><span class="muted">${G.esc(a.short)}</span>
+        <span class="fgo">See ${G.esc(a.name)}'s page →</span></span></a>`).join('');
 
-
-  // loop demo with real numbers
-  const buy = G.work('hamel-02'), nH = G.collectors('hamel'), earned = G.chipsFor(buy.price, nH);
-  const spendOn = G.work('chor-p14'), spend = spendOn.price * G.SPEND_CAP, chipsNeeded = spend / G.price(nH);
-  document.getElementById('loop').innerHTML = `
-    <article class="step"><span class="no">STEP 1</span><h3>Buy a piece you love.</h3>
-      <p>Card or Apple Pay, same as any shop. 80% of the price goes straight to the artist.</p>
-      <div class="demo"><span><b>${G.esc(buy.title)}</b>, HAMEL</span><span>${G.esc(buy.medium)}</span><span><b>${G.usd(buy.price)}</b></span></div></article>
-    <article class="step"><span class="no">STEP 2</span><h3>Earn the artist's chips.</h3>
-      <p>12% of what you pay goes into the artist's reserve and comes back to you as their chips. They rise as the artist grows.</p>
-      <div class="demo"><span><b>+${G.chips(earned)} $HAMEL</b></span><span>at ${G.usd(G.price(nH), true)} per chip</span><span>worth <b>${G.usd(earned * G.price(nH), true)}</b> today</span></div></article>
-    <article class="step"><span class="no">STEP 3</span><h3>Spend them on more art.</h3>
-      <p>Chips cover up to half of any piece on Gesso, by any artist. The artist you buy from is still paid in full.</p>
-      <div class="demo"><span><b>${G.esc(spendOn.title)}</b>, Chor Boogie</span><span>${G.usd(spendOn.price)} = ${G.usd(spendOn.price - spend)} card + ${G.chips(chipsNeeded)} $HAMEL</span><span>you pay <b>${G.usd(spendOn.price - spend)}</b></span></div></article>`;
-
-  // feature
-  const a = G.artist('hamel'), n = G.collectors('hamel');
-  document.getElementById('feat-bio').textContent = a.bio.split('. ').slice(0, 2).join('. ') + '.';
-  document.getElementById('feat-art').innerHTML = `<a href="piece.html#hamel-01">${G.artImg(G.work('hamel-01'), 900, 'art')}</a><a href="piece.html#hamel-04" class="b">${G.artImg(G.work('hamel-04'), 500, 'art')}</a>`;
-  document.getElementById('feat-stats').innerHTML = `
-    <div><b>${n}</b><span>collectors</span></div>
-    <div><b>${G.usd(G.price(n), true)}</b><span>per $HAMEL</span></div>
-    <div><b class="up" style="color:#3DCB84">${G.pct(G.change('hamel'))}</b><span>last 30 days</span></div>
-    <div><b>${a.sold}</b><span>works collected</span></div>`;
-
-  const c = G.artist('chor'), nc = G.collectors('chor');
-  document.getElementById('chor-bio').textContent = c.short + ' Shown at the Smithsonian and the Beijing 2008 Olympics, now selling originals and prints on Gesso.';
-  document.getElementById('chor-art').innerHTML = `<a href="piece.html#chor-giver">${G.artImg(G.work('chor-giver'), 900, 'art')}</a><a href="piece.html#chor-14" class="b">${G.artImg(G.work('chor-14'), 500, 'art')}</a>`;
-  document.getElementById('chor-stats').innerHTML = `
-    <div><b>${G.FOUNDING - nc}</b><span>founding seats open</span></div>
-    <div><b>${G.usd(G.price(nc), true)}</b><span>per $CHOR, the floor</span></div>
-    <div><b>${G.worksBy('chor').filter((w) => w.edition === 'Original').length}</b><span>originals</span></div>
-    <div><b>${G.chips(G.chipsFor(G.work('chor-01').price, nc))}</b><span>$CHOR for a first piece</span></div>`;
-
-  // chip board
-  document.getElementById('board-grid').innerHTML = G.artists.map((x) => G.chipCard(x.slug)).join('');
-
-  // fresh
-  const fresh = ['chor-01', 'hamel-02', 'chor-10', 'hamel-j16', 'chor-giver', 'mika-01', 'hamel-08', 'chor-p14', 'ama-02', 'hamel-j11', 'chor-28', 'odalys-02'];
-  document.getElementById('fresh').innerHTML = fresh.map((id) => G.workCard(G.work(id), { size: 520 })).join('');
-
-  // see it on your wall
-  G.roomStudio(document.getElementById('homestudio'), { img: G.workArt(G.work('hamel-01'), 1000), dims: { w: 35, h: 40 } });
+  document.getElementById('fresh').innerHTML = ['chor-01', 'hamel-02', 'chor-10', 'hamel-j16', 'chor-p14', 'hamel-j11', 'chor-28', 'hamel-08'].map((id) => G.workCard(G.work(id), { size: 520 })).join('');
+  document.getElementById('objs').innerHTML = ['hamel-collab', 'hamel-wallpaper', 'hamel-apron', 'hamel-mug'].map((id) => G.productCard(G.product(id))).join('');
+  document.getElementById('projs').innerHTML = ['chor-wall', 'hamel-residency', 'hamel-wall'].map((id) => G.projectCard(G.project(id))).join('');
   G.hydrate();
 })();
 </script>

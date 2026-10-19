@@ -280,13 +280,12 @@
   /* ================= partners: places that take chips ================= */
   // Sample partners for the preview. Gesso House is the planned flagship space.
   G.partners = [
-    { name: 'Gesso House', kind: 'Flagship space', city: 'City to be announced', text: 'Gallery, café and event room. Spend chips on art, coffee and FAME nights.', planned: true, color: '#16151B' },
-    { name: 'Tinted Art Supply', kind: 'Art supply store', city: 'Chicago, IL', text: 'Pay up to half of any order in chips. Artists on Gesso get 15% off.', color: '#D4931C' },
-    { name: 'Frame Society', kind: 'Framing partner', city: 'Ships nationwide', text: 'Frames every Gesso piece that ships framed. Chips accepted on custom framing.', color: '#B98A57' },
-    { name: 'Common Thread', kind: 'Hemp clothing', city: 'Portland, OR', text: 'Makes the Gesso hoodies and tees. Hemp, organic cotton and linen only.', color: '#16865A' },
-    { name: 'Low Tide Coffee', kind: 'Café', city: 'Los Angeles, CA', text: 'Rotating Gesso artist on the wall. Chips cover your coffee.', color: '#2140E3' },
-    { name: 'Café Laureles', kind: 'Café and art hub', city: 'Medellín, CO', text: 'A coffee shop that hangs a Gesso artist every month and hosts first-time-seller workshops.', color: '#B4543A' },
-    { name: 'Second Press', kind: 'Print studio', city: 'Osaka, JP', text: "Prints Gesso's risograph editions. Chips accepted on open print days.", color: '#FF4FA0' }
+    { name: 'Gesso House', kind: 'Flagship space', city: 'City to be announced', text: 'Gallery, café and event room. Spend chips on art, coffee and events.', planned: true, color: '#16151B' },
+    { name: 'Tinted Art Supply', kind: 'Online art supply', city: 'Ships across the US', text: 'Pay up to half of any order in chips at checkout. Artists on Gesso get 15% off.', color: '#D4931C' },
+    { name: 'Frame Society', kind: 'Online framing', city: 'Ships nationwide', text: 'Frames every Gesso piece that ships framed. Chips accepted on custom framing.', color: '#B98A57' },
+    { name: 'Common Thread', kind: 'Online hemp clothing', city: 'Ships worldwide', text: 'Makes the Gesso hoodies and tees. Hemp, organic cotton and linen only.', color: '#16865A' },
+    { name: 'Daily Grind Beans', kind: 'Online coffee roaster', city: 'Ships across the US', text: 'A Gesso artist on every bag. Chips cover your monthly subscription.', color: '#2140E3' },
+    { name: 'Second Press', kind: 'Online print studio', city: 'Ships worldwide', text: "Prints Gesso's editions. Chips accepted on your own custom prints.", color: '#FF4FA0' }
   ];
 
   /* ================= collector votes ================= */
@@ -294,7 +293,7 @@
   G.proposals = [
     { id: 'hoodies', title: 'Launch the hemp hoodie line', text: 'Build-your-own hoodies in hemp, organic cotton and linen, made by Common Thread.', yes: 72, ends: 'Ends Oct 24' },
     { id: 'house', title: 'Open the first Gesso House', text: 'A gallery, café and event room where chips can be spent in person.', yes: 64, ends: 'Ends Nov 2' },
-    { id: 'fame', title: 'Bring chefs and DJs onto Gesso (FAME)', text: 'Book food, music and experiences on Gesso, and earn the creator\'s chips for every booking.', yes: 81, ends: 'Ends Oct 30' }
+    { id: 'residency', title: 'Fund the first Gesso artist residency', text: 'A month of time, space and materials for one artist, chosen by the founding artists.', yes: 81, ends: 'Ends Oct 30' }
   ];
 
   const PROJECTS = [
@@ -318,6 +317,17 @@
         { amt: 150, title: 'Signed print of the wall', text: 'A 16 × 20 in print of the finished mural, signed.' },
         { amt: 1000, title: 'A study for the wall', text: 'One of the color studies for the mural, signed and dated.', left: 8 },
         { amt: 5000, title: 'A day at the wall', text: 'Spend a painting day with Chor and take home a panel painted on site.', left: 2 }
+      ],
+      updates: [] },
+    { id: 'hamel-residency', artist: 'hamel', example: true, title: "Support Justin's journey: a month-long residency", img: 'art/hamel-studio.jpg',
+      goal: 6000, raised: 2150, backers: 48, daysLeft: 24,
+      story: 'A month of time, a room to paint in and materials, somewhere new. Backers follow along, meet Justin online during the residency, and get first pick of what comes out of it.',
+      budget: [['Studio and housing, one month', 2600], ['Paint, canvas and supplies', 1400], ['Travel', 900], ['A show at the end', 1100]],
+      rewards: [
+        { amt: 20, title: 'Residency notes', text: 'Weekly photos and voice notes from the studio.' },
+        { amt: 40, title: 'Online meet and greet', text: 'A live video hangout from the studio with Justin and other backers.' },
+        { amt: 150, title: 'One-on-one call', text: 'Thirty minutes on video with Justin, about the work or yours.', left: 12 },
+        { amt: 600, title: 'A residency piece', text: 'A small original made during the residency, signed and dated.', left: 6 }
       ],
       updates: [] },
     { id: 'june-drum', artist: 'june', title: 'A second risograph drum', img: null, art: 'june-03', goal: 4000, raised: 3610, backers: 212, daysLeft: 6,
@@ -1050,7 +1060,6 @@
   G.LIVE_DROP = new Date(2026, 9, 24, 20, 0);
   G.events = () => [
     { d: G.LIVE_DROP, type: 'Live drop', title: 'HAMEL paints live', where: 'Streamed on Gesso', text: 'Justin paints a new piece live. It goes on sale the moment the last line is down. Benefactor and Champion collectors get first claim for an hour.', href: 'now.html#drop', a: 'hamel' },
-    { d: new Date(2026, 9, 30, 19, 0), type: 'FAME night', title: 'Wood fire and vinyl', where: 'Mexico City, MX', text: 'Leo Martín cooks, Sam Rivera plays records. 24 seats.', href: 'book.html', a: 'leo-chef' },
     { d: new Date(2026, 10, 7, 18, 0), type: 'Opening', title: 'Líneas, a group show', where: 'Centro, Oaxaca, MX', text: 'Odalys Fuente and four other ink artists.', href: 'visit.html', a: 'odalys' },
     { d: new Date(2026, 10, 15, 12, 0), type: 'Open studio', title: 'Studio Marchetti open weekend', where: 'San Salvario, Turin, IT', text: 'Teo opens the studio for two days.', href: 'visit.html', a: 'teo' },
     { d: new Date(2026, 10, 2, 23, 59), type: 'Vote closes', title: 'Open the first Gesso House', where: 'Mission page', text: 'Collectors and founders decide.', href: 'mission.html#votes', a: 'hamel' },
@@ -1182,7 +1191,7 @@
 
   /* ================= quick search: Ctrl/Cmd + K, or the magnifier ================= */
   const PAGES = [['now.html', 'Now on Gesso', "What's new and the next live drop"], ['discover.html', 'Shop art', 'Originals, prints and resale'], ['discover.html#objects', 'Objects', 'Hoodies, wallpaper, aprons, collabs'], ['artists.html', 'Artists', 'The roster'],
-    ['network.html', 'The network', 'Artists, cafés and hubs by country'], ['faces.html', 'The faces wall', 'Every face collectors found in HAMEL’s paintings'], ['quiz.html', 'Find your piece', 'A one-minute taste quiz'], ['book.html', 'FAME', 'Book chefs, DJs and more'], ['project.html', 'Projects', 'Back what’s next'],
+    ['network.html', 'The network', 'Artists, cafés and hubs by country'], ['faces.html', 'The faces wall', 'Every face collectors found in HAMEL’s paintings'], ['quiz.html', 'Find your piece', 'A one-minute taste quiz'], ['project.html', 'Projects', 'Back what’s next'],
     ['events.html', 'Events', 'Drops, nights, open studios'], ['visit.html', 'Visit', 'See art in person'], ['collection.html', 'Your collection', 'Chips, milestones, your wall'], ['collection.html#saved', 'Saved pieces', 'Everything you hearted'],
     ['collection.html#invite', 'Invite friends', 'You both get chips'], ['gift.html', 'Gift cards', 'Give someone their first piece'], ['mission.html', 'Mission', 'Justin’s statement and votes'], ['mission.html#statement', 'Artist statement', 'Justin, in his own words'],
     ['how-it-works.html', 'How chips work', 'The curve, milestones, plans'], ['reserve.html', 'The reserve', 'Live numbers behind every chip'], ['spaces.html', 'Art for spaces', 'Rent-to-own for businesses'], ['partners.html', 'Partners', 'Where chips work'],
@@ -1191,7 +1200,6 @@
   const buildIndex = () => INDEX || (INDEX = [].concat(
     WORKS.map((w) => { const a = G.artist(w.artist); return { k: 'Art', t: w.title, s: `${a.name} · ${w.year} · ${G.isSold(w) ? 'Collected' : G.usd(w.price)}`, h: 'piece.html#' + w.id, id: w.id, hay: `${w.title} ${a.name} ${a.fullName || ''} ${w.medium} ${w.edition}` }; }),
     ARTISTS.map((a) => ({ k: 'Artist', t: a.name, s: `${a.city} · $${a.ticker}`, h: 'artist.html#' + a.slug, c: a.color, hay: `${a.name} ${a.fullName || ''} ${a.city} ${a.ticker} artist` })),
-    TALENT.map((t) => ({ k: 'FAME', t: t.name, s: `${t.kind} · ${t.city}`, h: 'book.html#' + t.slug, c: t.color, hay: `${t.name} ${t.kind} ${t.city} ${(t.tags || []).join(' ')} book hire` })),
     PRODUCTS.filter((x) => x.type !== 'print').map((x) => { const a = G.artist(x.artist); return { k: 'Object', t: x.name, s: `${a.name} · ${G.usd(x.price)}`, h: 'product.html#' + x.id, c: a.color, hay: `${x.name} ${x.type} ${a.name} merch` }; }),
     PAGES.map(([h, t, d]) => ({ k: 'Page', t, s: d, h, hay: `${t} ${d}` }))
   ));
@@ -1319,12 +1327,13 @@
 
   G.chrome = (page) => {
     const NAV = [
-      { label: 'Shop', href: 'discover.html', keys: ['discover', 'artists', 'quiz'], sub: [['discover.html', 'Shop art', 'Originals and prints'], ['artists.html', 'Artists', 'The founding roster'], ['network.html', 'The network', 'Artists and hubs, country by country'], ['quiz.html', 'Find your piece', 'A one-minute taste quiz']] },
-      { label: 'How it works', href: 'how-it-works.html', keys: ['how', 'reserve'], sub: [['how-it-works.html', 'How chips work', 'Buy, earn, spend'], ['reserve.html', 'The reserve', 'Every chip, backed in cash']] },
-      { label: 'Collection', href: 'collection.html', keys: ['collection', 'checkout', 'gift'], sub: [['collection.html', 'Your collection', 'Chips, milestones, saved'], ['collection.html#invite', 'Invite friends', `You both get ${G.usd(G.REF_BONUS)} in chips`], ['gift.html', 'Gift cards', 'Give someone their first piece']] },
-      { label: 'More', href: 'mission.html', keys: ['mission', 'partners', 'spaces', 'book', 'projects', 'visit', 'events', 'faces', 'network'], sub: [['mission.html', 'Mission', 'Why Gesso exists'], ['network.html', 'The network', 'Hubs in every country'], ['faces.html', 'The faces wall', 'Faces found in HAMEL’s work'], ['project.html', 'Projects · later', 'Back a wall or a new series'], ['book.html', 'FAME · later', 'Chefs, DJs, healers'], ['events.html', 'Events · later', 'Drops and open studios'], ['visit.html', 'Visit', 'See it in person'], ['discover.html#objects', 'Objects · later', 'Hoodies, wallpaper, aprons'], ['spaces.html', 'Art for spaces · later', 'Rent-to-own for businesses'], ['partners.html', 'Partners', 'Where chips work'], ['for-artists.html', 'Sell on Gesso', 'Invite-only, for artists']] }
+      { label: 'Shop', href: 'discover.html', keys: ['discover', 'quiz'], sub: [['discover.html', 'Shop art', 'Originals and prints'], ['discover.html#objects', 'Merch', 'Hoodies, wallpaper, aprons, mugs'], ['quiz.html', 'Find your piece', 'A one-minute quiz']] },
+      { label: 'Artists', href: 'artists.html', keys: ['artists'], sub: null },
+      { label: 'Back an artist', href: 'project.html', keys: ['projects'], sub: null },
+      { label: 'How it works', href: 'how-it-works.html', keys: ['how', 'reserve'], sub: [['how-it-works.html', 'How chips work', 'Buy, earn, spend'], ['reserve.html', 'The reserve', 'The cash behind every chip']] },
+      { label: 'More', href: 'mission.html', keys: ['mission', 'partners', 'faces', 'visit', 'network', 'gift'], sub: [['mission.html', 'Mission', 'Why Gesso exists'], ['partners.html', 'Partners', 'Online stores that take chips'], ['faces.html', 'The faces wall', 'Faces found in HAMEL’s work'], ['visit.html', 'Visit', 'See it in person'], ['gift.html', 'Gift cards', 'Give someone their first piece'], ['for-artists.html', 'Sell on Gesso', 'Invite-only, for artists']] }
     ];
-    const menu = [['now.html', 'Home'], ['discover.html', 'Shop art'], ['artists.html', 'Artists'], ['network.html', 'The network'], ['how-it-works.html', 'How chips work'], ['collection.html', 'Your collection'], ['quiz.html', 'Find your piece'], ['mission.html', 'Mission'], ['reserve.html', 'The reserve'], ['faces.html', 'The faces wall'], ['project.html', 'Projects (after launch)'], ['book.html', 'FAME (after launch)'], ['events.html', 'Events (after launch)'], ['visit.html', 'See art in person'], ['discover.html#objects', 'Objects (after launch)'], ['spaces.html', 'Art for spaces (after launch)'], ['gift.html', 'Gift cards'], ['partners.html', 'Partners'], ['for-artists.html', 'Sell on Gesso']];
+    const menu = [['now.html', 'Home'], ['discover.html', 'Shop art'], ['discover.html#objects', 'Merch'], ['artists.html', 'Artists'], ['project.html', 'Back an artist'], ['how-it-works.html', 'How chips work'], ['collection.html', 'Your collection'], ['quiz.html', 'Find your piece'], ['mission.html', 'Mission'], ['partners.html', 'Partners'], ['faces.html', 'The faces wall'], ['visit.html', 'See art in person'], ['gift.html', 'Gift cards'], ['for-artists.html', 'Sell on Gesso']];
     const top = document.getElementById('chrome-top');
     if (top) top.outerHTML = `<a class="skip" href="#main">Skip to content</a>${G.looksBar()}${G.pulse()}
       <header class="topbar"><div class="wrap">
@@ -1352,10 +1361,10 @@
           <p class="muted">Buy original art. Artists keep 80%. You earn the artist's chips, which rise as they grow, and spend them on more art.</p>
           <div class="theme-toggle" role="group" aria-label="Theme"><button type="button" data-theme-set="light">Light</button><button type="button" data-theme-set="dark">Dark</button></div>
         </div>
-        <div><h4>Collect</h4><ul><li><a href="artists.html">Artists</a></li><li><a href="discover.html">Shop art</a></li><li><a href="discover.html#objects">Hoodies, wallpaper, more</a></li><li><a href="book.html">FAME bookings</a></li><li><a href="project.html">Back a project</a></li><li><a href="visit.html">See art in person</a></li><li><a href="faces.html">The faces wall</a></li><li><a href="quiz.html">Find your piece</a></li><li><a href="network.html">The network</a></li></ul></div>
+        <div><h4>Collect</h4><ul><li><a href="artists.html">Artists</a></li><li><a href="discover.html">Shop art</a></li><li><a href="discover.html#objects">Hoodies, wallpaper, more</a></li><li><a href="project.html">Back a project</a></li><li><a href="visit.html">See art in person</a></li><li><a href="faces.html">The faces wall</a></li><li><a href="quiz.html">Find your piece</a></li><li><a href="network.html">The network</a></li></ul></div>
         <div><h4>Learn</h4><ul><li><a href="mission.html">Mission and votes</a></li><li><a href="partners.html">Partners</a></li><li><a href="how-it-works.html">How chips work</a></li><li><a href="how-it-works.html#milestones">Milestones</a></li><li><a href="how-it-works.html#pay">Paying over time</a></li><li><a href="how-it-works.html#faq">Questions</a></li><li><a href="index.html#intro">Replay the intro</a></li></ul></div>
         <div><h4>Create</h4><ul><li><a href="for-artists.html">Sell on Gesso</a></li><li><a href="for-artists.html#compare">Fees compared</a></li><li><a href="for-artists.html#apply">Apply</a></li></ul></div>
-        <div class="fine"><span>Design preview. HAMEL's and Chor Boogie's work is real (Chor's titles are real; HAMEL's are placeholders), and sizes and prices are placeholders. Other artists, FAME creators and partners are samples with generated art. No payments are taken. Chips are store credit and can go down as well as up.</span><button type="button" class="link" style="background:none;border:0;padding:0;cursor:pointer;font-size:inherit" data-reset>Reset preview</button></div>
+        <div class="fine"><span>Design preview. HAMEL's and Chor Boogie's work is real (Chor's titles are real; HAMEL's are placeholders), and sizes and prices are placeholders. Other artists and partners are samples with generated art. No payments are taken. Chips are store credit and can go down as well as up.</span><button type="button" class="link" style="background:none;border:0;padding:0;cursor:pointer;font-size:inherit" data-reset>Reset preview</button></div>
       </div></footer>`;
     const mainEl = document.querySelector('main'); if (mainEl && !mainEl.id) mainEl.id = 'main';
     document.body.insertAdjacentHTML('beforeend', '<div class="toast" role="status" aria-live="polite" id="toast"></div>');
