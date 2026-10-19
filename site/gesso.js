@@ -1129,10 +1129,20 @@
       <a class="pulse-l" href="now.html#board"><svg class="ekg" viewBox="0 0 120 24" aria-hidden="true"><path d="M0 13 H34 L39 13 L43 4 L48 21 L53 8 L57 13 H82 L85 10 L88 13 H120"/></svg><span>GESSO</span><i class="u">▲${(idx * 100).toFixed(2)}%</i></a>
       <div class="pulse-v"><div class="pulse-t">${row}${row}</div></div></div>`;
   };
-  /* three looks to show Justin: Studio (the original), Archive (gallery), Marker (hand-lettered zine) */
-  G.LOOKS = [['studio', 'Studio'], ['archive', 'Archive'], ['marker', 'Marker']];
+  /* three looks to show Justin: Studio (the original), Aura (psychedelic glass), Marker (hand-lettered zine) */
+  G.LOOKS = [['studio', 'Studio'], ['aura', 'Aura'], ['marker', 'Marker']];
   G.applyLook = () => { const l = store.get('look', 'studio'); document.documentElement.setAttribute('data-look', G.LOOKS.some(([k]) => k === l) ? l : 'studio'); };
   G.applyLook();
+  if (matchMedia('(pointer: fine)').matches) {
+    let raf = 0;
+    addEventListener('pointermove', (e) => {
+      if (document.documentElement.getAttribute('data-look') !== 'aura' || raf) return;
+      raf = requestAnimationFrame(() => { raf = 0; const r = document.documentElement.style; r.setProperty('--mx', e.clientX + 'px'); r.setProperty('--my', e.clientY + 'px'); });
+    }, { passive: true });
+  }
+  // remember where a link was clicked so the next page's iris opens from that spot
+  addEventListener('click', (e) => { const a = e.target.closest('a[href]'); if (a) { try { sessionStorage.setItem('gesso:v', JSON.stringify([Math.round(e.clientX / innerWidth * 100), Math.round(e.clientY / innerHeight * 100)])); } catch (err) {} } });
+  try { const v = JSON.parse(sessionStorage.getItem('gesso:v') || 'null'); if (v) { document.documentElement.style.setProperty('--vx', v[0] + '%'); document.documentElement.style.setProperty('--vy', v[1] + '%'); } } catch (err) {}
   G.looksBar = () => `<div class="looks" role="group" aria-label="Compare designs"><b>Compare designs:</b>${G.LOOKS.map(([k, n], i) => `<button type="button" data-look-set="${k}" aria-pressed="${document.documentElement.getAttribute('data-look') === k}"><span>${i + 1}</span>${n}</button>`).join('')}</div>`;
   document.addEventListener('click', (e) => {
     const b = e.target.closest('[data-look-set]'); if (!b) return;

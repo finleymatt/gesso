@@ -495,38 +495,151 @@ details.faq p { padding: 0 0 20px; color: var(--ink-2); max-width: 62ch; }
 .looks button[aria-pressed="true"] { background: #16151B; color: #FFE14D; }
 .looks button span { opacity: .6; font-weight: 500; margin-right: 4px; }
 
-/* ---------- 2. Archive: quiet gallery luxury, from Justin's staged interiors ---------- */
-:root[data-look="archive"] {
-  --wall: #F5F1EA; --wall-2: #ECE5DA; --card: #FBF8F2; --ink: #1F1B16; --ink-2: #6D6458; --rule: #DCD2C2;
-  --cobalt: #7A5C33; --cobalt-soft: #EFE6D6; --on-cobalt: #FBF8F2; --marker: #7A5C33;
-  --display: 'Cormorant Garamond', 'Iowan Old Style', Georgia, serif;
-  --body: 'Jost', 'Avenir Next', system-ui, sans-serif;
-  --hang: 0 1px 2px rgba(60, 40, 15, .08), 0 22px 40px -18px rgba(60, 40, 15, .35);
+/* ---------- 2. Aura: psychedelic, but sleek. Dark by design; the art supplies the color. ----------
+   Modern CSS doing the work: @property-animated angles and hues, oklch color, conic-gradient
+   holographic edges, backdrop-filter glass, scroll-driven reveals (animation-timeline: view()),
+   cross-document view transitions, and an SVG-noise grain. Everything stills for reduced motion. */
+@property --aa { syntax: '<angle>'; inherits: true; initial-value: 0deg; }
+@property --hue { syntax: '<number>'; inherits: true; initial-value: 300; }
+@property --sh { syntax: '<percentage>'; inherits: true; initial-value: 0%; }
+
+:root[data-look="aura"] {
+  color-scheme: dark;
+  --wall: #07060B; --wall-2: rgba(255, 255, 255, .06); --card: rgba(255, 255, 255, .045);
+  --ink: #F5F2FF; --ink-2: #ADA6C8; --rule: rgba(255, 255, 255, .12);
+  --cobalt: oklch(0.74 0.19 300); --cobalt-soft: oklch(0.74 0.19 300 / .16); --on-cobalt: #07060B; --marker: oklch(0.8 0.19 345);
+  --up: oklch(0.85 0.18 160); --down: oklch(0.72 0.2 15); --sold: oklch(0.7 0.22 20);
+  --display: 'Syne', 'Bricolage Grotesque', system-ui, sans-serif;
+  --hang: 0 30px 70px -30px oklch(0.55 0.25 var(--hue) / .75), 0 0 0 1px rgba(255, 255, 255, .08);
+  --scrim: rgba(4, 3, 10, .7);
+  --holo: conic-gradient(from var(--aa), oklch(0.78 0.2 300), oklch(0.82 0.17 200), oklch(0.88 0.16 120), oklch(0.85 0.17 60), oklch(0.8 0.2 0), oklch(0.78 0.2 300));
+  --mx: 50vw; --my: 30vh;
 }
-:root[data-look="archive"][data-theme="dark"] { --wall: #171512; --wall-2: #201D19; --card: #1E1B17; --ink: #F1EBE0; --ink-2: #ABA190; --rule: #36312A; --cobalt: #C9A26B; --cobalt-soft: #2B2419; --on-cobalt: #171512; --marker: #C9A26B; }
-:root[data-look="archive"] .display, :root[data-look="archive"] h2, :root[data-look="archive"] .h2, :root[data-look="archive"] .info h1, :root[data-look="archive"] .fame, :root[data-look="archive"] .feature .who, :root[data-look="archive"] .top .val {
-  font-weight: 500; letter-spacing: -.01em; font-variation-settings: normal; line-height: 1;
+@keyframes aura-spin { to { --aa: 360deg; } }
+@keyframes aura-hue { 0% { --hue: 300; } 50% { --hue: 200; } 100% { --hue: 300; } }
+
+/* the living background: a drifting color field, a cursor spotlight, and grain */
+:root[data-look="aura"] body { background: var(--wall); }
+:root[data-look="aura"] body::before {
+  content: ""; position: fixed; inset: -25vmax; z-index: -2; pointer-events: none;
+  background:
+    radial-gradient(26vmax 26vmax at calc(var(--mx) + 25vmax) calc(var(--my) + 25vmax), oklch(0.6 0.25 var(--hue) / .5), transparent 70%),
+    radial-gradient(40vmax 30vmax at 20% 10%, oklch(0.45 0.22 300 / .9), transparent 70%),
+    radial-gradient(36vmax 30vmax at 85% 30%, oklch(0.5 0.2 200 / .7), transparent 70%),
+    radial-gradient(40vmax 34vmax at 60% 95%, oklch(0.48 0.22 20 / .6), transparent 70%);
+  filter: blur(70px) saturate(1.25); opacity: .7;
+  animation: aura-drift 26s ease-in-out infinite alternate, aura-hue 40s linear infinite;
 }
-:root[data-look="archive"] .display { font-size: clamp(2.8rem, 7.6vw, 6.2rem); }
-:root[data-look="archive"] h3, :root[data-look="archive"] .h3 { font-family: var(--display); font-weight: 600; letter-spacing: 0; font-size: 1.35rem; }
-:root[data-look="archive"] .eyebrow { font-family: var(--body); letter-spacing: .22em; font-size: 11px; }
-:root[data-look="archive"] .btn { border-width: 1px; border-radius: 0; text-transform: uppercase; letter-spacing: .14em; font-size: 12px; font-weight: 500; min-height: 46px; }
-:root[data-look="archive"] .btn:hover { transform: none; box-shadow: none; background: var(--ink); color: var(--wall); }
-:root[data-look="archive"] .btn.primary:hover { background: var(--ink); border-color: var(--ink); }
-:root[data-look="archive"] .pill { border-radius: 0; border-width: 1px; font-weight: 500; letter-spacing: .04em; }
-:root[data-look="archive"] .pulse { --led: #6D6458; --up-led: #5E7A4A; --down-led: #A6493A; --amber: #7A5C33; background: #ECE5DA; border-bottom: 1px solid #DCD2C2; font-family: var(--body); font-size: 12px; letter-spacing: .14em; text-transform: uppercase; height: 32px; }
-:root[data-look="archive"] .pulse-l { background: #ECE5DA; border-color: #DCD2C2; color: var(--ink); }
-:root[data-look="archive"] .pulse-t .q b { color: #1F1B16; font-weight: 600; }
-:root[data-look="archive"] .pulse .ekg path { stroke: #7A5C33; filter: none; }
-:root[data-look="archive"] .glogo { background: var(--ink); }
-:root[data-look="archive"] .glogo span { font-family: 'Cormorant Garamond', serif; font-style: italic; font-weight: 500; font-size: calc(var(--s) * .34); transform: none; letter-spacing: 0; }
-:root[data-look="archive"] .hand, :root[data-look="archive"] .annot, :root[data-look="archive"] .quote, :root[data-look="archive"] .keep, :root[data-look="archive"] .st-sig { font-family: 'Cormorant Garamond', serif; font-style: italic; font-weight: 500; }
-:root[data-look="archive"] .hero h1 .rise svg { display: none; }
-:root[data-look="archive"] .chip, :root[data-look="archive"] .proj, :root[data-look="archive"] .venue, :root[data-look="archive"] .card, :root[data-look="archive"] .tal, :root[data-look="archive"] .acard { box-shadow: none; border-color: var(--rule); }
-:root[data-look="archive"] .chip .swatch .tick, :root[data-look="archive"] .chippanel .sw .tick, :root[data-look="archive"] .hold .sw .tick { font-family: var(--display); font-weight: 600; letter-spacing: 0; }
-:root[data-look="archive"] .work .art.hung { border: 10px solid var(--card); outline: 1px solid var(--rule); }
-:root[data-look="archive"] .feature { --ink: #1F1B16; --wall: #F1EBE0; }
-:root[data-look="archive"] .fees, :root[data-look="archive"] .lab, :root[data-look="archive"] .summary, :root[data-look="archive"] .chippanel, :root[data-look="archive"] .chipspend { border-width: 1px; }
+@keyframes aura-drift { 50% { transform: translate(3vmax, -2vmax) rotate(8deg) scale(1.08); } 100% { transform: translate(-3vmax, 2vmax) rotate(-6deg) scale(1.02); } }
+/* a dark veil keeps it sleek: color glows at the edges, the middle stays deep */
+:root[data-look="aura"] body::after {
+  content: ""; position: fixed; inset: 0; z-index: -1; pointer-events: none;
+  background: radial-gradient(110% 80% at 50% 40%, rgba(7, 6, 11, .5), rgba(7, 6, 11, .12) 70%, transparent);
+}
+:root[data-look="aura"]::after {
+  content: ""; position: fixed; inset: 0; z-index: 2147483000; pointer-events: none; opacity: .18; mix-blend-mode: overlay;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* type: wide, confident display; liquid-chrome headlines */
+:root[data-look="aura"] .display, :root[data-look="aura"] h2, :root[data-look="aura"] .h2, :root[data-look="aura"] .info h1, :root[data-look="aura"] .fame, :root[data-look="aura"] .feature .who, :root[data-look="aura"] .top .val {
+  font-weight: 800; letter-spacing: -.035em; font-variation-settings: normal; line-height: .95;
+}
+:root[data-look="aura"] .display, :root[data-look="aura"] .feature .who, :root[data-look="aura"] .top .val {
+  background: linear-gradient(100deg, #FFFFFF 0%, #FFFFFF 30%, oklch(0.82 0.17 var(--hue)) 42%, oklch(0.9 0.14 calc(var(--hue) - 120)) 52%, #FFFFFF 64%, #FFFFFF 100%) 0 0 / 260% 100%;
+  -webkit-background-clip: text; background-clip: text; color: transparent;
+  animation: chrome 9s ease-in-out infinite, aura-hue 40s linear infinite;
+}
+@keyframes chrome { 0%, 100% { background-position: 100% 0; } 50% { background-position: 0% 0; } }
+:root[data-look="aura"] h3, :root[data-look="aura"] .h3 { font-family: var(--display); font-weight: 700; letter-spacing: -.01em; }
+:root[data-look="aura"] .eyebrow { color: oklch(0.82 0.12 var(--hue)); letter-spacing: .2em; }
+:root[data-look="aura"] .hero h1 .rise path { stroke: url(#none); stroke: oklch(0.8 0.2 var(--hue)); filter: drop-shadow(0 0 8px oklch(0.8 0.2 var(--hue))); }
+:root[data-look="aura"] .hand, :root[data-look="aura"] .annot, :root[data-look="aura"] .quote, :root[data-look="aura"] .keep { color: oklch(0.82 0.2 calc(var(--hue) + 40)); }
+
+/* glass + holographic edges */
+:root[data-look="aura"] .card, :root[data-look="aura"] .chip, :root[data-look="aura"] .proj, :root[data-look="aura"] .venue, :root[data-look="aura"] .tal,
+:root[data-look="aura"] .acard, :root[data-look="aura"] .tier, :root[data-look="aura"] .hold, :root[data-look="aura"] .vote, :root[data-look="aura"] .reward,
+:root[data-look="aura"] .step, :root[data-look="aura"] .summary, :root[data-look="aura"] .chipspend, :root[data-look="aura"] .chippanel, :root[data-look="aura"] .fees,
+:root[data-look="aura"] .lab, :root[data-look="aura"] .panel, :root[data-look="aura"] .tile, :root[data-look="aura"] .namecard, :root[data-look="aura"] .resale-box,
+:root[data-look="aura"] .earnbox, :root[data-look="aura"] .drip, :root[data-look="aura"] .invite, :root[data-look="aura"] .storebar .sb, :root[data-look="aura"] .rs-stage, :root[data-look="aura"] .stage {
+  background: rgba(255, 255, 255, .045); border: 1px solid rgba(255, 255, 255, .1); border-radius: 18px; overflow: hidden;
+  backdrop-filter: blur(18px) saturate(1.5); -webkit-backdrop-filter: blur(18px) saturate(1.5);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .08);
+}
+:root[data-look="aura"] .chip:hover, :root[data-look="aura"] .proj:hover, :root[data-look="aura"] .acard:hover, :root[data-look="aura"] .storebar .sb:hover {
+  border-color: transparent; background: linear-gradient(#0D0B16, #0D0B16) padding-box, var(--holo) border-box;
+}
+:root[data-look="aura"] .tiles { background: transparent; border: 0; gap: 12px; }
+:root[data-look="aura"] .rules article, :root[data-look="aura"] .vm article { background: transparent; }
+
+/* buttons: pills with a holographic rim; primary glows */
+:root[data-look="aura"] .btn { border-radius: 999px; border: 1.5px solid transparent; background: linear-gradient(#0C0A14, #0C0A14) padding-box, var(--holo) border-box; color: var(--ink); font-weight: 700; }
+:root[data-look="aura"] .btn:hover { transform: translateY(-2px); box-shadow: 0 12px 30px -10px oklch(0.7 0.22 var(--hue) / .7); }
+:root[data-look="aura"] .btn.primary { background: var(--holo); color: #0A0812; border: 0; animation: aura-spin 8s linear infinite; }
+:root[data-look="aura"] .btn.primary:hover { box-shadow: 0 0 0 1px rgba(255, 255, 255, .25), 0 16px 40px -10px oklch(0.7 0.24 var(--hue) / .9); }
+:root[data-look="aura"] .pill { border-radius: 999px; background: rgba(255, 255, 255, .05); border-color: rgba(255, 255, 255, .14); color: var(--ink); }
+:root[data-look="aura"] .pill[aria-pressed="true"] { background: var(--holo); color: #0A0812; border-color: transparent; }
+:root[data-look="aura"] .input { background: rgba(255, 255, 255, .05); border-color: rgba(255, 255, 255, .14); border-radius: 12px; color: var(--ink); }
+:root[data-look="aura"] .input:focus { border-color: oklch(0.8 0.18 var(--hue)); box-shadow: 0 0 0 4px oklch(0.7 0.2 var(--hue) / .25); }
+
+/* chrome: glass bar, holographic logo ring, the board in liquid color */
+:root[data-look="aura"] .topbar { background: rgba(7, 6, 11, .5); border-bottom: 1px solid rgba(255, 255, 255, .08); }
+:root[data-look="aura"] .menu, :root[data-look="aura"] .nav .drop, :root[data-look="aura"] .sheet { background: rgba(14, 12, 22, .82); backdrop-filter: blur(24px) saturate(1.4); -webkit-backdrop-filter: blur(24px) saturate(1.4); border: 1px solid rgba(255, 255, 255, .12); border-radius: 18px; }
+:root[data-look="aura"] .nav a[aria-current="page"], :root[data-look="aura"] .nav a:hover { background: rgba(255, 255, 255, .08); color: var(--ink); }
+:root[data-look="aura"] .glogo { background: linear-gradient(#07060B, #07060B) padding-box, var(--holo) border-box; border: 2.5px solid transparent; color: #FFF; position: relative; animation: aura-spin 6s linear infinite; }
+:root[data-look="aura"] .glogo::after { content: ""; position: absolute; inset: -8px; border-radius: 50%; background: var(--holo); z-index: -1; filter: blur(16px); opacity: .5; }
+:root[data-look="aura"] .wallet-pill, :root[data-look="aura"] .icon-btn { background: rgba(255, 255, 255, .06); border-color: rgba(255, 255, 255, .12); }
+:root[data-look="aura"] .pulse { background: rgba(7, 6, 11, .6); border-bottom: 1px solid rgba(255, 255, 255, .06); backdrop-filter: blur(10px); }
+:root[data-look="aura"] .pulse-l { background: transparent; border-color: rgba(255, 255, 255, .08); }
+:root[data-look="aura"] .pulse .ekg path { stroke: oklch(0.85 0.2 var(--hue)); filter: drop-shadow(0 0 4px oklch(0.85 0.2 var(--hue))); }
+:root[data-look="aura"] .pulse-t .aff { color: oklch(0.85 0.15 calc(var(--hue) - 200)); }
+:root[data-look="aura"] .looks { background: linear-gradient(90deg, oklch(0.85 0.16 var(--hue)), oklch(0.88 0.15 calc(var(--hue) - 120))); }
+:root[data-look="aura"] .intro { background: rgba(255, 255, 255, .04); border-color: rgba(255, 255, 255, .08); }
+:root[data-look="aura"] .footer { border-top-color: rgba(255, 255, 255, .12); }
+:root[data-look="aura"] .tabbar { background: rgba(7, 6, 11, .7); border-top-color: rgba(255, 255, 255, .1); }
+:root[data-look="aura"] .feature { --ink: #07060B; background: transparent; border-color: rgba(255, 255, 255, .08); }
+:root[data-look="aura"] .dropband, :root[data-look="aura"] .next, :root[data-look="aura"] .house { background: rgba(255, 255, 255, .05); border: 1px solid rgba(255, 255, 255, .1); backdrop-filter: blur(16px); }
+
+/* art: glow in its own colors, prism shimmer on hover */
+:root[data-look="aura"] .art.hung { border-radius: 6px; }
+:root[data-look="aura"] .work:hover .art { transform: translateY(-6px) scale(1.015); filter: saturate(1.25) contrast(1.04); box-shadow: 0 40px 80px -30px oklch(0.6 0.26 var(--hue) / .9); }
+:root[data-look="aura"] .work .frame::after { content: ""; position: absolute; inset: 0; border-radius: 6px; pointer-events: none; background: linear-gradient(115deg, transparent 30%, rgba(255, 255, 255, .22) 45%, oklch(0.85 0.18 var(--hue) / .25) 50%, transparent 62%) 0 0 / 250% 100%; background-position: 120% 0; opacity: 0; transition: opacity .3s, background-position .9s cubic-bezier(.2,.8,.2,1); mix-blend-mode: screen; }
+:root[data-look="aura"] .work:hover .frame::after { opacity: 1; background-position: -30% 0; }
+:root[data-look="aura"] .chip .swatch { border-radius: 0; }
+
+/* scroll-driven reveals: things bloom into place as they enter the screen */
+@supports (animation-timeline: view()) {
+  :root[data-look="aura"] .work, :root[data-look="aura"] .chip, :root[data-look="aura"] .proj, :root[data-look="aura"] .venue, :root[data-look="aura"] .tal,
+  :root[data-look="aura"] .acard, :root[data-look="aura"] .step, :root[data-look="aura"] .tier, :root[data-look="aura"] .section-head, :root[data-look="aura"] .tile {
+    animation: bloom linear both; animation-timeline: view(); animation-range: entry 0% cover 28%;
+  }
+  @keyframes bloom { from { opacity: .15; transform: translateY(46px) scale(.96); filter: blur(8px) hue-rotate(60deg); } to { opacity: 1; transform: none; filter: none; } }
+}
+
+/* page-to-page: an iris opening in the art's colors */
+@view-transition { navigation: auto; }
+:root[data-look="aura"]::view-transition-old(root) { animation: .45s ease both aura-out; }
+:root[data-look="aura"]::view-transition-new(root) { animation: .75s cubic-bezier(.7, 0, .2, 1) both aura-in; }
+@keyframes aura-out { to { opacity: 0; filter: blur(12px) saturate(2) hue-rotate(80deg); transform: scale(1.03); } }
+@keyframes aura-in { from { clip-path: circle(0% at var(--vx, 50%) var(--vy, 35%)); filter: saturate(2.2) hue-rotate(-90deg); } to { clip-path: circle(150% at var(--vx, 50%) var(--vy, 35%)); } }
+
+/* landing: the orbit blooms open and breathes */
+:root[data-look="aura"] .orbit { animation: orbit-in 1.6s cubic-bezier(.2, .9, .2, 1) both; }
+:root[data-look="aura"] .ring img { animation: hueflow 12s linear infinite; border-color: transparent; box-shadow: 0 0 30px -4px oklch(0.7 0.24 var(--hue) / .8), 0 0 0 2px rgba(255, 255, 255, .15); }
+:root[data-look="aura"] .track-line { border: 1px solid rgba(255, 255, 255, .14); box-shadow: 0 0 60px oklch(0.6 0.25 var(--hue) / .35), inset 0 0 60px oklch(0.6 0.25 calc(var(--hue) - 120) / .25); }
+:root[data-look="aura"] .enter .glogo { box-shadow: 0 0 120px -10px oklch(0.6 0.26 var(--hue) / .8); }
+:root[data-look="aura"] .tag b { color: #fff; }
+:root[data-look="aura"] .enter .cue { color: #fff; opacity: .8; }
+:root[data-look="aura"] .quick a:hover { background: var(--holo); color: #0A0812; }
+:root[data-look="aura"] .quick span { color: rgba(255, 255, 255, .2); }
+@keyframes orbit-in { from { opacity: .1; transform: scale(.55) rotate(-40deg); filter: blur(24px) hue-rotate(180deg) saturate(2); } }
+@keyframes hueflow { 50% { filter: hue-rotate(40deg) saturate(1.3); } }
+
+@media (prefers-reduced-motion: reduce) {
+  :root[data-look="aura"] body::before, :root[data-look="aura"] .glogo, :root[data-look="aura"] .btn.primary, :root[data-look="aura"] .ring img, :root[data-look="aura"] .orbit { animation: none; }
+  :root[data-look="aura"] .display, :root[data-look="aura"] .feature .who, :root[data-look="aura"] .top .val { animation: none; background-position: 50% 0; }
+  :root[data-look="aura"]::view-transition-old(root), :root[data-look="aura"]::view-transition-new(root) { animation: none; }
+}
 
 /* ---------- 3. Marker: Justin's hand-lettered zine side ---------- */
 :root[data-look="marker"] {
@@ -589,4 +702,4 @@ details.faq p { padding: 0 0 20px; color: var(--ink-2); max-width: 62ch; }
 .coa-sig { font-family: var(--hand); font-size: 2rem; color: var(--ink); transform: rotate(-4deg); margin: 0; }
 .coa-qr img, .coa-qr canvas { display: block; }
 @media (max-width: 520px) { .coa-main { grid-template-columns: minmax(0, 1fr); } }
-:root[data-look="archive"] .chippanel .sw .tick, :root[data-look="marker"] .chippanel .sw .tick { font-size: 1.5rem; word-break: normal; overflow-wrap: anywhere; }
+:root[data-look="aura"] .chippanel .sw .tick, :root[data-look="marker"] .chippanel .sw .tick { font-size: 1.5rem; word-break: normal; overflow-wrap: anywhere; }
