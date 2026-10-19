@@ -1,0 +1,156 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Find Your Piece · Gesso</title>
+<meta name="description" content="A one-minute taste quiz. Pick between paintings and Gesso finds the HAMEL piece for your wall.">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Gesso">
+<meta property="og:title" content="Find Your Piece · Gesso">
+<meta property="og:description" content="A one-minute taste quiz. Pick between paintings and Gesso finds the HAMEL piece for your wall.">
+<meta property="og:url" content="https://finleymatt.github.io/gesso/quiz.html">
+<meta property="og:image" content="https://finleymatt.github.io/gesso/og.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Four paintings by HAMEL beside the words Find your own faces.">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wdth,wght@12..96,75..100,300..800&family=DM+Mono:wght@400;500&family=Permanent+Marker&family=VT323&family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=Syne:wght@600;700;800&display=swap">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/png" href="icons/favicon-64.png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<link rel="stylesheet" href="gesso.css">
+<style>
+  .qz { max-width: 980px; margin-inline: auto; padding-block: clamp(28px, 5vw, 60px); display: grid; gap: 22px; }
+  .qtop { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+  .bar { flex: 1; max-width: 320px; height: 6px; border-radius: 99px; background: var(--wall-2); overflow: hidden; }
+  .bar i { display: block; height: 100%; width: var(--p, 0%); background: var(--ink); border-radius: inherit; transition: width .45s cubic-bezier(.2, .8, .2, 1); }
+  .qstep { font: 500 12px var(--mono); color: var(--ink-2); text-transform: uppercase; letter-spacing: .1em; }
+  .qh { font: 800 clamp(2rem, 5.4vw, 3.6rem)/1 var(--display); letter-spacing: -.04em; text-wrap: balance; }
+  .card-in { animation: qin .45s cubic-bezier(.2, .8, .2, 1); }
+  @keyframes qin { from { opacity: 0; transform: translateX(24px); } }
+  .opts { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; }
+  .opt { display: grid; gap: 6px; text-align: left; padding: 20px; border: 1.5px solid var(--rule); background: var(--card); color: var(--ink); cursor: pointer; border-radius: 10px; font: inherit; transition: border-color .2s, transform .2s; }
+  .opt:hover, .opt:focus-visible { border-color: var(--ink); transform: translateY(-2px); }
+  .opt b { font-size: 1.15rem; }
+  .opt span { color: var(--ink-2); font-size: var(--t-s); }
+  .opt .ic { height: 34px; display: flex; align-items: flex-end; font: 500 26px/1 var(--mono); color: var(--ink); }
+  .opt .ic i { display: block; width: var(--bw); height: var(--bh); border: 2px solid currentColor; border-radius: 2px; background: color-mix(in srgb, var(--marker) 22%, transparent); }
+  .vs { display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); gap: clamp(10px, 3vw, 28px); align-items: center; }
+  .vs .or { font: 400 clamp(1.4rem, 3vw, 2rem) var(--hand); color: var(--marker); transform: rotate(-8deg); }
+  .pickart { border: 0; padding: 0; background: none; cursor: pointer; display: grid; gap: 10px; justify-items: center; color: var(--ink); font: inherit; }
+  .pickart img { width: 100%; max-height: 52vh; object-fit: contain; box-shadow: var(--hang); transition: transform .35s cubic-bezier(.2, 1.3, .3, 1); }
+  .pickart:hover img, .pickart:focus-visible img { transform: translateY(-6px) rotate(-1.2deg); }
+  .pickart:nth-child(3):hover img { transform: translateY(-6px) rotate(1.2deg); }
+  .pickart span { font: 500 12px var(--mono); color: var(--ink-2); text-transform: uppercase; letter-spacing: .08em; }
+  .pickart.chosen img { outline: 4px solid var(--marker); outline-offset: 6px; }
+  .skip-row { display: flex; justify-content: center; gap: 18px; }
+  .skip-row button { background: none; border: 0; color: var(--ink-2); text-decoration: underline; cursor: pointer; font: inherit; font-size: var(--t-s); }
+  .result { display: grid; gap: 26px; }
+  .persona { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: clamp(16px, 3vw, 32px); align-items: center; padding: clamp(20px, 4vw, 36px); border-radius: 14px; background: var(--pc, var(--ink)); color: var(--pon, #fff); }
+  .persona .swatch { width: clamp(84px, 14vw, 128px); aspect-ratio: 1; border-radius: 50%; background: conic-gradient(from 20deg, var(--s1), var(--s2), var(--s3), var(--s1)); box-shadow: 0 0 0 4px rgba(255, 255, 255, .5); animation: spin 18s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .persona p { opacity: .85; max-width: 34em; }
+  .persona .pk { font: 500 12px var(--mono); text-transform: uppercase; letter-spacing: .12em; opacity: .75; }
+  .persona h2 { font: 800 clamp(2.2rem, 6vw, 4rem)/.95 var(--display); letter-spacing: -.04em; margin: 6px 0 10px; }
+  .why { display: flex; flex-wrap: wrap; gap: 8px; }
+  .why span { font: 500 12px var(--mono); border: 1px solid var(--rule); border-radius: 999px; padding: 5px 10px; color: var(--ink-2); }
+  .loading { display: grid; place-items: center; min-height: 40vh; font: 400 1.6rem var(--hand); color: var(--ink-2); }
+  @media (max-width: 720px) { .opts { grid-template-columns: minmax(0, 1fr); } .vs { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); } .vs .or { display: none; } .persona { grid-template-columns: minmax(0, 1fr); } }
+  @media (prefers-reduced-motion: reduce) { .card-in, .persona .swatch { animation: none; } }
+  :root[data-look="marker"] .opt { border: 3px solid var(--ink); border-radius: 4px; box-shadow: 5px 5px 0 var(--ink); }
+  :root[data-look="aura"] .persona { background: linear-gradient(135deg, var(--s1), var(--s2) 55%, var(--s3)); color: #07060B; }
+</style>
+</head>
+<body>
+<div id="chrome-top"></div>
+<main class="wrap"><div class="qz" id="qz"></div></main>
+<div id="chrome-bottom"></div>
+<script src="gesso.js"></script>
+<script>
+(function () {
+  G.chrome('quiz');
+  const root = document.getElementById('qz');
+  const hamel = G.worksBy('hamel');
+  const pool = hamel.filter((w) => !G.isSold(w));
+  // eight paintings that pull in different directions, paired up fresh every time
+  const CONTENDERS = ['hamel-j11', 'hamel-j16', 'hamel-j20', 'hamel-j06', 'hamel-02', 'hamel-j19', 'hamel-07', 'hamel-j12', 'hamel-j22', 'hamel-j02'];
+  const PERSONAS = {
+    blue: ['Deep end', 'You like it cool and crowded: blues, night colors, a lot going on underneath.', '#2D6BE0'],
+    pink: ['Loud heart', 'Pink and hot and unafraid. You want the wall to say hello first.', '#E3156B'],
+    red: ['Firestarter', 'Reds and heat. Your walls start conversations at dinner.', '#D9342B'],
+    yellow: ['Sunday morning', 'Yellows and light. Art that wakes the room up, gently.', '#E8B417'],
+    green: ['Garden variety', 'Greens and growing things, a little wild at the edges.', '#2FA84F'],
+    purple: ['Night owl', 'Purples and late hours. You like your art a little mysterious.', '#8A4FD8'],
+    orange: ['Golden hour', 'Warm oranges, the color of the good part of the day.', '#F08A1C'],
+    earth: ['Old soul', 'Earth tones and patience. Things that look better every year.', '#9A6B43'],
+    mono: ['Line purist', 'Black, white and the line itself. You see the drawing first.', '#16151B']
+  };
+  const state = { size: null, budget: null, picks: [], step: 0 };
+  const shuffle = (a) => { a = a.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
+  const pairs = (() => { const c = shuffle(CONTENDERS.filter((id) => G.work(id))); return [[c[0], c[1]], [c[2], c[3]], [c[4], c[5]], [c[6], c[7]]]; })();
+  const TOTAL = 2 + pairs.length;
+  const head = (n, q) => `<div class="qtop"><span class="qstep">Question ${n} of ${TOTAL}</span><span class="bar" aria-hidden="true"><i style="--p:${(n - 1) / TOTAL * 100}%"></i></span></div><h1 class="qh">${q}</h1>`;
+
+  const steps = [
+    () => `${head(1, 'Where will it hang?')}<div class="opts">
+      <button class="opt" type="button" data-size="small"><span class="ic"><i style="--bw:13px;--bh:17px"></i></span><b>A small spot</b><span>Hallway, bedside, a shelf you lean things on</span></button>
+      <button class="opt" type="button" data-size="mid"><span class="ic"><i style="--bw:30px;--bh:22px"></i></span><b>Over the couch or bed</b><span>The wall everyone sees when they walk in</span></button>
+      <button class="opt" type="button" data-size="big"><span class="ic"><i style="--bw:40px;--bh:32px"></i></span><b>A big empty wall</b><span>Somewhere that needs a statement</span></button></div>`,
+    () => `${head(2, 'What feels right to spend?')}<div class="opts">
+      <button class="opt" type="button" data-budget="500"><span class="ic">$</span><b>Under $500</b><span>A first original. Pay in 4 if you like.</span></button>
+      <button class="opt" type="button" data-budget="1500"><span class="ic">$$</span><b>Up to $1,500</b><span>Something to build a room around</span></button>
+      <button class="opt" type="button" data-budget="99999"><span class="ic">$$$</span><b>If I love it, I love it</b><span>Layaway is there for the big ones</span></button></div>`
+  ].concat(pairs.map(([a, b], i) => () => { const A = G.work(a), B = G.work(b); return `${head(3 + i, i === 0 ? 'Which one would you live with?' : ['And now?', 'This or that?', 'Last one. Go with your gut.'][i - 1])}
+      <div class="vs"><button class="pickart" type="button" data-pick="${a}"><img src="${G.workArt(A, 560)}" alt="${G.esc(A.title)}"><span>This one</span></button><span class="or" aria-hidden="true">or</span>
+      <button class="pickart" type="button" data-pick="${b}"><img src="${G.workArt(B, 560)}" alt="${G.esc(B.title)}"><span>This one</span></button></div>
+      <div class="skip-row"><button type="button" data-both="${a},${b}">Both, honestly</button><button type="button" data-none>Neither</button></div>`; }));
+
+  const draw = () => { root.innerHTML = `<div class="card-in" style="display:grid;gap:22px">${steps[state.step]()}</div>`; root.querySelector('button').focus({ preventScroll: true }); };
+  const next = () => { state.step++; if (state.step < steps.length) draw(); else finish(); scrollTo({ top: 0, behavior: 'smooth' }); };
+  root.addEventListener('click', (e) => {
+    const s = e.target.closest('[data-size]'), b = e.target.closest('[data-budget]'), p = e.target.closest('[data-pick]'), both = e.target.closest('[data-both]'), none = e.target.closest('[data-none]');
+    if (s) { state.size = s.dataset.size; next(); }
+    else if (b) { state.budget = +b.dataset.budget; next(); }
+    else if (p) { p.classList.add('chosen'); state.picks.push(p.dataset.pick); setTimeout(next, 260); }
+    else if (both) { state.picks.push(...both.dataset.both.split(',')); next(); }
+    else if (none) next();
+    else if (e.target.closest('[data-retake]')) location.reload();
+    else if (e.target.closest('[data-saveall]')) { const ids = e.target.closest('[data-saveall]').dataset.saveall.split(','); ids.forEach((id) => { if (!G.isSaved(id)) G.toggleSave(id); }); G.toast('<span>All three saved.</span><a href="collection.html#saved">See saved</a>'); }
+  });
+
+  async function finish() {
+    root.innerHTML = '<div class="loading">Reading your taste…</div>';
+    const colors = Object.fromEntries(await Promise.all(hamel.map(async (w) => [w.id, await G.colorsOf(w).catch(() => [])])));
+    const tally = {};
+    (state.picks.length ? state.picks : CONTENDERS).forEach((id) => (colors[id] || []).forEach((c, i) => (tally[c] = (tally[c] || 0) + (3 - i))));
+    const ranked = Object.entries(tally).sort((a, b) => b[1] - a[1]).map(([c]) => c);
+    const top = ranked.find((c) => c !== 'mono') || ranked[0] || 'pink';
+    const sizeOk = (w) => (state.size === 'small' ? w.w <= 16 : state.size === 'big' ? w.w >= 22 : w.w >= 11 && w.w <= 36);
+    const score = (w) => (colors[w.id] || []).reduce((s, c, i) => s + (tally[c] || 0) * (3 - i), 0) + (sizeOk(w) ? 14 : 0) + (state.picks.includes(w.id) ? 6 : 0) + (w.price <= state.budget ? 30 : -40);
+    const recs = pool.slice().sort((a, b) => score(b) - score(a)).slice(0, 3);
+    const P = PERSONAS[top] || PERSONAS.pink, sw = ranked.slice(0, 3).map((c) => (G.COLORS.find(([k]) => k === c) || [, P[2]])[1]);
+    while (sw.length < 3) sw.push(P[2]);
+    G.store.set('taste', { persona: P[0], colors: ranked.slice(0, 3), at: Date.now() });
+    const n = G.collectors('hamel'), earn = recs.reduce((s, w) => s + G.chipsFor(w.price, n), 0);
+    const light = ['yellow', 'orange'].includes(top);
+    root.innerHTML = `<div class="result card-in">
+      <div class="qtop"><span class="qstep">Your result</span><span class="bar" aria-hidden="true"><i style="--p:100%"></i></span></div>
+      <div class="persona" style="--pc:${P[2]};--pon:${light ? '#16151B' : '#fff'};--s1:${sw[0]};--s2:${sw[1]};--s3:${sw[2]}">
+        <span class="swatch" aria-hidden="true"></span>
+        <div><span class="pk">Your taste</span><h2>${P[0]}</h2><p>${P[1]}</p></div></div>
+      <div class="why">${ranked.slice(0, 3).map((c) => `<span>leans ${c}</span>`).join('')}<span>${{ small: 'small spot', mid: 'over the couch', big: 'big wall' }[state.size] || 'any wall'}</span><span>${state.budget >= 99999 ? 'no ceiling' : 'up to ' + G.usd(state.budget)}</span></div>
+      <div class="section-head" style="margin:0"><div><p class="eyebrow">Picked for you</p><h2 style="font-size:clamp(1.6rem,3.4vw,2.4rem)">Three HAMELs for your wall</h2></div>
+        <p class="muted" style="max-width:28em">Together they'd earn you about ${G.chips(earn)} $HAMEL in chips. Try any of them on your own wall from its page.</p></div>
+      <div class="salon">${recs.map((w) => G.workCard(w)).join('')}</div>
+      <div class="cta-row"><button class="btn primary" type="button" data-saveall="${recs.map((w) => w.id).join(',')}">Save all three</button><a class="btn" href="discover.html">See everything</a><button class="btn" type="button" data-retake>Take it again</button></div></div>`;
+    G.hydrate(root);
+  }
+  draw();
+})();
+</script>
+</body>
+</html>

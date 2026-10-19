@@ -153,6 +153,15 @@
       <div class="salon">${owned.map((x) => `<div class="ownedw">` + G.workCard(x).replace(/<span class="red-dot"[^>]*><\/span>|<button class="quick-add"[^>]*>[^<]*<\/button>/, '').replace(/<span class="price">[\s\S]*?<\/span>\s*<\/span>/, `<span class="price"><span class="sold-tag" style="--sold:var(--up)">Yours</span><span class="earn">${x.edition === 'Original' ? 'Original' : G.esc(x.edition)}</span></span>`) + `<div class="resell">${(G.store.get('resales', []) || []).some((r) => r.id === x.id) ? `<span class="mono" style="font-size:var(--t-xs)">Listed for resale at ${G.usd((G.store.get('resales', []) || []).find((r) => r.id === x.id).ask)}</span><button class="link" type="button" data-unlist="${x.id}" style="background:none;border:0;padding:0;cursor:pointer;font-size:var(--t-xs)">Unlist</button>` : `<button class="btn small" type="button" data-resell="${x.id}">Resell</button><button class="link" type="button" data-coa="${x.id}" style="background:none;border:0;padding:0;cursor:pointer;font-size:var(--t-xs)">Certificate</button>`}</div></div>`).join('')}</div>
     </section>
 
+    <section class="section" id="saved" aria-labelledby="h-saved" style="padding-bottom:0">
+      <div class="section-head"><div><p class="eyebrow">Saved</p><h2 id="h-saved">${G.saved().length ? 'Pieces you hearted' : 'Nothing saved yet'}</h2></div><p class="muted" style="max-width:30em">${G.saved().length ? 'If one of these is about to be collected, or drops in price on resale, you hear first.' : 'Tap the heart on any piece to keep it here. Not sure where to start? <a class="link" href="quiz.html">Take the taste quiz</a>.'}</p></div>
+      ${G.saved().length ? `<div class="salon">${G.saved().map(G.work).filter(Boolean).map((x) => G.workCard(x)).join('')}</div>` : ''}
+    </section>
+    ${G.recent().length ? `<section class="section" aria-labelledby="h-recent" style="padding-bottom:0">
+      <div class="section-head"><div><p class="eyebrow">Recently viewed</p><h2 id="h-recent">Where you've been looking</h2></div></div>
+      <div class="recent-row">${G.recent().map(G.work).map((x) => `<a href="piece.html#${x.id}">${G.artImg(x, 300, 'art')}<span>${G.esc(x.title)}</span></a>`).join('')}</div>
+    </section>` : ''}
+
     <section class="section" aria-labelledby="h-log" style="padding-bottom:0">
       <div class="section-head"><div><p class="eyebrow">Activity</p><h2 id="h-log">Your chip ledger</h2></div><button class="btn small" type="button" data-reset>Reset preview</button></div>
       <div style="overflow-x:auto"><table class="log"><tbody>${w.log.map((l) => { const a = G.artist(l.a) || { color: 'var(--ink-2)', ticker: 'GESSO' }; return `<tr><td>${new Date(l.t + 'T12:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</td><td><i class="dot" style="--c:${a.color}"></i> ${G.esc(l.text)}</td><td class="num ${l.chips >= 0 ? 'up' : 'down'}">${l.chips >= 0 ? '+' : '−'}${G.chips(Math.abs(l.chips))} $${a.ticker}</td></tr>`; }).join('')}</tbody></table></div>

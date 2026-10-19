@@ -435,7 +435,7 @@
     const earn = G.chipsFor(w.price, n);
     return `<a class="work" href="piece.html#${w.id}">
       <div class="frame">${G.artImg(w, opts.size || 520, 'art hung')}
-        ${sold ? '<span class="red-dot" title="Collected"></span>' : `<button class="quick-add" type="button" data-add="${w.id}">+ Add to bag</button>`}
+        ${sold ? '<span class="red-dot" title="Collected"></span>' : `<button class="quick-add" type="button" data-add="${w.id}">+ Add to bag</button>`}${G.heart(w.id)}
       </div>
       <div class="walllabel">
         <span class="who"><i class="dot" style="--c:${a.color}"></i>${esc(a.name)}</span>
@@ -1101,6 +1101,89 @@
     return new Promise((r) => c.toBlob(r, 'image/png'));
   };
 
+  /* ================= saved pieces and recently viewed ================= */
+  G.saved = () => store.get('saved', []) || [];
+  G.isSaved = (id) => G.saved().includes(id);
+  G.heart = (id, cls = '') => `<button type="button" class="heart ${cls}" data-save="${id}" aria-pressed="${G.isSaved(id)}" aria-label="Save ${esc(G.work(id).title)}">${I.heart}</button>`;
+  G.toggleSave = (id) => {
+    const s = G.saved(), i = s.indexOf(id), on = i < 0;
+    if (on) s.unshift(id); else s.splice(i, 1);
+    store.set('saved', s);
+    document.querySelectorAll(`[data-save="${id}"]`).forEach((b) => { b.setAttribute('aria-pressed', String(on)); if (on) { b.classList.remove('pop'); void b.offsetWidth; b.classList.add('pop'); } });
+    G.toast(on ? `<span>Saved <b>${esc(G.work(id).title)}</b>. We'll tell you if it's about to go.</span><a href="collection.html#saved">Saved</a>` : `<span>Removed from saved</span>`);
+    return on;
+  };
+  G.recent = () => (store.get('recent', []) || []).filter((id) => G.work(id));
+  G.viewed = (id) => { const r = G.recent().filter((x) => x !== id); r.unshift(id); store.set('recent', r.slice(0, 12)); };
+
+  /* ================= quick search: Ctrl/Cmd + K, or the magnifier ================= */
+  const PAGES = [['now.html', 'Now on Gesso', "What's new and the next live drop"], ['discover.html', 'Shop art', 'Originals, prints and resale'], ['discover.html#objects', 'Objects', 'Hoodies, wallpaper, aprons, collabs'], ['artists.html', 'Artists', 'The roster'],
+    ['faces.html', 'The faces wall', 'Every face collectors found in HAMEL’s paintings'], ['quiz.html', 'Find your piece', 'A one-minute taste quiz'], ['book.html', 'FAME', 'Book chefs, DJs and more'], ['project.html', 'Projects', 'Back what’s next'],
+    ['events.html', 'Events', 'Drops, nights, open studios'], ['visit.html', 'Visit', 'See art in person'], ['collection.html', 'Your collection', 'Chips, milestones, your wall'], ['collection.html#saved', 'Saved pieces', 'Everything you hearted'],
+    ['collection.html#invite', 'Invite friends', 'You both get chips'], ['gift.html', 'Gift cards', 'Give someone their first piece'], ['mission.html', 'Mission', 'Justin’s statement and votes'], ['mission.html#statement', 'Artist statement', 'Justin, in his own words'],
+    ['how-it-works.html', 'How chips work', 'The curve, milestones, plans'], ['reserve.html', 'The reserve', 'Live numbers behind every chip'], ['spaces.html', 'Art for spaces', 'Rent-to-own for businesses'], ['partners.html', 'Partners', 'Where chips work'],
+    ['for-artists.html', 'Sell on Gesso', 'For artists and creators'], ['checkout.html', 'Bag', 'Check out']];
+  let INDEX = null;
+  const buildIndex = () => INDEX || (INDEX = [].concat(
+    WORKS.map((w) => { const a = G.artist(w.artist); return { k: 'Art', t: w.title, s: `${a.name} · ${w.year} · ${G.isSold(w) ? 'Collected' : G.usd(w.price)}`, h: 'piece.html#' + w.id, id: w.id, hay: `${w.title} ${a.name} ${a.fullName || ''} ${w.medium} ${w.edition}` }; }),
+    ARTISTS.map((a) => ({ k: 'Artist', t: a.name, s: `${a.city} · $${a.ticker}`, h: 'artist.html#' + a.slug, c: a.color, hay: `${a.name} ${a.fullName || ''} ${a.city} ${a.ticker} artist` })),
+    TALENT.map((t) => ({ k: 'FAME', t: t.name, s: `${t.kind} · ${t.city}`, h: 'book.html#' + t.slug, c: t.color, hay: `${t.name} ${t.kind} ${t.city} ${(t.tags || []).join(' ')} book hire` })),
+    PRODUCTS.filter((x) => x.type !== 'print').map((x) => { const a = G.artist(x.artist); return { k: 'Object', t: x.name, s: `${a.name} · ${G.usd(x.price)}`, h: 'product.html#' + x.id, c: a.color, hay: `${x.name} ${x.type} ${a.name} merch` }; }),
+    PAGES.map(([h, t, d]) => ({ k: 'Page', t, s: d, h, hay: `${t} ${d}` }))
+  ));
+  const findAll = (q) => {
+    const terms = q.toLowerCase().split(/\s+/).filter(Boolean);
+    if (!terms.length) return [];
+    return buildIndex().map((x) => { const hay = x.hay.toLowerCase(), t = x.t.toLowerCase(); if (!terms.every((w) => hay.includes(w))) return null;
+      return [x, (t.startsWith(terms[0]) ? 4 : t.includes(terms[0]) ? 2 : 0) + (x.k === 'Page' || x.k === 'Artist' ? 1 : 0)]; })
+      .filter(Boolean).sort((a, b) => b[1] - a[1]).slice(0, 12).map((r) => r[0]);
+  };
+  G.search = () => {
+    let el = document.getElementById('kpal');
+    if (!el) {
+      document.body.insertAdjacentHTML('beforeend', `<div class="kpal" id="kpal" hidden><div class="kpal-scrim" data-kclose></div>
+        <div class="kpal-box" role="dialog" aria-modal="true" aria-label="Search Gesso">
+          <div class="kpal-in">${I.search}<input id="kpal-q" type="search" placeholder="Search art, artists, objects, pages" autocomplete="off" role="combobox" aria-expanded="true" aria-controls="kpal-list" aria-autocomplete="list"><kbd data-kclose>esc</kbd></div>
+          <ul class="kpal-list" id="kpal-list" role="listbox" aria-label="Results"></ul>
+          <div class="kpal-foot"><span>↑ ↓ to move</span><span>Enter to open</span><span>Ctrl K anywhere</span></div></div></div>`);
+      el = document.getElementById('kpal');
+      const q = el.querySelector('#kpal-q'), list = el.querySelector('#kpal-list');
+      let items = [], at = 0;
+      const row = (x, i) => `<li role="option" id="kp-${i}" aria-selected="${i === at}"><a href="${x.h}" tabindex="-1">${x.id ? `<img src="${G.workArt(G.work(x.id), 120)}" alt="">` : `<i class="kdot" style="--c:${x.c || 'var(--ink-2)'}">${x.k === 'Page' ? '→' : ''}</i>`}<span><b>${esc(x.t)}</b><small>${esc(x.s)}</small></span><em>${x.k}</em></a></li>`;
+      const draw = () => {
+        const v = q.value.trim();
+        if (v) { items = findAll(v); list.innerHTML = items.length ? items.map(row).join('') : `<li class="kpal-none">Nothing for “${esc(v)}”. Try a color, a city, or “hoodie”.</li>`; }
+        else {
+          const rec = G.recent().slice(0, 4).map((id) => buildIndex().find((x) => x.id === id));
+          const starts = ['faces.html', 'quiz.html', 'discover.html', 'how-it-works.html'].map((h) => buildIndex().find((x) => x.k === 'Page' && x.h === h));
+          items = rec.concat(starts);
+          list.innerHTML = (rec.length ? '<li class="kpal-h">Recently viewed</li>' + rec.map((x, i) => row(x, i)).join('') : '') + '<li class="kpal-h">Try</li>' + starts.map((x, i) => row(x, i + rec.length)).join('');
+        }
+        at = Math.min(at, Math.max(0, items.length - 1));
+        q.setAttribute('aria-activedescendant', items.length ? 'kp-' + at : '');
+      };
+      const move = (d) => { if (!items.length) return; at = (at + d + items.length) % items.length; list.querySelectorAll('[role=option]').forEach((li, i) => li.setAttribute('aria-selected', String(i === at))); const cur = list.querySelector(`#kp-${at}`); if (cur) cur.scrollIntoView({ block: 'nearest' }); q.setAttribute('aria-activedescendant', 'kp-' + at); };
+      q.addEventListener('input', () => { at = 0; draw(); });
+      q.addEventListener('keydown', (e) => {
+        if (e.key === 'ArrowDown') { e.preventDefault(); move(1); } else if (e.key === 'ArrowUp') { e.preventDefault(); move(-1); }
+        else if (e.key === 'Enter' && items[at]) { e.preventDefault(); location.href = items[at].h; G.closeSearch(); }
+      });
+      list.addEventListener('pointermove', (e) => { const li = e.target.closest('[role=option]'); if (li) { const i = +li.id.slice(3); if (i !== at) { at = i; move(0); } } });
+      list.addEventListener('click', (e) => { if (e.target.closest('a')) G.closeSearch(); });
+      el.addEventListener('click', (e) => { if (e.target.closest('[data-kclose]')) G.closeSearch(); });
+      el._draw = draw;
+    }
+    el.hidden = false; document.body.style.overflow = 'hidden';
+    const q = el.querySelector('#kpal-q'); q.value = ''; el._draw(); setTimeout(() => q.focus(), 20);
+  };
+  G.closeSearch = () => { const el = document.getElementById('kpal'); if (el && !el.hidden) { el.hidden = true; document.body.style.overflow = ''; } };
+  document.addEventListener('keydown', (e) => {
+    const typing = /^(INPUT|TEXTAREA|SELECT)$/.test(document.activeElement && document.activeElement.tagName) || (document.activeElement && document.activeElement.isContentEditable);
+    if ((e.key === 'k' || e.key === 'K') && (e.metaKey || e.ctrlKey)) { e.preventDefault(); const el = document.getElementById('kpal'); if (el && !el.hidden) G.closeSearch(); else G.search(); }
+    else if (e.key === '/' && !typing) { e.preventDefault(); G.search(); }
+    else if (e.key === 'Escape') G.closeSearch();
+  });
+
   /* ================= chrome: top bar, tab bar, footer, toast ================= */
   const I = {
     pin: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M12 21s-7-6.2-7-11.5A7 7 0 0 1 19 9.5C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></svg>',
@@ -1110,6 +1193,8 @@
     chip: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><rect x="5" y="2.5" width="14" height="19" rx="1"/><path d="M5 14.5h14"/><circle cx="15.5" cy="6" r="1.2"/></svg>',
     coll: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><rect x="3" y="7" width="18" height="13" rx="1"/><path d="M7 7V4h10v3M3 12h18"/></svg>',
     bag: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 8h14l-1 13H6z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/></svg>',
+    heart: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round"><path d="M12 20.5S3.5 15 3.5 9A4.5 4.5 0 0 1 12 6.6 4.5 4.5 0 0 1 20.5 9c0 6-8.5 11.5-8.5 11.5z"/></svg>',
+    search: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m15.5 15.5 5 5"/></svg>',
     brush: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 4l6 6-8 8-6-6z"/><path d="M6 12c-2 0-3 2-3 4s-1 3-1 4c2 0 6 0 7-2 1-1 0-3-1-4"/></svg>'
   };
   G.icons = I;
@@ -1131,6 +1216,7 @@
   };
   /* three looks to show Justin: Studio (the original), Aura (psychedelic glass), Marker (hand-lettered zine) */
   G.LOOKS = [['studio', 'Studio'], ['aura', 'Aura'], ['marker', 'Marker']];
+  try { const ql = new URLSearchParams(location.search).get('look'); if (ql && G.LOOKS.some(([k]) => k === ql)) store.set('look', ql); } catch (e) {}
   G.applyLook = () => { const l = store.get('look', 'studio'); document.documentElement.setAttribute('data-look', G.LOOKS.some(([k]) => k === l) ? l : 'studio'); };
   G.applyLook();
   if (matchMedia('(pointer: fine)').matches) {
@@ -1148,9 +1234,18 @@
     const btns = G.LOOKS.map(([k, n], i) => `<button type="button" data-look-set="${k}" aria-pressed="${cur === k}"><span>${i + 1}</span>${n}</button>`).join('');
     return min
       ? `<div class="looks min" role="group" aria-label="Compare designs">${btns}<button type="button" class="lx" data-looks-toggle aria-label="Show the design bar">▴</button></div>`
-      : `<div class="looks" role="group" aria-label="Compare designs"><b>Compare designs:</b>${btns}<button type="button" class="lx" data-looks-toggle aria-label="Tuck the design bar away">×</button></div>`;
+      : `<div class="looks" role="group" aria-label="Compare designs"><b>Compare designs:</b>${btns}<button type="button" class="lshare" data-look-share title="Copy a link that opens this page in this design" aria-label="Send this look">↗<i> Send this look</i></button><button type="button" class="lx" data-looks-toggle aria-label="Tuck the design bar away">×</button></div>`;
   };
   document.addEventListener('click', (e) => {
+    if (e.target.closest('[data-look-share]')) {
+      const cur = document.documentElement.getAttribute('data-look'), name = (G.LOOKS.find(([k]) => k === cur) || [, 'Studio'])[1];
+      const u = new URL(location.href); u.searchParams.set('look', cur); u.searchParams.delete('v');
+      const done = () => G.toast(`<span>Link copied. It opens this page in <b>${name}</b>.</span>`);
+      if (navigator.share && matchMedia('(pointer: coarse)').matches) navigator.share({ title: `Gesso in ${name}`, text: `Which design do you like? This one is ${name}.`, url: u.href }).catch(() => {});
+      else if (navigator.clipboard) navigator.clipboard.writeText(u.href).then(done, () => prompt('Copy this link', u.href));
+      else prompt('Copy this link', u.href);
+      return;
+    }
     if (e.target.closest('[data-looks-toggle]')) { store.set('looksMin', !store.get('looksMin', false)); const el = document.querySelector('.looks'); if (el) el.outerHTML = G.looksBar(); return; }
     const b = e.target.closest('[data-look-set]'); if (!b) return;
     store.set('look', b.dataset.lookSet); G.applyLook();
@@ -1160,12 +1255,12 @@
 
   G.chrome = (page) => {
     const NAV = [
-      { label: 'Art', href: 'discover.html', keys: ['now', 'discover', 'artists', 'projects', 'visit', 'events'], sub: [['now.html', 'Now', "What's new and the next live drop"], ['discover.html', 'Shop art', 'Originals, prints and resale'], ['discover.html#objects', 'Objects', 'Hoodies, wallpaper, collabs'], ['artists.html', 'Artists', 'The roster'], ['project.html', 'Projects', "Back what's next"], ['events.html', 'Events', 'Drops, nights, open studios'], ['visit.html', 'Visit', 'See it in person']] },
+      { label: 'Art', href: 'discover.html', keys: ['now', 'discover', 'artists', 'projects', 'visit', 'events', 'faces', 'quiz'], sub: [['now.html', 'Now', "What's new and the next live drop"], ['discover.html', 'Shop art', 'Originals, prints and resale'], ['discover.html#objects', 'Objects', 'Hoodies, wallpaper, collabs'], ['artists.html', 'Artists', 'The roster'], ['project.html', 'Projects', "Back what's next"], ['events.html', 'Events', 'Drops, nights, open studios'], ['visit.html', 'Visit', 'See it in person'], ['faces.html', 'The faces wall', 'Every face people found'], ['quiz.html', 'Find your piece', 'A one-minute taste quiz']] },
       { label: 'FAME', href: 'book.html', keys: ['book'], sub: null },
       { label: 'Collection', href: 'collection.html', keys: ['collection', 'checkout', 'gift'], sub: [['collection.html', 'Your collection', 'Chips, milestones, your wall'], ['collection.html#invite', 'Invite friends', `You both get ${G.usd(G.REF_BONUS)} in chips`], ['gift.html', 'Gift cards', 'Give someone their first piece']] },
       { label: 'About', href: 'mission.html', keys: ['mission', 'partners', 'how', 'reserve', 'spaces'], sub: [['mission.html', 'Mission', "Justin's statement and votes"], ['how-it-works.html', 'How chips work', 'The curve, milestones, plans'], ['reserve.html', 'The reserve', 'Live numbers behind every chip'], ['spaces.html', 'Art for spaces', 'Rent-to-own for businesses'], ['partners.html', 'Partners', 'Where chips work'], ['for-artists.html', 'Sell on Gesso', 'For artists and creators']] }
     ];
-    const menu = [['now.html', 'Now on Gesso'], ['artists.html', 'Artists'], ['discover.html', 'Shop art'], ['discover.html#objects', 'Hoodies, wallpaper and more'], ['book.html', 'FAME: book chefs, DJs and more'], ['project.html', 'Back a project'], ['visit.html', 'See art in person'], ['partners.html', 'Partners and Gesso House'], ['events.html', 'Events and live drops'], ['reserve.html', 'The reserve'], ['spaces.html', 'Art for spaces'], ['gift.html', 'Gift cards'], ['mission.html', 'Mission and votes'], ['collection.html', 'Your collection and milestones'], ['how-it-works.html', 'How chips work'], ['for-artists.html', 'Sell on Gesso']];
+    const menu = [['now.html', 'Now on Gesso'], ['artists.html', 'Artists'], ['discover.html', 'Shop art'], ['discover.html#objects', 'Hoodies, wallpaper and more'], ['book.html', 'FAME: book chefs, DJs and more'], ['project.html', 'Back a project'], ['visit.html', 'See art in person'], ['faces.html', 'The faces wall'], ['quiz.html', 'Find your piece: the taste quiz'], ['partners.html', 'Partners and Gesso House'], ['events.html', 'Events and live drops'], ['reserve.html', 'The reserve'], ['spaces.html', 'Art for spaces'], ['gift.html', 'Gift cards'], ['mission.html', 'Mission and votes'], ['collection.html', 'Your collection and milestones'], ['how-it-works.html', 'How chips work'], ['for-artists.html', 'Sell on Gesso']];
     const top = document.getElementById('chrome-top');
     if (top) top.outerHTML = `<a class="skip" href="#main">Skip to content</a>${G.looksBar()}${G.pulse()}
       <header class="topbar"><div class="wrap">
@@ -1173,6 +1268,7 @@
         <nav class="nav" aria-label="Main">${NAV.map((g) => `<div class="grp"><a href="${g.href}" ${g.keys.includes(page) ? 'aria-current="page"' : ''}>${g.label}${g.sub ? '<span class="car" aria-hidden="true">▾</span>' : ''}</a>${g.sub ? `<div class="drop">${g.sub.map(([h, l, d]) => `<a href="${h}"><b>${l}</b><span>${d}</span></a>`).join('')}</div>` : ''}</div>`).join('')}</nav>
         <div class="tools">
           <a class="wallet-pill" href="collection.html" title="What your chips are worth. Tap to see your collection."><span class="stack" data-wallet-stack></span><span class="num" data-wallet-val></span><span class="label muted">in chips</span></a>
+          <button class="icon-btn search-btn" type="button" aria-label="Search (Ctrl K)" data-search>${I.search}</button>
           <a class="icon-btn" href="checkout.html" aria-label="Bag">${I.bag}<span class="badge" data-bag-count></span></a>
           <button class="icon-btn menu-btn" type="button" aria-label="Menu" aria-expanded="false" id="menu-btn">${I.menu}</button>
         </div>
@@ -1192,7 +1288,7 @@
           <p class="muted">An art market owned by the people who collect it. Buy the art, earn the artist's chips, spend them on more art.</p>
           <div class="theme-toggle" role="group" aria-label="Theme"><button type="button" data-theme-set="light">Light</button><button type="button" data-theme-set="dark">Dark</button></div>
         </div>
-        <div><h4>Collect</h4><ul><li><a href="artists.html">Artists</a></li><li><a href="discover.html">Shop art</a></li><li><a href="discover.html#objects">Hoodies, wallpaper, more</a></li><li><a href="book.html">FAME bookings</a></li><li><a href="project.html">Back a project</a></li><li><a href="visit.html">See art in person</a></li></ul></div>
+        <div><h4>Collect</h4><ul><li><a href="artists.html">Artists</a></li><li><a href="discover.html">Shop art</a></li><li><a href="discover.html#objects">Hoodies, wallpaper, more</a></li><li><a href="book.html">FAME bookings</a></li><li><a href="project.html">Back a project</a></li><li><a href="visit.html">See art in person</a></li><li><a href="faces.html">The faces wall</a></li><li><a href="quiz.html">Find your piece</a></li></ul></div>
         <div><h4>Learn</h4><ul><li><a href="mission.html">Mission and votes</a></li><li><a href="partners.html">Partners</a></li><li><a href="how-it-works.html">How chips work</a></li><li><a href="how-it-works.html#milestones">Milestones</a></li><li><a href="how-it-works.html#pay">Paying over time</a></li><li><a href="how-it-works.html#faq">Questions</a></li><li><a href="index.html#intro">Replay the intro</a></li></ul></div>
         <div><h4>Create</h4><ul><li><a href="for-artists.html">Sell on Gesso</a></li><li><a href="for-artists.html#compare">Fees compared</a></li><li><a href="for-artists.html#apply">Apply</a></li></ul></div>
         <div class="fine"><span>Design preview. HAMEL's paintings and photos are real; titles and prices are placeholders. Other artists, FAME creators and partners are samples with generated art. No payments are taken.</span><button type="button" class="link" style="background:none;border:0;padding:0;cursor:pointer;font-size:inherit" data-reset>Reset preview</button></div>
@@ -1218,6 +1314,9 @@
     document.addEventListener('click', (e) => {
       const t = e.target.closest('[data-theme-set]');
       if (t) { store.set('theme', t.dataset.themeSet); applyTheme(t.dataset.themeSet); }
+      const sv = e.target.closest('[data-save]');
+      if (sv) { e.preventDefault(); e.stopPropagation(); G.toggleSave(sv.dataset.save); }
+      if (e.target.closest('[data-search]')) G.search();
       const add = e.target.closest('[data-add]');
       if (add) { e.preventDefault(); e.stopPropagation(); G.addToBag(add.dataset.add); }
       if (e.target.closest('[data-reset]')) { G.resetPreview(); location.reload(); }

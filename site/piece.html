@@ -102,7 +102,9 @@
   let mode = 'art';
 
   function render() {
-    const id = G.work(location.hash.slice(1)) ? location.hash.slice(1) : 'hamel-02';
+    const [hid, hopt] = location.hash.slice(1).split(':');
+    const id = G.work(hid) ? hid : 'hamel-02';
+    G.viewed(id);
     const w = G.work(id), a = G.artist(w.artist), n = G.collectors(w.artist), px = G.price(n), sold = G.isSold(w);
     const wallet = G.wallet(), owned = wallet.owned.includes(id), alreadyCollector = !!wallet.collectorNo[w.artist];
     const earn = G.chipsFor(w.price, n, G.myRate()), canChip = Math.min(w.price * G.SPEND_CAP, G.walletValue(wallet));
@@ -129,7 +131,7 @@
         <div class="info">
           <div style="display:grid;gap:12px">
             <a class="who" href="artist.html#${a.slug}"><i class="dot" style="--c:${a.color}"></i>${G.esc(a.name)} <span class="muted" style="font-weight:400">· ${n.toLocaleString()} collectors</span></a>
-            <h1>${G.esc(w.title)}</h1>
+            <div class="h1row"><h1>${G.esc(w.title)}</h1>${G.heart(id, 'big')}</div>
           </div>
           <div class="label-card">
             <span>${w.year}</span>
@@ -225,6 +227,9 @@
       const f = wrap.querySelector('.ask'); f.querySelector('input').focus();
       f.addEventListener('submit', (ev) => { ev.preventDefault(); const name = f.querySelector('input').value.trim() || 'a face'; G.addFace(id, { x, y, name }); marking = false; drawFaces(); G.toast(`Added <b>${G.esc(name)}</b>. Justin sees every face people find.`); });
     });
+
+    if (hopt === 'faces') { facesOn = true; drawFaces(); document.getElementById('facebar').scrollIntoView({ block: 'center' }); }
+    else if (hopt === 'mark') { facesOn = true; marking = true; drawFaces(); document.getElementById('facebar').scrollIntoView({ block: 'center' }); }
 
     // ---- collectors name the piece ----
     const nc = document.getElementById('namecard');

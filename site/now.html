@@ -69,6 +69,19 @@
 
   /* ---- feature ---- */
   /* the feature band is deliberately dark in both themes: HAMEL's work glows on black */
+  .ways { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+  .way { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 20px; align-items: center; padding: 20px; background: var(--card); border: 1px solid var(--rule); border-radius: 12px; color: var(--ink); text-decoration: none; transition: transform .25s, border-color .25s; }
+  .way:hover { transform: translateY(-3px); border-color: var(--ink); }
+  .way b { display: block; font: 800 clamp(1.4rem, 2.6vw, 1.9rem)/1.05 var(--display); letter-spacing: -.03em; margin: 6px 0; }
+  .way small { color: var(--ink-2); font-size: var(--t-s); }
+  .faces3, .pair2 { display: flex; height: 96px; align-items: center; }
+  .pair2 { padding-right: 6px; }
+  .faces3 i { flex: none; width: 60px; height: 60px; border-radius: 50%; margin-left: -18px; background: var(--wall-2) var(--u) no-repeat; background-size: 320%; background-position: var(--p); box-shadow: 0 0 0 3px var(--card); }
+  .faces3 i:first-child { margin-left: 0; } .faces3 i:nth-child(2) { width: 72px; height: 72px; z-index: 1; }
+  .pair2 img { width: 58px; height: 78px; object-fit: cover; box-shadow: var(--hang); }
+  .pair2 img:first-child { transform: rotate(-6deg); } .pair2 img:last-child { transform: rotate(5deg) translateY(8px); margin-left: 8px; }
+  .way:hover .faces3 i:nth-child(2) { transform: scale(1.08); } .faces3 i { transition: transform .3s; }
+  @media (max-width: 760px) { .ways { grid-template-columns: minmax(0, 1fr); } .way { gap: 14px; padding: 16px; } .faces3, .pair2 { height: 76px; } .faces3 i { width: 46px; height: 46px; margin-left: -14px; } .faces3 i:nth-child(2) { width: 56px; height: 56px; } .pair2 img { width: 46px; height: 62px; } }
   .feature { --wall: #F0EEE8; --ink: #130A10; --marker: #FF4F93; background: var(--ink); color: var(--wall); overflow: hidden; border-block: 1px solid #2A1C24; }
   .feature .wrap { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: clamp(32px, 6vw, 88px); align-items: center; padding-block: clamp(56px, 8vw, 104px); }
   .feature .stack { position: relative; padding: 0 12% 14% 0; }
@@ -191,6 +204,11 @@
     </div>
   </section>
 
+  <section class="wrap section ways" aria-label="Two ways in" style="padding-bottom:0">
+    <a class="way" href="faces.html"><span class="faces3" id="faces3"></span><span><span class="eyebrow">The faces wall</span><b>Everyone sees someone.</b><small>Every face collectors found in Justin's paintings, cropped from where it hides.</small></span></a>
+    <a class="way" href="quiz.html"><span class="pair2" id="pair2"></span><span><span class="eyebrow">One minute</span><b>Find your piece.</b><small>Pick between paintings. We'll match you to the HAMEL for your wall.</small></span></a>
+  </section>
+
   <section class="wrap section" id="board" aria-labelledby="board-h">
     <div class="section-head">
       <div><p class="eyebrow">Chip board</p><h2 id="board-h">Every artist has a chip.</h2></div>
@@ -276,6 +294,8 @@
 <script>
 (function () {
   G.chrome('now');
+  document.getElementById('faces3').innerHTML = ['hamel-j11', 'hamel-01', 'hamel-j19'].map((id) => { const f = G.faces(id)[0], w = G.work(id); return `<i style="--u:url(${G.workArt(w, 560)});--p:${(f.x * 100).toFixed(0)}% ${(f.y * 100).toFixed(0)}%"></i>`; }).join('');
+  document.getElementById('pair2').innerHTML = ['hamel-j20', 'hamel-07'].map((id) => `<img src="${G.workArt(G.work(id), 200)}" alt="">`).join('');
   const drop = G.events().find((e) => e.type === 'Live drop');
   document.getElementById('dt').textContent = `${drop.title} · ${drop.d.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })}, ${drop.d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })}`;
   document.getElementById('cal').href = G.ics(drop);

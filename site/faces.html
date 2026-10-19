@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>The Faces Wall · Gesso</title>
+<meta name="description" content="Every face collectors found in HAMEL's paintings, the ones Justin never meant to paint.">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Gesso">
+<meta property="og:title" content="The Faces Wall · Gesso">
+<meta property="og:description" content="Every face collectors found in HAMEL's paintings, the ones Justin never meant to paint.">
+<meta property="og:url" content="https://finleymatt.github.io/gesso/faces.html">
+<meta property="og:image" content="https://finleymatt.github.io/gesso/og.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Four paintings by HAMEL beside the words Find your own faces.">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wdth,wght@12..96,75..100,300..800&family=DM+Mono:wght@400;500&family=Permanent+Marker&family=VT323&family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=Syne:wght@600;700;800&display=swap">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/png" href="icons/favicon-64.png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<link rel="stylesheet" href="gesso.css">
+<style>
+  .fhead { display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr); gap: clamp(24px, 5vw, 60px); align-items: end; padding-block: clamp(32px, 5vw, 64px) 8px; }
+  .fhead .copy { display: grid; gap: 16px; }
+  .quote { font: 400 clamp(1.3rem, 2.4vw, 1.7rem)/1.25 var(--hand); color: var(--marker, #DC1F68); transform: rotate(-1.5deg); max-width: 22em; }
+  .quote small { display: block; font: 500 12px var(--mono); color: var(--ink-2); text-transform: uppercase; letter-spacing: .1em; margin-top: 8px; transform: none; }
+  .stats { display: flex; flex-wrap: wrap; gap: 10px 28px; }
+  .stats div { display: grid; gap: 2px; }
+  .stats b { font: 500 clamp(1.8rem, 3.6vw, 2.6rem)/1 var(--mono); letter-spacing: -.03em; }
+  .stats span { font-size: var(--t-xs); color: var(--ink-2); text-transform: uppercase; letter-spacing: .08em; font-family: var(--mono); }
+  .ftools { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; justify-content: space-between; margin: 28px 0 18px; }
+  .ftools .slots { display: flex; flex-wrap: wrap; gap: 8px; }
+
+  /* a wall of circular crops, each one zoomed onto the spot someone tapped */
+  .fwall { display: grid; grid-template-columns: repeat(auto-fill, minmax(132px, 1fr)); gap: 26px 18px; }
+  .fc { --z: 3.4; display: grid; justify-items: center; gap: 10px; text-align: center; text-decoration: none; color: var(--ink); opacity: 0; animation: fin .5s cubic-bezier(.2, .8, .2, 1) forwards; animation-delay: calc(var(--i) * 18ms); }
+  @keyframes fin { from { opacity: 0; transform: translateY(10px) scale(.94); } to { opacity: 1; transform: none; } }
+  .fc .c { position: relative; width: 100%; max-width: 150px; aspect-ratio: 1; border-radius: 50%; overflow: hidden; background: var(--wall-2); box-shadow: 0 0 0 3px var(--card), 0 0 0 4px var(--rule), 0 18px 30px -18px rgba(40, 30, 10, .55); transition: transform .35s cubic-bezier(.2, 1.3, .3, 1), box-shadow .3s; }
+  .fc .c img { position: absolute; max-width: none; width: calc(var(--z) * 100%); height: calc(var(--z) * 100% * var(--hr)); left: calc(50% - var(--fx) * var(--z) * 100%); top: calc(50% - var(--fy) * var(--z) * 100% * var(--hr)); transition: transform .5s cubic-bezier(.2, .8, .2, 1); transform-origin: calc(var(--fx) * 100%) calc(var(--fy) * 100%); }
+  .fc:hover .c, .fc:focus-visible .c { transform: translateY(-4px) rotate(-3deg); box-shadow: 0 0 0 3px var(--card), 0 0 0 5px var(--c, var(--ink)), 0 24px 36px -18px rgba(40, 30, 10, .6); }
+  .fc:hover .c img { transform: scale(.82); }
+  .fc .n { font: 400 1.05rem/1.15 var(--hand); max-width: 12em; }
+  .fc .by { font: 500 11px/1.3 var(--mono); color: var(--ink-2); text-transform: uppercase; letter-spacing: .06em; }
+  .fc.mine .c { box-shadow: 0 0 0 3px var(--card), 0 0 0 5px var(--marker, #DC1F68); }
+  .fc .seen { position: absolute; right: 6%; bottom: 6%; font: 600 10px var(--mono); background: var(--ink); color: var(--wall); border-radius: 999px; padding: 3px 6px; z-index: 2; }
+  .cta-wall { margin-top: clamp(40px, 6vw, 72px); display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 18px; align-items: center; padding: clamp(18px, 3vw, 30px); border: 2px dashed var(--ink); }
+  @media (max-width: 760px) { .fhead, .cta-wall { grid-template-columns: minmax(0, 1fr); } .fwall { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 20px 12px; } .fc .n { font-size: .9rem; } }
+  @media (prefers-reduced-motion: reduce) { .fc { animation: none; opacity: 1; } }
+
+  :root[data-look="aura"] .fc .c { box-shadow: 0 0 0 2px transparent, 0 18px 40px -16px oklch(0.6 0.25 var(--hue) / .6); outline: 2px solid oklch(0.82 0.17 calc(var(--hue) + var(--i) * 9)); outline-offset: 3px; }
+  :root[data-look="marker"] .fc .c { box-shadow: 4px 4px 0 var(--ink); border: 3px solid var(--ink); }
+</style>
+</head>
+<body>
+<div id="chrome-top"></div>
+<main class="wrap">
+  <section class="fhead">
+    <div class="copy">
+      <p class="eyebrow">The faces wall</p>
+      <h1 class="display" style="font-size:clamp(2.6rem,7vw,5.2rem)">Everyone sees someone.</h1>
+      <p class="lede">Collectors keep finding faces in HAMEL's paintings: owls, grandmothers, a tiny alien. Every one they've tapped is here, cropped from the painting it lives in. Tap a face to see where it hides.</p>
+      <div class="stats" id="stats"></div>
+    </div>
+    <p class="quote">"People find faces in my paintings that I never intended to paint."<small>Justin Andrew Hamel</small></p>
+  </section>
+  <div class="ftools">
+    <div class="slots" role="group" aria-label="Sort faces" id="sort">
+      <button class="pill" type="button" data-sort="all" aria-pressed="true">All faces</button>
+      <button class="pill" type="button" data-sort="seen" aria-pressed="false">Most seen</button>
+      <button class="pill" type="button" data-sort="mine" aria-pressed="false">Ones you found</button>
+    </div>
+    <a class="btn small primary" id="findone" href="piece.html">Find one yourself</a>
+  </div>
+  <div class="fwall" id="wall" aria-live="polite"></div>
+  <section class="cta-wall">
+    <div style="display:grid;gap:8px"><h2 style="font-size:clamp(1.5rem,3vw,2rem)">Name a face, and Justin sees it.</h2><p class="muted">Open any painting, tap <b>I see a face</b>, and tap where it is. If you own the piece, the face you name goes on its certificate.</p></div>
+    <a class="btn primary" id="findone2" href="piece.html">Look for one</a>
+  </section>
+</main>
+<div id="chrome-bottom"></div>
+<script src="gesso.js"></script>
+<script>
+(function () {
+  G.chrome('faces');
+  const works = G.worksBy('hamel');
+  const all = [];
+  works.forEach((w) => G.faces(w.id).forEach((f) => all.push(Object.assign({ w }, f))));
+  const people = new Set(all.map((f) => f.by)).size, mine = all.filter((f) => f.mine).length;
+  document.getElementById('stats').innerHTML = `<div><b>${all.length}</b><span>faces found</span></div><div><b>${works.length}</b><span>paintings</span></div><div><b>${people}</b><span>people looking</span></div>${mine ? `<div><b style="color:var(--marker)">${mine}</b><span>found by you</span></div>` : ''}`;
+  // send "find one yourself" to a painting with the fewest faces so far
+  const quiet = works.filter((w) => !G.isSold(w)).sort((a, b) => G.faces(a.id).length - G.faces(b.id).length)[0] || works[0];
+  ['findone', 'findone2'].forEach((id) => (document.getElementById(id).href = `piece.html#${quiet.id}:mark`));
+  const wall = document.getElementById('wall');
+  const draw = (mode) => {
+    let list = all.slice();
+    if (mode === 'seen') list.sort((a, b) => b.seen - a.seen);
+    else if (mode === 'mine') list = list.filter((f) => f.mine);
+    else { const r = G.rng(7); list.sort(() => r() - 0.5); list.sort((a, b) => (b.mine ? 1 : 0) - (a.mine ? 1 : 0)); }
+    wall.innerHTML = list.length ? list.map((f, i) => `<a class="fc ${f.mine ? 'mine' : ''}" href="piece.html#${f.w.id}:faces" style="--i:${Math.min(i, 60)};--fx:${f.x.toFixed(3)};--fy:${f.y.toFixed(3)};--hr:${(f.w.h / f.w.w).toFixed(4)};--c:${G.artist(f.w.artist).color}" aria-label="${G.esc(f.name)}, found by ${G.esc(f.by)} in ${G.esc(f.w.title)}">
+        <span class="c"><img src="${G.workArt(f.w, 560)}" alt="" decoding="async">${f.seen > 9 ? `<span class="seen">${f.seen}</span>` : ''}</span>
+        <span class="n">${G.esc(f.name)}</span><span class="by">${G.esc(f.by)} · ${G.esc(f.w.title.replace(/^Untitled \((.*)\)$/, '$1'))}</span></a>`).join('')
+      : `<p class="muted" style="grid-column:1/-1">You haven't named a face yet. <a class="link" href="piece.html#${quiet.id}:mark">Find your first one</a>.</p>`;
+  };
+  draw('all');
+  document.getElementById('sort').addEventListener('click', (e) => { const b = e.target.closest('[data-sort]'); if (!b) return; document.querySelectorAll('[data-sort]').forEach((x) => x.setAttribute('aria-pressed', String(x === b))); draw(b.dataset.sort); });
+})();
+</script>
+</body>
+</html>
