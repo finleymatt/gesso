@@ -702,4 +702,23 @@ details.faq p { padding: 0 0 20px; color: var(--ink-2); max-width: 62ch; }
 .coa-sig { font-family: var(--hand); font-size: 2rem; color: var(--ink); transform: rotate(-4deg); margin: 0; }
 .coa-qr img, .coa-qr canvas { display: block; }
 @media (max-width: 520px) { .coa-main { grid-template-columns: minmax(0, 1fr); } }
-:root[data-look="aura"] .chippanel .sw .tick, :root[data-look="marker"] .chippanel .sw .tick { font-size: 1.5rem; word-break: normal; overflow-wrap: anywhere; }
+:root[data-look="aura"] .chippanel .sw .tick, :root[data-look="marker"] .chippanel .sw .tick { font-size: clamp(1rem, 1.6vw, 1.35rem); word-break: normal; overflow-wrap: normal; white-space: nowrap; letter-spacing: -.02em; }
+
+/* Aura: words with their own styling inside a chrome headline keep a solid, readable fill */
+:root[data-look="aura"] .display .rise, :root[data-look="aura"] .display span:not(.rise) { -webkit-text-fill-color: currentColor; color: oklch(0.9 0.12 var(--hue, 300)); text-shadow: 0 0 28px oklch(0.7 0.22 var(--hue, 300) / .55); }
+
+/* milestone track: labels alternate above and below so they never collide; a pulsing dot marks you */
+.ladder { padding: 48px 0 52px; }
+.ladder .lab:nth-of-type(even) { top: auto; bottom: 0; }
+.ladder .you { bottom: auto; top: 50%; width: 16px; height: 16px; border-radius: 50%; background: var(--marker); transform: translate(-50%, -50%); font-size: 0; box-shadow: 0 0 0 4px color-mix(in srgb, var(--marker) 25%, transparent); animation: youpulse 2s ease-in-out infinite; }
+@keyframes youpulse { 50% { box-shadow: 0 0 0 9px color-mix(in srgb, var(--marker) 0%, transparent); } }
+.ladder .track { position: relative; }
+@media (max-width: 640px) { .ladder .lab:not(.keep) { display: block; } .ladder .lab span, .ladder .lab { font-size: 10px; } .ladder .lab b { font-size: 11px; } }
+
+/* design bar tucks into a small floating pill */
+.looks .lx { border: 0; background: transparent; font-size: 16px; line-height: 1; padding: 2px 6px; margin-left: 4px; }
+.looks.min { position: fixed; left: 12px; bottom: calc(var(--tabbar-h) + 12px); z-index: 70; border-radius: 999px; padding: 5px 6px; gap: 4px; box-shadow: 0 12px 30px -10px rgba(0, 0, 0, .45); }
+.looks.min button { padding: 3px 9px; }
+/* skip link for keyboard and screen-reader users */
+.skip { position: absolute; left: 12px; top: -60px; z-index: 200; background: var(--ink); color: var(--wall); padding: 10px 14px; font-weight: 700; text-decoration: none; border-radius: 6px; }
+.skip:focus { top: 12px; }

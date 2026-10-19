@@ -29,7 +29,7 @@
   const ARTISTS = [
     {
       slug: 'hamel', name: 'HAMEL', ticker: 'HAMEL', color: '#E3156B', on: '#FFFFFF', style: 'hamel',
-      handle: '@justintime7189', ig: 'https://www.instagram.com/justintime7189/', city: 'Nomadic artist', fullName: 'Justin Andrew Hamel',
+      handle: '@justintime7189', ig: 'https://www.instagram.com/justintime7189/', ig2: 'https://www.instagram.com/justinandrewhamel/', handle2: '@justinandrewhamel', city: 'Nomadic artist', fullName: 'Justin Andrew Hamel',
       collectors: 312, joined: 'Founding artist since 2026', sold: 41, real: true,
       quote: 'KEEP GOING.',
       commission: { rate: 150, min: 1, max: 4, title: 'Listening session', text: 'Book an hour with Justin. You talk, Justin listens: the stories, the things you might not say to anyone else. Then Justin paints from what was heard.' },
@@ -1143,8 +1143,15 @@
   // remember where a link was clicked so the next page's iris opens from that spot
   addEventListener('click', (e) => { const a = e.target.closest('a[href]'); if (a) { try { sessionStorage.setItem('gesso:v', JSON.stringify([Math.round(e.clientX / innerWidth * 100), Math.round(e.clientY / innerHeight * 100)])); } catch (err) {} } });
   try { const v = JSON.parse(sessionStorage.getItem('gesso:v') || 'null'); if (v) { document.documentElement.style.setProperty('--vx', v[0] + '%'); document.documentElement.style.setProperty('--vy', v[1] + '%'); } } catch (err) {}
-  G.looksBar = () => `<div class="looks" role="group" aria-label="Compare designs"><b>Compare designs:</b>${G.LOOKS.map(([k, n], i) => `<button type="button" data-look-set="${k}" aria-pressed="${document.documentElement.getAttribute('data-look') === k}"><span>${i + 1}</span>${n}</button>`).join('')}</div>`;
+  G.looksBar = () => {
+    const cur = document.documentElement.getAttribute('data-look'), min = store.get('looksMin', false);
+    const btns = G.LOOKS.map(([k, n], i) => `<button type="button" data-look-set="${k}" aria-pressed="${cur === k}"><span>${i + 1}</span>${n}</button>`).join('');
+    return min
+      ? `<div class="looks min" role="group" aria-label="Compare designs">${btns}<button type="button" class="lx" data-looks-toggle aria-label="Show the design bar">▴</button></div>`
+      : `<div class="looks" role="group" aria-label="Compare designs"><b>Compare designs:</b>${btns}<button type="button" class="lx" data-looks-toggle aria-label="Tuck the design bar away">×</button></div>`;
+  };
   document.addEventListener('click', (e) => {
+    if (e.target.closest('[data-looks-toggle]')) { store.set('looksMin', !store.get('looksMin', false)); const el = document.querySelector('.looks'); if (el) el.outerHTML = G.looksBar(); return; }
     const b = e.target.closest('[data-look-set]'); if (!b) return;
     store.set('look', b.dataset.lookSet); G.applyLook();
     document.querySelectorAll('[data-look-set]').forEach((x) => x.setAttribute('aria-pressed', String(x.dataset.lookSet === b.dataset.lookSet)));
@@ -1160,7 +1167,7 @@
     ];
     const menu = [['now.html', 'Now on Gesso'], ['artists.html', 'Artists'], ['discover.html', 'Shop art'], ['discover.html#objects', 'Hoodies, wallpaper and more'], ['book.html', 'FAME: book chefs, DJs and more'], ['project.html', 'Back a project'], ['visit.html', 'See art in person'], ['partners.html', 'Partners and Gesso House'], ['events.html', 'Events and live drops'], ['reserve.html', 'The reserve'], ['spaces.html', 'Art for spaces'], ['gift.html', 'Gift cards'], ['mission.html', 'Mission and votes'], ['collection.html', 'Your collection and milestones'], ['how-it-works.html', 'How chips work'], ['for-artists.html', 'Sell on Gesso']];
     const top = document.getElementById('chrome-top');
-    if (top) top.outerHTML = `${G.looksBar()}${G.pulse()}
+    if (top) top.outerHTML = `<a class="skip" href="#main">Skip to content</a>${G.looksBar()}${G.pulse()}
       <header class="topbar"><div class="wrap">
         <a class="logo-link" href="now.html" aria-label="Gesso home">${G.logo()}</a>
         <nav class="nav" aria-label="Main">${NAV.map((g) => `<div class="grp"><a href="${g.href}" ${g.keys.includes(page) ? 'aria-current="page"' : ''}>${g.label}${g.sub ? '<span class="car" aria-hidden="true">▾</span>' : ''}</a>${g.sub ? `<div class="drop">${g.sub.map(([h, l, d]) => `<a href="${h}"><b>${l}</b><span>${d}</span></a>`).join('')}</div>` : ''}</div>`).join('')}</nav>
@@ -1190,6 +1197,7 @@
         <div><h4>Create</h4><ul><li><a href="for-artists.html">Sell on Gesso</a></li><li><a href="for-artists.html#compare">Fees compared</a></li><li><a href="for-artists.html#apply">Apply</a></li></ul></div>
         <div class="fine"><span>Design preview. HAMEL's paintings and photos are real; titles and prices are placeholders. Other artists, FAME creators and partners are samples with generated art. No payments are taken.</span><button type="button" class="link" style="background:none;border:0;padding:0;cursor:pointer;font-size:inherit" data-reset>Reset preview</button></div>
       </div></footer>`;
+    const mainEl = document.querySelector('main'); if (mainEl && !mainEl.id) mainEl.id = 'main';
     document.body.insertAdjacentHTML('beforeend', '<div class="toast" role="status" aria-live="polite" id="toast"></div>');
     document.querySelector('.topbar').insertAdjacentHTML('beforeend', `<nav class="menu" id="menu" hidden aria-label="All pages"><div class="wrap">${menu.map(([h, l]) => `<a href="${h}">${l}<span aria-hidden="true">→</span></a>`).join('')}</div></nav>`);
     const mb = document.getElementById('menu-btn'), mn = document.getElementById('menu');
