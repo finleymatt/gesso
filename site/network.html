@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>The Network · Gesso</title>
+<meta name="description" content="Artists, chefs, DJs, artisans, healers and the cafés and studios that host them, country by country.">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Gesso">
+<meta property="og:title" content="The Network · Gesso">
+<meta property="og:description" content="Artists, chefs, DJs, artisans, healers and the cafés and studios that host them, country by country.">
+<meta property="og:url" content="https://finleymatt.github.io/gesso/network.html">
+<meta property="og:image" content="https://finleymatt.github.io/gesso/og.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Four paintings by HAMEL beside the words Find your own faces.">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wdth,wght@12..96,75..100,300..800&family=DM+Mono:wght@400;500&family=Permanent+Marker&family=VT323&family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=Syne:wght@600;700;800&display=swap">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/png" href="icons/favicon-64.png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<link rel="stylesheet" href="gesso.css">
+<style>
+  .nhead { padding-block: clamp(32px, 5vw, 64px) 12px; display: grid; gap: 16px; max-width: 54em; }
+  .nhead .display { font-size: clamp(2.6rem, 7vw, 5.2rem); }
+  .totals { display: flex; flex-wrap: wrap; gap: 10px 30px; margin-top: 8px; }
+  .totals div { display: grid; gap: 2px; }
+  .totals b { font: 400 clamp(2rem, 4vw, 2.8rem)/1 var(--board); letter-spacing: .02em; }
+  .totals span { font: 500 11px var(--mono); text-transform: uppercase; letter-spacing: .1em; color: var(--ink-2); }
+  .cnav { position: sticky; top: calc(var(--top-h, 64px)); z-index: 5; display: flex; gap: 8px; overflow-x: auto; padding: 12px 0; margin: 18px 0 8px; background: var(--wall); border-bottom: 1px solid var(--rule); scrollbar-width: none; }
+  .cnav a { flex: none; display: inline-flex; gap: 8px; align-items: center; padding: 7px 14px; border: 1.5px solid var(--ink); border-radius: 999px; text-decoration: none; color: var(--ink); font-weight: 700; font-size: var(--t-s); }
+  .cnav a i { font: 500 11px var(--mono); font-style: normal; color: var(--ink-2); }
+  .cnav a[aria-current="true"] { background: var(--ink); color: var(--wall); }
+  .cnav a[aria-current="true"] i { color: var(--wall); opacity: .7; }
+  .country { padding-block: clamp(28px, 4vw, 48px); border-bottom: 1px solid var(--rule); display: grid; gap: 20px; scroll-margin-top: 140px; }
+  .ch { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 8px 20px; }
+  .ch h2 { font: 800 clamp(2rem, 5vw, 3.4rem)/1 var(--display); letter-spacing: -.04em; }
+  .ch h2 small { font: 400 clamp(1.1rem, 2vw, 1.4rem) var(--board); letter-spacing: .1em; color: var(--ink-2); margin-left: 10px; }
+  .ch .cities { font: 500 12px var(--mono); color: var(--ink-2); text-transform: uppercase; letter-spacing: .08em; }
+  .tape { display: flex; gap: 22px; overflow-x: auto; padding: 10px 14px; background: #0B0C0F; color: #E9E6DD; font: 400 20px/1 var(--board); letter-spacing: .06em; border-radius: 6px; scrollbar-width: none; }
+  .tape span { flex: none; white-space: nowrap; }
+  .tape .u { color: #3DCB84; } .tape .d { color: #FF6E5E; }
+  .groups { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 18px; }
+  .grp h3 { font: 500 11px var(--mono); text-transform: uppercase; letter-spacing: .1em; color: var(--ink-2); margin-bottom: 10px; }
+  .grp ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+  .ent { display: grid; grid-template-columns: 44px minmax(0, 1fr); gap: 12px; align-items: center; padding: 10px; background: var(--card); border: 1px solid var(--rule); border-radius: 10px; text-decoration: none; color: var(--ink); transition: border-color .2s, transform .2s; }
+  a.ent:hover { border-color: var(--ink); transform: translateY(-2px); }
+  .ent .av { width: 44px; height: 44px; border-radius: 50%; background: var(--c) center / cover no-repeat; display: grid; place-items: center; color: var(--on, #fff); font-weight: 800; }
+  .ent .av.sq { border-radius: 8px; }
+  .ent b { display: block; font-size: 1rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .ent small { display: block; color: var(--ink-2); font-size: var(--t-xs); }
+  .ent .tg { font: 500 10px var(--mono); text-transform: uppercase; letter-spacing: .08em; color: var(--ink-2); }
+  .empty { color: var(--ink-2); font-size: var(--t-s); padding: 10px; border: 1.5px dashed var(--rule); border-radius: 10px; }
+  .grow { margin-top: clamp(36px, 6vw, 64px); display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 18px; align-items: center; padding: clamp(18px, 3vw, 30px); border: 2px dashed var(--ink); }
+  .grow .next { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+  .grow .next span { font: 500 12px var(--mono); padding: 5px 10px; border: 1px solid var(--rule); border-radius: 999px; color: var(--ink-2); }
+  @media (max-width: 900px) { .groups { grid-template-columns: minmax(0, 1fr); } .groups p.muted { grid-column: auto !important; } .grow { grid-template-columns: minmax(0, 1fr); } }
+  :root[data-look="aura"] .cnav { background: color-mix(in oklab, var(--wall) 80%, transparent); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); }
+  :root[data-look="marker"] .ent { border: 2.5px solid var(--ink); border-radius: 4px; box-shadow: 4px 4px 0 var(--ink); }
+</style>
+</head>
+<body>
+<div id="chrome-top"></div>
+<main class="wrap">
+  <section class="nhead">
+    <p class="eyebrow">The network</p>
+    <h1 class="display">Every country has its hub.</h1>
+    <p class="lede">Gesso connects collectors with artists, chefs, DJs, artisans and healers, and the cafés and studios that host them. Pick a country to see who's there. Everyone here is vetted and invited.</p>
+    <div class="totals" id="totals"></div>
+  </section>
+  <nav class="cnav" id="cnav" aria-label="Countries"></nav>
+  <div id="countries"></div>
+  <section class="grow">
+    <div><h2 style="font-size:clamp(1.5rem,3vw,2rem)">Start the hub in your city.</h2>
+      <p class="muted">Hubs open one artist and one partner space at a time. Artists come in by invitation from someone already on Gesso, so every hub starts with people who vouch for each other.</p>
+      <div class="next" aria-label="Hubs in conversation"><span>Brazil</span><span>Kenya</span><span>Portugal</span><span>South Korea</span><span>Australia</span><span>Peru</span></div></div>
+    <a class="btn primary" href="for-artists.html#apply">Ask for an invitation</a>
+  </section>
+</main>
+<div id="chrome-bottom"></div>
+<script src="gesso.js"></script>
+<script>
+(function () {
+  G.chrome('network');
+  const NAMES = { US: 'United States', MX: 'Mexico', CO: 'Colombia', IT: 'Italy', GH: 'Ghana', JP: 'Japan', FI: 'Finland', FR: 'France', NL: 'Netherlands' };
+  const ABROAD = Object.keys(NAMES).filter((c) => c !== 'US');
+  const countryOf = (city) => { const m = /,\s*([A-Z]{2})$/.exec(city || ''); if (!m) return null; return ABROAD.includes(m[1]) ? m[1] : 'US'; };
+  const cityOf = (city) => (city || '').replace(/,\s*[A-Z]{2}$/, '');
+  const hub = {};
+  const add = (cc, kind, item) => { if (!cc) return; (hub[cc] = hub[cc] || { artists: [], creators: [], places: [], cities: new Set() })[kind].push(item); hub[cc].cities.add(cityOf(item.city)); };
+  G.artists.forEach((a) => add(countryOf(a.city), 'artists', a));
+  G.talent.forEach((t) => add(countryOf(t.city), 'creators', t));
+  G.partners.forEach((p) => add(countryOf(p.city), 'places', { name: p.name, kind: p.kind, city: p.city, color: p.color, href: 'partners.html' }));
+  G.venues.filter((v) => v.city && !v.tbd).forEach((v) => add(countryOf(v.city), 'places', { name: v.name, kind: v.type, city: v.city, color: G.artist(v.artist).color, href: 'visit.html' }));
+  const order = Object.keys(hub).sort((a, b) => (b === 'US') - (a === 'US') || (hub[b].artists.length + hub[b].creators.length) - (hub[a].artists.length + hub[a].creators.length));
+  const nomads = G.artists.filter((a) => !countryOf(a.city));
+
+  const people = Object.values(hub).reduce((s, h) => s + h.artists.length + h.creators.length, 0) + nomads.length;
+  const places = Object.values(hub).reduce((s, h) => s + h.places.length, 0);
+  document.getElementById('totals').innerHTML = `<div><b>${order.length}</b><span>countries</span></div><div><b>${people}</b><span>artists and creators</span></div><div><b>${places}</b><span>cafés, studios, partners</span></div>`;
+
+  const tick = (a) => { const ch = G.change(a.slug); return `<span>$${a.ticker} ${G.price(G.collectors(a.slug)).toFixed(2)} <i class="${ch >= 0 ? 'u' : 'd'}" style="font-style:normal">${ch >= 0 ? '▲' : '▼'}${Math.abs(ch * 100).toFixed(1)}%</i></span>`; };
+  const avatar = (a) => { const ph = a.photos && a.photos.avatar; return `<span class="av" style="--c:${a.color};--on:${a.on || '#fff'}${ph ? `;background-image:url(${ph})` : ''}">${ph ? '' : G.esc(a.name[0])}</span>`; };
+  const artistRow = (a) => `<li><a class="ent" href="artist.html#${a.slug}">${avatar(a)}<span><b>${G.esc(a.name)}</b><small>${G.esc(cityOf(a.city) || 'Nomadic, paints wherever the road goes')}</small><span class="tg">Artist${a.real ? '' : ' · sample'}</span></span></a></li>`;
+  const creatorRow = (t) => `<li><a class="ent" href="book.html#${t.slug}">${avatar(t)}<span><b>${G.esc(t.name)}</b><small>${G.esc(cityOf(t.city))}</small><span class="tg">${G.esc(t.kind)} · sample</span></span></a></li>`;
+  const placeRow = (p) => `<li><a class="ent" href="${p.href}"><span class="av sq" style="--c:${p.color}">${G.esc(p.name[0])}</span><span><b>${G.esc(p.name)}</b><small>${G.esc(cityOf(p.city))}</small><span class="tg">${G.esc(p.kind)}</span></span></a></li>`;
+  const list = (title, arr, row, none) => `<div class="grp"><h3>${title}</h3>${arr.length ? `<ul>${arr.map(row).join('')}</ul>` : `<p class="empty">${none}</p>`}</div>`;
+
+  const section = (cc, h, label) => `<section class="country" id="${cc}" aria-labelledby="h-${cc}">
+      <div class="ch"><h2 id="h-${cc}">${label}<small>${cc}</small></h2><span class="cities">${[...h.cities].filter(Boolean).join(' · ')}</span></div>
+      ${h.artists.length + h.creators.length ? `<div class="tape" aria-label="Chip prices in ${label}">${h.artists.concat(h.creators).map(tick).join('')}</div>` : ''}
+      ${cc === 'XX' ? `<div class="groups">${list('Nomadic artists', h.artists, artistRow, '')}<p class="muted" style="grid-column:span 2;align-self:center">Some artists don't live anywhere in particular. They paint wherever the road goes, and visits are arranged wherever they are.</p></div>`
+        : `<div class="groups">${list('Artists', h.artists, artistRow, 'The first artist here is being invited now.')}${list('Chefs, DJs, artisans, healers', h.creators, creatorRow, 'No FAME creators here yet.')}${list('Cafés, studios and partners', h.places, placeRow, 'Looking for the first partner space.')}</div>`}</section>`;
+  document.getElementById('countries').innerHTML = (nomads.length ? section('XX', { artists: nomads, creators: [], places: [], cities: new Set(['On the road']) }, 'Everywhere') : '')
+    + order.map((cc) => section(cc, hub[cc], NAMES[cc])).join('');
+
+  const nav = document.getElementById('cnav');
+  const all = (nomads.length ? [['XX', 'Everywhere', nomads.length]] : []).concat(order.map((cc) => [cc, NAMES[cc], hub[cc].artists.length + hub[cc].creators.length + hub[cc].places.length]));
+  nav.innerHTML = all.map(([cc, n, k]) => `<a href="#${cc}" data-cc="${cc}">${n}<i>${k}</i></a>`).join('');
+  const mark = (cc) => nav.querySelectorAll('a').forEach((a) => a.setAttribute('aria-current', String(a.dataset.cc === cc)));
+  const io = new IntersectionObserver((es) => es.forEach((e) => { if (e.isIntersecting) mark(e.target.id); }), { rootMargin: '-40% 0px -55% 0px' });
+  document.querySelectorAll('.country').forEach((s) => io.observe(s));
+  const top = document.querySelector('.topbar'); if (top) document.documentElement.style.setProperty('--top-h', top.offsetHeight + 'px');
+  if (location.hash && document.getElementById(location.hash.slice(1))) setTimeout(() => document.getElementById(location.hash.slice(1)).scrollIntoView(), 60);
+})();
+</script>
+</body>
+</html>

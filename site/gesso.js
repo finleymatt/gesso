@@ -12,17 +12,28 @@
   G.store = store;
 
   /* ================= chip economics =================
-     price per chip = $1 × √(1 + collectors ÷ 10)
-     buyers earn 10% of what they spend, in that artist's chips, at today's price
-     the first 25 collectors of every artist earn double
-     chips can cover up to half of any piece on Gesso */
-  G.EARN = 0.10;
+     Every sale sends 12% into that artist's reserve. The reserve mints chips for the buyer on a bonding curve:
+       price per chip = ∛(1 + reserve ÷ $60)
+     so every chip is paid for, in cash, the moment it exists. Spending chips burns them: the reserve pays the
+     artist along the same curve and the price eases back down. The reserve can always honor every chip.
+     Chips are store credit on a public ledger: non-transferable, never cashed out, and they can fall as well as rise.
+     Chips cover up to half of any piece. In this preview each collector has put about $60 into the reserve. */
+  G.EARN = 0.12;
   G.FOUNDING = 25;
   G.SPEND_CAP = 0.5;
   G.SPLIT = { artist: 0.80, reserve: 0.12, gesso: 0.08 };
-  G.price = (n) => Math.sqrt(1 + n / 10);
+  G.PER = 60;
+  const pOfR = (R) => Math.cbrt(1 + Math.max(0, R) / 60);          // price at a reserve size
+  const sOfR = (R) => 90 * (Math.pow(1 + Math.max(0, R) / 60, 2 / 3) - 1); // chips in existence
+  const rOfS = (S) => 60 * (Math.pow(1 + Math.max(0, S) / 90, 1.5) - 1);   // reserve that backs them
+  G.curve = { pOfR, sOfR, rOfS };
+  G.reserveFor = (n) => Math.max(0, n) * G.PER;
+  G.price = (n) => pOfR(G.reserveFor(n));
   G.isFounding = (n) => n < G.FOUNDING;
-  G.chipsFor = (usd, n, rate = G.EARN) => (usd * rate / G.price(n)) * (G.isFounding(n) ? 2 : 1);
+  // chips minted when `usd × rate` lands in a reserve that `n` collectors have built
+  G.chipsFor = (usd, n, rate = G.EARN) => { const R = G.reserveFor(n); return sOfR(R + usd * rate) - sOfR(R); };
+  // what the reserve pays out if `chips` are spent right now, walking the price down the curve
+  G.burnValue = (n, chips) => { const R = G.reserveFor(n); return R - rOfS(Math.max(0, sOfR(R) - chips)); };
 
   /* ================= artists =================
      HAMEL is the real founding artist; everyone else is a sample creator for the preview. */
@@ -40,6 +51,21 @@
       // Justin's own words (artist statement, October 2026)
       bio: 'People find faces in my paintings that I never intended to paint, and what fascinates me is what they discover that I never knew was there. Through bold colors, tangled black lines, and an intuitive process, I explore the relationship between chaos and order, intention and surrender. As a nomadic artist, my surroundings constantly change, but my curiosity remains the same: how do we construct meaning from what we see, and how much of it comes from ourselves? I don’t want to tell people what to see or feel; I want to invite them to question, play, and discover something uniquely their own.',
       statement: ['People find faces in my paintings that I never intended to paint. What fascinates me isn’t just what I’ve created, but what someone else discovers that I never knew was there.', 'I work with bold colors, thick black lines, overlapping patterns, and characters that seem to appear and disappear depending on how you look at them. My process is intuitive, repetitive, and often unpredictable. I rarely know what a painting will become when I begin. Lines accumulate, forms emerge, disappear beneath new layers, and sometimes something I never planned becomes the most important part of the composition. I’m interested in that relationship between intention and surrender, between chaos and order, and what happens when neither needs to defeat the other.', 'As a nomadic artist, I have no fixed geographical home. My surroundings, the people I encounter, and the places where I create are constantly changing. Painting has become a way of exploring what remains constant within all that movement. Beneath the changing environments, I keep returning to the same curiosity: how do we construct meaning from what we see, and how much of that meaning comes from ourselves?', 'I don’t want to tell people what my paintings mean. I want them to look, question, laugh, feel something unexpected, and perhaps discover something entirely different from the person standing beside them. I want to create space for uncertainty, contradiction, and play in a world so eager to explain and categorize everything.', 'Because sometimes the most interesting thing about a painting isn’t what the artist put into it, but what the viewer brings to it.']
+    },
+    {
+      slug: 'chor', name: 'Chor Boogie', ticker: 'CHOR', color: '#0E9F8E', on: '#FFFFFF', style: 'photo',
+      handle: 'chorboogie.com', ig: 'https://chorboogie.com/', city: 'San Francisco Bay Area, CA', fullName: 'Joaquin Lamar Hailey',
+      collectors: 0, joined: 'Founding artist, joining now', sold: 0, real: true, founding: true,
+      quote: 'THE COLOR SHAMAN.',
+      photos: { avatar: 'art/chor/t/aero-14.jpg', p1: 'art/chor/masterpeace-01.jpg', p2: 'art/chor/masterpeace-03.jpg', p3: 'art/chor/masterpeace-02.jpg' },
+      banner: ['chor-01', 'chor-14', 'chor-10', 'chor-03', 'chor-28', 'chor-giver', 'chor-06'],
+      short: 'Aerosol fine art, murals and soul portraits, painted almost entirely in spray paint.',
+      bio: 'Joaquin Lamar Hailey, known as Chor Boogie, is a self-taught aerosol painter and muralist who has lived and painted in the San Francisco Bay Area since 2007. The work has been shown at the Smithsonian and the Beijing 2008 Olympics, and The Eyes of the Berlin Wall sold for 500,000 euros in 2010, a record for street art at the time. Fans call Chor "the color shaman" for treating color as a kind of medicine.',
+      posts: [
+        ['2022', 'Nzambe Kana. Aerosol on wall, Columbus, Ohio.', 'p1'],
+        ['2013', 'Modern Hieroglyphics. Aerosol on wall, Baton Rouge, Louisiana.', 'p2'],
+        ['2010', "Berlin's Divide. Aerosol on wall, Berlin.", 'p3']
+      ]
     },
     {
       slug: 'odalys', name: 'Odalys Fuente', ticker: 'ODLY', color: '#2A2930', on: '#F4F4F0', style: 'mono',
@@ -108,6 +134,26 @@
       ['06', 'Untitled (Ribbons), print', 2026, 'Giclée on cotton rag', 12, 16, 140, 'Edition of 40', { img: 'art/justin/j25.jpg' }],
       ['07', 'Untitled (Chaos Here, Peace There)', 2026, 'Spray paint and marker on canvas', 30, 40, 880, null, { img: 'art/hamel-07.jpg' }],
       ['08', 'Untitled (Spray Study)', 2026, 'Spray paint and acrylic on canvas', 26, 36, 620, null, { img: 'art/hamel-08.jpg' }]
+    ]),
+    // Chor Boogie: real titles, years and media from chorboogie.com; sizes and prices are placeholders
+    W('chor', [
+      ['giver', 'The Giver', 2026, 'Aerosol on canvas', 40, 48, 16000, null, { img: 'art/chor/soul-portrait-01.jpg' }],
+      ['01', 'Love Dance', 2014, 'Aerosol on canvas', 48, 32, 9500, null, { img: 'art/chor/aero-01.jpg' }],
+      ['14', 'The Vision Part 3: My Eyes Are Your Eyes', 2011, 'Aerosol on canvas', 40, 40, 8500, null, { img: 'art/chor/aero-14.jpg' }],
+      ['10', "Euphoria's Liquid of Utopia", 2020, 'Aerosol on canvas', 38, 48, 12500, null, { img: 'art/chor/aero-10.jpg' }],
+      ['03', 'Modern Hieroglyphics: Within', 2017, 'Aerosol on canvas', 60, 33, 14000, null, { img: 'art/chor/aero-03.jpg' }],
+      ['28', 'Power to the Planet', 2019, 'Aerosol on canvas', 36, 48, 10500, null, { img: 'art/chor/aero-28.jpg' }],
+      ['06', 'The Gold Queen of the Romantic Lion', 2010, 'Aerosol on canvas', 16, 72, 18000, null, { img: 'art/chor/aero-06.jpg' }],
+      ['12', 'The Black Gem', 2019, 'Aerosol on canvas', 48, 32, 9800, null, { img: 'art/chor/aero-12.jpg' }],
+      ['08', 'For the Love of Life and Death', 2016, 'Aerosol on canvas', 48, 38, 11500, null, { img: 'art/chor/aero-08.jpg' }],
+      ['11', 'Playing a Game of Chess on a Roller Coaster Ride', 2016, 'Aerosol on canvas', 48, 38, 11000, null, { img: 'art/chor/aero-11.jpg' }],
+      ['04', 'A Vision Brighter', 2018, 'Aerosol on canvas', 54, 30, 12000, null, { img: 'art/chor/aero-04.jpg' }],
+      ['02', 'Universal Connection', 2008, 'Aerosol on canvas', 48, 31, 8800, null, { img: 'art/chor/aero-02.jpg' }],
+      ['26', 'The Vision Part 20: Color Therapy', 2016, 'Aerosol on canvas', 24, 48, 7800, null, { img: 'art/chor/aero-26.jpg' }],
+      ['16', 'You Are Not Yourself Part 2: Balanced', 2015, 'Aerosol on canvas', 36, 36, 7200, null, { img: 'art/chor/aero-16.jpg' }],
+      ['20', 'Peace', 2014, 'Aerosol on canvas', 24, 37, 5400, null, { img: 'art/chor/aero-20.jpg' }],
+      ['p01', 'Love Dance, print', 2014, 'Giclée on cotton rag', 24, 16, 240, 'Edition of 50', { img: 'art/chor/aero-01.jpg' }],
+      ['p14', 'My Eyes Are Your Eyes, print', 2011, 'Giclée on cotton rag', 20, 20, 220, 'Edition of 50', { img: 'art/chor/aero-14.jpg' }]
     ]),
     W('odalys', [
       ['01', 'Contour for a Sleeping River', 2026, 'Sumi ink and acrylic on canvas', 24, 36, 1100],
@@ -196,6 +242,7 @@
   const VENUES = [
     { id: 'hamel-studio', artist: 'hamel', type: 'Studio', name: 'Wherever HAMEL is painting', area: "Justin works nomadically. The city and address are shared when your visit is confirmed", city: '', hours: 'Visits by appointment', book: true, tbd: true },
     { id: 'hamel-mural', artist: 'hamel', type: 'Mural', name: 'The Message', area: 'Street mural, location shared with collectors', city: '', hours: 'Outdoors, always open', img: 'art/hamel-mural.jpg', tbd: true },
+    { id: 'chor-murals', artist: 'chor', type: 'Murals', name: 'Chor Boogie walls around the Bay', area: 'Murals across San Francisco and Sonoma County, map shared with collectors', city: 'San Francisco, CA', hours: 'Outdoors, always open', img: 'art/chor/t/masterpeace-01.jpg', tbd: true },
     { id: 'odalys-taller', artist: 'odalys', type: 'Studio', name: 'Taller Fuente', area: 'Jalatlaco', city: 'Oaxaca, MX', hours: 'Thu to Sat, 11:00 to 18:00', days: [4, 5, 6] },
     { id: 'odalys-show', artist: 'odalys', type: 'Exhibition', name: 'Líneas, a group show', area: 'Centro', city: 'Oaxaca, MX', hours: 'Nov 7 to Dec 20, Tue to Sun 10:00 to 19:00', soon: 'Opens Nov 7' },
     { id: 'teo-studio', artist: 'teo', type: 'Open studio', name: 'Studio Marchetti', area: 'San Salvario', city: 'Turin, IT', hours: 'Open studio weekend, Nov 15 and 16, 12:00 to 19:00', soon: 'Nov 15 and 16' },
@@ -224,7 +271,11 @@
     { slug: 'tomas-chef', name: 'Tomás Reyes', kind: 'Chef', city: 'Albuquerque, NM', ticker: 'TOMS', color: '#16865A', on: '#fff', collectors: 22, rate: 520, unit: 'dinner for 8', line: 'New Mexican chile, heirloom corn and blue-corn everything.', tags: ['Regional', 'Family style'] }
   ];
   G.talent = TALENT;
-  G.KINDS = ['Chef', 'DJ', 'Musician', 'Filmmaker', 'Artisan'];
+  TALENT.push(
+    { slug: 'ana-somatic', name: 'Ana Duque', kind: 'Healer', city: 'Medellín, CO', ticker: 'ANA', color: '#B4543A', on: '#fff', collectors: 26, rate: 120, unit: 'session', line: 'Somatic work and family constellations for artists coming out of a hard season.', tags: ['Somatic', 'Family constellations'] },
+    { slug: 'reed-ifs', name: 'Reed Calloway', kind: 'Healer', city: 'Oakland, CA', ticker: 'REED', color: '#5B4FD8', on: '#fff', collectors: 18, rate: 140, unit: 'session', line: 'Internal Family Systems sessions for creatives who feel stuck.', tags: ['IFS', 'Creative blocks'] }
+  );
+  G.KINDS = ['Chef', 'DJ', 'Musician', 'Filmmaker', 'Artisan', 'Healer'];
 
   /* ================= partners: places that take chips ================= */
   // Sample partners for the preview. Gesso House is the planned flagship space.
@@ -234,6 +285,7 @@
     { name: 'Frame Society', kind: 'Framing partner', city: 'Ships nationwide', text: 'Frames every Gesso piece that ships framed. Chips accepted on custom framing.', color: '#B98A57' },
     { name: 'Common Thread', kind: 'Hemp clothing', city: 'Portland, OR', text: 'Makes the Gesso hoodies and tees. Hemp, organic cotton and linen only.', color: '#16865A' },
     { name: 'Low Tide Coffee', kind: 'Café', city: 'Los Angeles, CA', text: 'Rotating Gesso artist on the wall. Chips cover your coffee.', color: '#2140E3' },
+    { name: 'Café Laureles', kind: 'Café and art hub', city: 'Medellín, CO', text: 'A coffee shop that hangs a Gesso artist every month and hosts first-time-seller workshops.', color: '#B4543A' },
     { name: 'Second Press', kind: 'Print studio', city: 'Osaka, JP', text: "Prints Gesso's risograph editions. Chips accepted on open print days.", color: '#FF4FA0' }
   ];
 
@@ -257,6 +309,17 @@
         { amt: 2500, title: 'A day on the lift', text: 'Paint a section with HAMEL and take home a panel from the test wall.', left: 2 }
       ],
       updates: [['Oct 12', 'Example update: the test wall is finished and the colors hold up in full sun.'], ['Oct 3', 'Example update: past the halfway mark, and the permit application is in.']] },
+    { id: 'chor-wall', artist: 'chor', example: true, title: 'Back a wall: a new Chor Boogie mural', img: 'art/chor/masterpeace-01.jpg',
+      goal: 40000, raised: 6200, backers: 41, daysLeft: 30,
+      story: 'Chor has painted walls from Berlin to Baton Rouge. This example shows how a mural works on Gesso: backers fund the paint, lift, permits and painting time for a new wall, and help pick the city. If the goal is not reached, nobody is charged. Every pledge earns $CHOR like any purchase.',
+      budget: [['Aerosol, primer and clear coat', 9000], ['Lift rental, three weeks', 7500], ['Permits, wall lease and insurance', 6500], ['Artist time, three weeks', 17000]],
+      rewards: [
+        { amt: 25, title: 'Name on the wall', text: 'Your name in the credits corner of the finished mural.' },
+        { amt: 150, title: 'Signed print of the wall', text: 'A 16 × 20 in print of the finished mural, signed.' },
+        { amt: 1000, title: 'A study for the wall', text: 'One of the color studies for the mural, signed and dated.', left: 8 },
+        { amt: 5000, title: 'A day at the wall', text: 'Spend a painting day with Chor and take home a panel painted on site.', left: 2 }
+      ],
+      updates: [] },
     { id: 'june-drum', artist: 'june', title: 'A second risograph drum', img: null, art: 'june-03', goal: 4000, raised: 3610, backers: 212, daysLeft: 6,
       story: 'A second color drum means three-color prints without a week of waiting between passes. June will run a backers-only edition on the first day it arrives.',
       budget: [['Used two-color drum', 2900], ['Shipping from Tokyo', 450], ['Ink and paper for the first run', 650]],
@@ -276,17 +339,17 @@
 
   /* ================= milestones: what you've spent on Gesso unlocks more ================= */
   G.TIERS = [
-    { name: 'Gesso', at: 0, rate: 0.10, perks: ['10% back in chips on everything'] },
-    { name: 'Primer', at: 250, rate: 0.10, perks: ['See new work 24 hours before everyone else'] },
-    { name: 'Underpainting', at: 1000, rate: 0.11, perks: ['11% back in chips', 'Book studio visits with any artist'] },
-    { name: 'Glaze', at: 5000, rate: 0.12, perks: ['12% back in chips', 'Weekly drip: 1% of your chips paid to your bank each week', 'Free white-glove install on every original'] },
-    { name: 'Varnish', at: 10000, rate: 0.13, perks: ['13% back in chips', 'A hosted studio visit every year', 'First look at every artist project'] },
-    { name: 'Masterwork', at: 20000, rate: 0.15, perks: ['15% back in chips', 'Commission a piece from any Gesso artist', 'Your name on the Gesso founders wall', 'A seat at the annual collectors dinner'] }
+    { name: 'New', at: 0, rate: 0.12, perks: ['12% back in chips on everything'] },
+    { name: 'Collector', at: 250, rate: 0.12, perks: ['See new work 24 hours before everyone else'] },
+    { name: 'Regular', at: 1000, rate: 0.13, perks: ['13% back in chips', 'Book studio visits with any artist'] },
+    { name: 'Patron', at: 5000, rate: 0.13, perks: ['Free white-glove install on every original', 'Free appraisal for insurance on every piece'] },
+    { name: 'Benefactor', at: 10000, rate: 0.14, perks: ['14% back in chips', 'A hosted studio visit every year', 'First look at every artist project'] },
+    { name: 'Champion', at: 20000, rate: 0.15, perks: ['15% back in chips', 'Commission a piece from any Gesso artist', 'Your name on the Gesso founders wall', 'A seat at the annual collectors dinner'] }
   ];
+  // the extra back above 12% comes out of Gesso's 8% and goes into the reserve too, so it is just as backed
   G.tierOf = (spent) => G.TIERS.filter((t) => spent >= t.at).pop();
   G.nextTier = (spent) => G.TIERS.find((t) => t.at > spent) || null;
   G.spent = () => G.wallet().spent || 0;
-  G.DRIP_AT = 5000; G.DRIP_RATE = 0.01;
   G.myRate = () => G.tierOf(G.spent()).rate;
 
   /* ================= paying over time ================= */
@@ -334,7 +397,7 @@
   G.priceOf = (slug) => G.price(G.collectors(slug));
   G.isSold = (w) => w.sold || (store.get('sold', []) || []).includes(w.id);
   G.markSold = (id) => { const s = store.get('sold', []) || []; if (!s.includes(id)) s.push(id); store.set('sold', s); };
-  G.walletValue = (w) => Object.entries((w || G.wallet()).chips).reduce((s, [k, v]) => s + v * G.priceOf(k), 0);
+  G.walletValue = (w) => Object.entries((w || G.wallet()).chips).reduce((s, [k, v]) => s + (G.artist(k) ? G.burnValue(G.collectors(k), v) : 0), 0);
 
   /* the bag holds artworks ("hamel-02") and objects ("p:hamel-apron|One size|2") */
   G.item = (key) => {
@@ -370,14 +433,15 @@
     G.toast(`<span>Added <b>${esc(it.title)}</b> to your bag</span><a href="checkout.html">Check out</a>`);
   };
 
-  /* collector-count history for charts: 120 daily points ending today, monotonic */
+  /* reserve history for charts, in collector-equivalents: 120 daily points ending today */
   G.history = (slug, days = 120) => {
     const a = G.artist(slug), r = rng(hash('hist' + slug)), now = G.collectors(slug);
     const start = Math.max(0, Math.round(a.collectors * (0.32 + r() * 0.2)));
     const pts = []; let acc = 0; const steps = [];
     for (let i = 0; i < days; i++) { const s = Math.pow(r(), 2.2) * (1 + Math.sin(i / 9 + r()) * 0.6); steps.push(s); acc += s; }
     let n = start; const span = a.collectors - start;
-    for (let i = 0; i < days; i++) { n += (steps[i] / acc) * span; pts.push(Math.round(n)); }
+    // spending burns chips, so the curve gives a little back now and then
+    for (let i = 0; i < days; i++) { n += (steps[i] / acc) * span; const dip = r() < 0.12 ? (0.3 + r()) * span / 40 : 0; pts.push(Math.max(0, n - dip)); }
     pts[pts.length - 1] = now;
     return pts;
   };
@@ -420,7 +484,7 @@
     return `<${tag} class="chip" ${tag === 'a' ? `href="artist.html#${slug}"` : ''} style="--c:${a.color};--on:${a.on}" data-chip="${slug}">
       <div class="swatch"><span class="notch"></span>
         <div class="tick">$${a.ticker}</div>
-        <div class="row"><span>${esc(a.name)}</span>${seats ? `<span class="seats" title="Founding collectors earn 2× chips">${seats} founding left</span>` : ''}</div>
+        <div class="row"><span>${esc(a.name)}</span>${seats ? `<span class="seats" title="The first 25 collectors get their name on the plaque and first look at new work">${seats} founding left</span>` : ''}</div>
       </div>
       <div class="strip">
         <div class="px" title="Price per chip, and its change over 30 days"><span class="usd" data-px>${G.usd(p, true)}</span><span class="chg ${ch >= 0 ? 'up' : 'down'}">${G.pct(ch)}</span></div>
@@ -655,7 +719,7 @@
   };
   G.workArt = (w, px = 520) => {
     // Justin's photos come in two sizes: small for cards, full for the artwork page
-    if (w.img) return px <= 600 && /^art\/justin\/j/.test(w.img) ? w.img.replace('art/justin/', 'art/justin/t/') : w.img;
+    if (w.img) return px <= 600 && /^art\/(justin\/j|chor\/)/.test(w.img) ? w.img.replace(/^art\/(justin|chor)\//, 'art/$1/t/') : w.img;
     const a = G.artist(w.artist), ar = w.w / w.h;
     const W = ar >= 1 ? px : Math.round(px * ar), H = ar >= 1 ? Math.round(px / ar) : px;
     return G.renderArt(w.id, a.style, W, H, { variant: w.variant });
@@ -928,7 +992,7 @@
     const days = Array.from({ length: 6 }, (_, i) => { const d = new Date(G.TODAY); d.setDate(d.getDate() + i + 2); return d; });
     const body = G.sheet(`<p class="eyebrow">Book a visit</p><h2 style="font-size:2rem;margin:8px 0 6px">${esc(v.name)}</h2>
       <p class="muted">${esc(a.name)} · ${esc(v.hours)}</p>
-      <p style="margin:14px 0;font-size:var(--t-s)">${G.TIERS.indexOf(tier) >= 2 ? `Studio visits are a perk of your <b>${tier.name}</b> milestone.` : 'Studio visits open up at the Underpainting milestone ($1,000 spent). You can still request one.'}</p>
+      <p style="margin:14px 0;font-size:var(--t-s)">${G.TIERS.indexOf(tier) >= 2 ? `Studio visits are a perk of your <b>${tier.name}</b> milestone.` : 'Studio visits open up at the Regular milestone ($1,000 spent). You can still request one.'}</p>
       <div class="field"><span class="lbl">Day</span><div class="slots" id="bk-days">${days.map((d, i) => `<button type="button" class="pill" aria-pressed="${i === 0}" data-v="${d.toDateString()}">${d.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })}</button>`).join('')}</div></div>
       <div class="field" style="margin-top:14px"><span class="lbl">Time</span><div class="slots" id="bk-times">${['11:00', '13:00', '15:00', '17:00'].map((t, i) => `<button type="button" class="pill" aria-pressed="${i === 1}" data-v="${t}">${t}</button>`).join('')}</div></div>
       <div class="field" style="margin-top:14px"><label for="bk-n">Guests</label><select class="input" id="bk-n"><option>Just me</option><option>2 people</option><option>3 people</option><option>4 people</option></select></div>
@@ -985,7 +1049,7 @@
   /* ================= events: drops, nights, open studios ================= */
   G.LIVE_DROP = new Date(2026, 9, 24, 20, 0);
   G.events = () => [
-    { d: G.LIVE_DROP, type: 'Live drop', title: 'HAMEL paints live', where: 'Streamed on Gesso', text: 'Justin paints a new piece live. It goes on sale the moment the last line is down. Varnish and Masterwork collectors get first claim for an hour.', href: 'now.html#drop', a: 'hamel' },
+    { d: G.LIVE_DROP, type: 'Live drop', title: 'HAMEL paints live', where: 'Streamed on Gesso', text: 'Justin paints a new piece live. It goes on sale the moment the last line is down. Benefactor and Champion collectors get first claim for an hour.', href: 'now.html#drop', a: 'hamel' },
     { d: new Date(2026, 9, 30, 19, 0), type: 'FAME night', title: 'Wood fire and vinyl', where: 'Mexico City, MX', text: 'Leo Martín cooks, Sam Rivera plays records. 24 seats.', href: 'book.html', a: 'leo-chef' },
     { d: new Date(2026, 10, 7, 18, 0), type: 'Opening', title: 'Líneas, a group show', where: 'Centro, Oaxaca, MX', text: 'Odalys Fuente and four other ink artists.', href: 'visit.html', a: 'odalys' },
     { d: new Date(2026, 10, 15, 12, 0), type: 'Open studio', title: 'Studio Marchetti open weekend', where: 'San Salvario, Turin, IT', text: 'Teo opens the studio for two days.', href: 'visit.html', a: 'teo' },
@@ -1118,7 +1182,7 @@
 
   /* ================= quick search: Ctrl/Cmd + K, or the magnifier ================= */
   const PAGES = [['now.html', 'Now on Gesso', "What's new and the next live drop"], ['discover.html', 'Shop art', 'Originals, prints and resale'], ['discover.html#objects', 'Objects', 'Hoodies, wallpaper, aprons, collabs'], ['artists.html', 'Artists', 'The roster'],
-    ['faces.html', 'The faces wall', 'Every face collectors found in HAMEL’s paintings'], ['quiz.html', 'Find your piece', 'A one-minute taste quiz'], ['book.html', 'FAME', 'Book chefs, DJs and more'], ['project.html', 'Projects', 'Back what’s next'],
+    ['network.html', 'The network', 'Artists, cafés and hubs by country'], ['faces.html', 'The faces wall', 'Every face collectors found in HAMEL’s paintings'], ['quiz.html', 'Find your piece', 'A one-minute taste quiz'], ['book.html', 'FAME', 'Book chefs, DJs and more'], ['project.html', 'Projects', 'Back what’s next'],
     ['events.html', 'Events', 'Drops, nights, open studios'], ['visit.html', 'Visit', 'See art in person'], ['collection.html', 'Your collection', 'Chips, milestones, your wall'], ['collection.html#saved', 'Saved pieces', 'Everything you hearted'],
     ['collection.html#invite', 'Invite friends', 'You both get chips'], ['gift.html', 'Gift cards', 'Give someone their first piece'], ['mission.html', 'Mission', 'Justin’s statement and votes'], ['mission.html#statement', 'Artist statement', 'Justin, in his own words'],
     ['how-it-works.html', 'How chips work', 'The curve, milestones, plans'], ['reserve.html', 'The reserve', 'Live numbers behind every chip'], ['spaces.html', 'Art for spaces', 'Rent-to-own for businesses'], ['partners.html', 'Partners', 'Where chips work'],
@@ -1255,12 +1319,12 @@
 
   G.chrome = (page) => {
     const NAV = [
-      { label: 'Art', href: 'discover.html', keys: ['now', 'discover', 'artists', 'projects', 'visit', 'events', 'faces', 'quiz'], sub: [['now.html', 'Now', "What's new and the next live drop"], ['discover.html', 'Shop art', 'Originals, prints and resale'], ['discover.html#objects', 'Objects', 'Hoodies, wallpaper, collabs'], ['artists.html', 'Artists', 'The roster'], ['project.html', 'Projects', "Back what's next"], ['events.html', 'Events', 'Drops, nights, open studios'], ['visit.html', 'Visit', 'See it in person'], ['faces.html', 'The faces wall', 'Every face people found'], ['quiz.html', 'Find your piece', 'A one-minute taste quiz']] },
-      { label: 'FAME', href: 'book.html', keys: ['book'], sub: null },
-      { label: 'Collection', href: 'collection.html', keys: ['collection', 'checkout', 'gift'], sub: [['collection.html', 'Your collection', 'Chips, milestones, your wall'], ['collection.html#invite', 'Invite friends', `You both get ${G.usd(G.REF_BONUS)} in chips`], ['gift.html', 'Gift cards', 'Give someone their first piece']] },
-      { label: 'About', href: 'mission.html', keys: ['mission', 'partners', 'how', 'reserve', 'spaces'], sub: [['mission.html', 'Mission', "Justin's statement and votes"], ['how-it-works.html', 'How chips work', 'The curve, milestones, plans'], ['reserve.html', 'The reserve', 'Live numbers behind every chip'], ['spaces.html', 'Art for spaces', 'Rent-to-own for businesses'], ['partners.html', 'Partners', 'Where chips work'], ['for-artists.html', 'Sell on Gesso', 'For artists and creators']] }
+      { label: 'Shop', href: 'discover.html', keys: ['discover', 'artists', 'quiz'], sub: [['discover.html', 'Shop art', 'Originals and prints'], ['artists.html', 'Artists', 'The founding roster'], ['network.html', 'The network', 'Artists and hubs, country by country'], ['quiz.html', 'Find your piece', 'A one-minute taste quiz']] },
+      { label: 'How it works', href: 'how-it-works.html', keys: ['how', 'reserve'], sub: [['how-it-works.html', 'How chips work', 'Buy, earn, spend'], ['reserve.html', 'The reserve', 'Every chip, backed in cash']] },
+      { label: 'Collection', href: 'collection.html', keys: ['collection', 'checkout', 'gift'], sub: [['collection.html', 'Your collection', 'Chips, milestones, saved'], ['collection.html#invite', 'Invite friends', `You both get ${G.usd(G.REF_BONUS)} in chips`], ['gift.html', 'Gift cards', 'Give someone their first piece']] },
+      { label: 'More', href: 'mission.html', keys: ['mission', 'partners', 'spaces', 'book', 'projects', 'visit', 'events', 'faces', 'network'], sub: [['mission.html', 'Mission', 'Why Gesso exists'], ['network.html', 'The network', 'Hubs in every country'], ['faces.html', 'The faces wall', 'Faces found in HAMEL’s work'], ['project.html', 'Projects · later', 'Back a wall or a new series'], ['book.html', 'FAME · later', 'Chefs, DJs, healers'], ['events.html', 'Events · later', 'Drops and open studios'], ['visit.html', 'Visit', 'See it in person'], ['discover.html#objects', 'Objects · later', 'Hoodies, wallpaper, aprons'], ['spaces.html', 'Art for spaces · later', 'Rent-to-own for businesses'], ['partners.html', 'Partners', 'Where chips work'], ['for-artists.html', 'Sell on Gesso', 'Invite-only, for artists']] }
     ];
-    const menu = [['now.html', 'Now on Gesso'], ['artists.html', 'Artists'], ['discover.html', 'Shop art'], ['discover.html#objects', 'Hoodies, wallpaper and more'], ['book.html', 'FAME: book chefs, DJs and more'], ['project.html', 'Back a project'], ['visit.html', 'See art in person'], ['faces.html', 'The faces wall'], ['quiz.html', 'Find your piece: the taste quiz'], ['partners.html', 'Partners and Gesso House'], ['events.html', 'Events and live drops'], ['reserve.html', 'The reserve'], ['spaces.html', 'Art for spaces'], ['gift.html', 'Gift cards'], ['mission.html', 'Mission and votes'], ['collection.html', 'Your collection and milestones'], ['how-it-works.html', 'How chips work'], ['for-artists.html', 'Sell on Gesso']];
+    const menu = [['now.html', 'Home'], ['discover.html', 'Shop art'], ['artists.html', 'Artists'], ['network.html', 'The network'], ['how-it-works.html', 'How chips work'], ['collection.html', 'Your collection'], ['quiz.html', 'Find your piece'], ['mission.html', 'Mission'], ['reserve.html', 'The reserve'], ['faces.html', 'The faces wall'], ['project.html', 'Projects (after launch)'], ['book.html', 'FAME (after launch)'], ['events.html', 'Events (after launch)'], ['visit.html', 'See art in person'], ['discover.html#objects', 'Objects (after launch)'], ['spaces.html', 'Art for spaces (after launch)'], ['gift.html', 'Gift cards'], ['partners.html', 'Partners'], ['for-artists.html', 'Sell on Gesso']];
     const top = document.getElementById('chrome-top');
     if (top) top.outerHTML = `<a class="skip" href="#main">Skip to content</a>${G.looksBar()}${G.pulse()}
       <header class="topbar"><div class="wrap">
@@ -1276,22 +1340,22 @@
     const bottom = document.getElementById('chrome-bottom');
     if (bottom) bottom.outerHTML = `
       <nav class="tabbar" aria-label="Tabs">
-        <a href="now.html" ${page === 'now' ? 'aria-current="page"' : ''}>${I.home}Now</a>
+        <a href="now.html" ${page === 'now' ? 'aria-current="page"' : ''}>${I.home}Home</a>
         <a href="discover.html" ${page === 'discover' ? 'aria-current="page"' : ''}>${I.wall}Shop</a>
-        <a href="book.html" ${page === 'book' ? 'aria-current="page"' : ''}>${I.brush}FAME</a>
+        <a href="artists.html" ${page === 'artists' ? 'aria-current="page"' : ''}>${I.brush}Artists</a>
         <a href="collection.html" ${page === 'collection' ? 'aria-current="page"' : ''}>${I.coll}Collection</a>
         <a href="checkout.html" ${page === 'checkout' ? 'aria-current="page"' : ''}>${I.bag}Bag<span class="badge" data-bag-count></span></a>
       </nav>
       <footer class="footer"><div class="wrap">
         <div class="brand">
           <a class="logo-link" href="now.html" aria-label="Gesso home">${G.logo('big')}</a>
-          <p class="muted">An art market owned by the people who collect it. Buy the art, earn the artist's chips, spend them on more art.</p>
+          <p class="muted">Buy original art. Artists keep 80%. You earn the artist's chips, which rise as they grow, and spend them on more art.</p>
           <div class="theme-toggle" role="group" aria-label="Theme"><button type="button" data-theme-set="light">Light</button><button type="button" data-theme-set="dark">Dark</button></div>
         </div>
-        <div><h4>Collect</h4><ul><li><a href="artists.html">Artists</a></li><li><a href="discover.html">Shop art</a></li><li><a href="discover.html#objects">Hoodies, wallpaper, more</a></li><li><a href="book.html">FAME bookings</a></li><li><a href="project.html">Back a project</a></li><li><a href="visit.html">See art in person</a></li><li><a href="faces.html">The faces wall</a></li><li><a href="quiz.html">Find your piece</a></li></ul></div>
+        <div><h4>Collect</h4><ul><li><a href="artists.html">Artists</a></li><li><a href="discover.html">Shop art</a></li><li><a href="discover.html#objects">Hoodies, wallpaper, more</a></li><li><a href="book.html">FAME bookings</a></li><li><a href="project.html">Back a project</a></li><li><a href="visit.html">See art in person</a></li><li><a href="faces.html">The faces wall</a></li><li><a href="quiz.html">Find your piece</a></li><li><a href="network.html">The network</a></li></ul></div>
         <div><h4>Learn</h4><ul><li><a href="mission.html">Mission and votes</a></li><li><a href="partners.html">Partners</a></li><li><a href="how-it-works.html">How chips work</a></li><li><a href="how-it-works.html#milestones">Milestones</a></li><li><a href="how-it-works.html#pay">Paying over time</a></li><li><a href="how-it-works.html#faq">Questions</a></li><li><a href="index.html#intro">Replay the intro</a></li></ul></div>
         <div><h4>Create</h4><ul><li><a href="for-artists.html">Sell on Gesso</a></li><li><a href="for-artists.html#compare">Fees compared</a></li><li><a href="for-artists.html#apply">Apply</a></li></ul></div>
-        <div class="fine"><span>Design preview. HAMEL's paintings and photos are real; titles and prices are placeholders. Other artists, FAME creators and partners are samples with generated art. No payments are taken.</span><button type="button" class="link" style="background:none;border:0;padding:0;cursor:pointer;font-size:inherit" data-reset>Reset preview</button></div>
+        <div class="fine"><span>Design preview. HAMEL's and Chor Boogie's work is real (Chor's titles are real; HAMEL's are placeholders), and sizes and prices are placeholders. Other artists, FAME creators and partners are samples with generated art. No payments are taken. Chips are store credit and can go down as well as up.</span><button type="button" class="link" style="background:none;border:0;padding:0;cursor:pointer;font-size:inherit" data-reset>Reset preview</button></div>
       </div></footer>`;
     const mainEl = document.querySelector('main'); if (mainEl && !mainEl.id) mainEl.id = 'main';
     document.body.insertAdjacentHTML('beforeend', '<div class="toast" role="status" aria-live="polite" id="toast"></div>');
@@ -1300,7 +1364,7 @@
     mb.addEventListener('click', () => { mn.hidden = !mn.hidden; mb.setAttribute('aria-expanded', String(!mn.hidden)); });
     if (!store.get('introDone', false) && !['how', 'checkout', 'splash'].includes(page)) {
       document.querySelector('.topbar').insertAdjacentHTML('afterend', `<div class="intro" id="intro"><div class="wrap">
-        <p><b>New here?</b> Every piece you buy pays you back 10% in that artist's chips, and chips gain value as the artist gains collectors.</p>
+        <p><b>New here?</b> Buy original art and the artist keeps 80%. You get 12% back in the artist's chips, which rise as the artist grows.</p>
         <a href="how-it-works.html">How it works →</a><button type="button" aria-label="Dismiss" id="intro-x">×</button></div></div>`);
       document.getElementById('intro-x').addEventListener('click', () => { store.set('introDone', true); document.getElementById('intro').remove(); });
     }
@@ -1354,7 +1418,7 @@
         ? { a, text: `${who} collected ${w.title}`, delta: `$${a.ticker} +${(r() * 0.9 + 0.1).toFixed(1)}%` }
         : kind < 0.85
           ? { a, text: `${who} spent ${(r() * 30 + 4).toFixed(1)} chips on ${a.name}`, delta: `saved ${G.usd(Math.round(r() * 160 + 20))}` }
-          : { a, text: `${who} became a founding collector`, delta: `$${a.ticker} 2× chips` });
+          : { a, text: `${who} became a founding collector`, delta: `name on the plaque` });
     }
     return out;
   };

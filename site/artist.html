@@ -144,7 +144,7 @@
     const r = G.rng(G.hash('coll' + slug));
     const shown = Math.min(n, 40);
     const colls = Array.from({ length: shown }, (_, i) => ({ no: i + 1, name: FIRST[Math.floor(r() * FIRST.length)] + ' ' + String.fromCharCode(65 + Math.floor(r() * 26)) + '.', c: G.artists[Math.floor(r() * G.artists.length)].color }));
-    const posts = POSTS[slug] || POSTS._default;
+    const posts = a.posts ? a.posts.map(([d, t, k]) => [d, t, k, null]) : POSTS[slug] || POSTS._default;
     const venues = G.venuesBy(slug), proj = G.projectBy(slug), objs = G.productsBy(slug), v0 = venues[0];
 
     document.getElementById('main').innerHTML = `
@@ -178,7 +178,7 @@
               <div><b>${n.toLocaleString()}</b><span>collectors</span></div>
               <div><b>${a.sold}</b><span>works collected</span></div>
               <div><b>${avail.length}</b><span>available now</span></div>
-              <div><b>${Math.max(0, G.FOUNDING - n)}</b><span>founding seats left (2× chips)</span></div>
+              <div><b>${Math.max(0, G.FOUNDING - n)}</b><span>founding seats left</span></div>
             </div>
           </div>
           <div class="chippanel" style="--c:${a.color};--on:${a.on}">
@@ -188,7 +188,7 @@
               <div class="pxrow"><span class="usd">${G.usd(p, true)}</span><span class="mono ${G.change(slug) >= 0 ? 'up' : 'down'}">${G.pct(G.change(slug))} in 30 days</span></div>
               <div id="pchart"></div>
               <div class="buychips"><button class="btn small" type="button" id="buychips">Buy $${a.ticker} directly</button><span class="tagplan">Planned</span></div>
-              <p class="earnline">A ${G.usd(500)} purchase today earns <b>${G.chips(G.chipsFor(500, n))} $${a.ticker}</b>, worth <b>${G.usd(G.chipsFor(500, n) * p, true)}</b>${G.isFounding(n) ? ' with the founding 2× bonus' : ''}.</p>
+              <p class="earnline">A ${G.usd(500)} purchase today earns <b>${G.chips(G.chipsFor(500, n))} $${a.ticker}</b>, worth <b>${G.usd(G.chipsFor(500, n) * p, true)}</b>, backed by the ${G.usd(500 * G.EARN)} it puts in the reserve.</p>
             </div>
           </div>
         </div>
@@ -227,17 +227,17 @@
           ${proj ? `<div class="shophead" style="margin-top:32px"><h2 style="font-size:1.8rem">Help make what's next</h2></div><div class="cards">${G.projectCard(proj)}</div>` : ''}
         </div>
         <div class="panel" data-panel="studio" hidden>
-          ${a.real ? `<div class="voices"><p class="eyebrow">Voice notes from the studio <span class="tagp">Example</span></p>${[['Oct 17', 'On the piece that wouldn\'t finish itself', '0:42'], ['Oct 9', 'Why the eyes keep showing up', '1:08']].map(([d, t, dur], i) => `
+          ${slug === 'hamel' ? `<div class="voices"><p class="eyebrow">Voice notes from the studio <span class="tagp">Example</span></p>${[['Oct 17', 'On the piece that wouldn\'t finish itself', '0:42'], ['Oct 9', 'Why the eyes keep showing up', '1:08']].map(([d, t, dur], i) => `
             <article class="voice"><button class="vplay" type="button" data-voice="${i}" aria-label="Play voice note: ${G.esc(t)}">▶</button>
               <div class="vbody"><b>${G.esc(t)}</b><div class="wave" aria-hidden="true">${Array.from({ length: 48 }, (_, j) => `<i style="height:${18 + Math.round(Math.abs(Math.sin(j * 0.7 + i) * Math.cos(j * 0.23)) * 80)}%"></i>`).join('')}</div>
               <span class="muted mono" style="font-size:var(--t-xs)">${d} · ${dur} · collectors can reply with their own voice note</span></div></article>`).join('')}</div>` : ''}
           ${posts.map(([d, t, k, likes]) => `
-          <article class="post"><div class="txt"><span class="eyebrow">${d}, 2026${a.real ? ' · from Instagram' : ''}</span><p>${G.esc(t)}</p><div class="likes"><span>♥ ${likes}</span><span>Only collectors can reply</span></div></div>
-          <img class="art hung" style="--ar:${a.real ? '4/5;max-width:420px;justify-self:center' : '4/3'}" data-artist-art="${slug},${k},800,600" alt="${a.real ? 'Photo from ' + G.esc(a.name) + "'s studio" : 'Studio photo stand-in'}"></article>`).join('')}</div>
+          <article class="post"><div class="txt"><span class="eyebrow">${a.posts ? d + ' · from chorboogie.com' : d + ', 2026' + (a.real ? ' · from Instagram' : '')}</span><p>${G.esc(t)}</p><div class="likes">${likes != null ? `<span>♥ ${likes}</span>` : ''}<span>Only collectors can reply</span></div></div>
+          <img class="art hung" style="--ar:${slug === 'hamel' ? '4/5;max-width:420px;justify-self:center' : a.posts ? 'auto;max-width:520px;justify-self:center' : '4/3'}" data-artist-art="${slug},${k},800,600" alt="${a.posts ? G.esc(t) : a.real ? 'Photo from ' + G.esc(a.name) + "'s studio" : 'Studio photo stand-in'}"></article>`).join('')}</div>
         <div class="panel" data-panel="collectors" hidden>
           <div class="plaque" aria-label="Founding collectors of ${G.esc(a.name)}"><span class="pl-k">Founding collectors</span><b class="pl-n">${G.esc(a.fullName || a.name)}</b>
             <ol>${colls.filter((c) => c.no <= 25).map((c) => `<li><span>${String(c.no).padStart(2, '0')}</span>${G.esc(c.name)}</li>`).join('')}${Array.from({ length: Math.max(0, 25 - Math.min(colls.length, 25)) }, (_, i) => `<li class="open"><span>${String(Math.min(colls.length, 25) + i + 1).padStart(2, '0')}</span>open seat</li>`).join('')}</ol></div>
-          <p class="muted" style="margin:18px 0">Collector numbers are permanent. The first 25 are founding collectors and earn double chips from ${G.esc(a.name)} for good.${a.real ? ' Their names go on the plaque at Gesso House.' : ''}</p>
+          <p class="muted" style="margin:18px 0">Collector numbers are permanent. The first 25 are founding collectors: they get the cheapest chips on the curve, first look at new work, and their names on this plaque${a.real ? ' at Gesso House' : ''}.</p>
           <div class="collectors">${colls.map((c) => `<div class="coll"><span class="av" style="background:${c.c}">${c.name[0]}</span><div style="min-width:0"><div class="nm">${G.esc(c.name)}</div><div class="no">#${c.no}${c.no <= 25 ? ' · <span class="f">founding</span>' : ''}</div></div></div>`).join('')}</div>
           ${n > shown ? `<p class="mono muted" style="margin-top:16px;font-size:var(--t-s)">+ ${(n - shown).toLocaleString()} more collectors</p>` : ''}
         </div>

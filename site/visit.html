@@ -55,7 +55,7 @@
   G.chrome('visit');
   const tier = G.tierOf(G.spent()), canBook = G.TIERS.indexOf(tier) >= 2;
   document.getElementById('perk').innerHTML = `<b>${canBook ? 'You can book studio visits' : 'Studio visits are a milestone perk'}</b>
-    <span class="muted">${canBook ? `Your ${tier.name} milestone lets you book a visit with any artist. Tap "Book a visit" on a studio.` : `Reach Underpainting ($1,000 collected) to book visits with any artist. You can still request one.`}</span>
+    <span class="muted">${canBook ? `Your ${tier.name} milestone lets you book a visit with any artist. Tap "Book a visit" on a studio.` : `Reach the Regular milestone ($1,000 collected) to book visits with any artist. You can still request one.`}</span>
     <a class="link" href="collection.html#milestones">See your milestones</a>`;
   const F = [['all', 'Everything'], ['today', 'Open today'], ['soon', 'Coming up'], ['Studio', 'Studios'], ['shows', 'Galleries and shows'], ['Mural', 'Murals']];
   let f = 'all';

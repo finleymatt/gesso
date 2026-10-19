@@ -110,19 +110,17 @@
       <div class="tiers" style="margin-top:28px">${G.TIERS.map((t) => `<div class="tier ${spent >= t.at ? 'on' : ''} ${t === tier ? 'cur' : ''}">${t === tier ? '<span class="tag">You</span>' : ''}<span class="amt">${t.at ? G.usd(t.at) + ' collected' : 'Start here'}</span><h3>${t.name}</h3><ul>${t.perks.map((x) => `<li>${G.esc(x)}</li>`).join('')}</ul></div>`).join('')}</div>
     </section>
 
-    <section class="drip ${spent >= G.DRIP_AT ? 'on' : ''}" aria-labelledby="h-drip">
-      <div style="display:grid;gap:8px"><p class="eyebrow">Weekly drip <span class="tagp">Planned</span></p>
-        <h2 id="h-drip" style="font-size:1.9rem">${spent >= G.DRIP_AT ? `About ${G.usd(total * G.DRIP_RATE, true)} lands in your bank every Monday` : `Unlocks at ${G.usd(G.DRIP_AT)} spent`}</h2>
-        <p class="muted">${spent >= G.DRIP_AT ? 'Each week 1% of your chips converts to cash and pays out to your bank. The rest keeps riding with the artists.' : `You're ${G.usd(G.DRIP_AT - spent)} away. At today's chip value it would pay about ${G.usd(total * G.DRIP_RATE, true)} a week, and grow as your artists gain collectors.`}</p></div>
-      <div class="dripbar" aria-hidden="true"><i style="width:${Math.min(100, spent / G.DRIP_AT * 100)}%"></i></div>
-      <p class="mono muted" style="font-size:var(--t-xs)">Paying chips out as cash needs legal and banking review before it can launch.</p>
+    <section class="drip on" aria-labelledby="h-drip">
+      <div style="display:grid;gap:8px"><p class="eyebrow">Verified collector</p>
+        <h2 id="h-drip" style="font-size:1.9rem">✓ You count. Fake accounts don't.</h2>
+        <p class="muted">You verified your ID once, so your purchases count toward each artist's collectors. Your chips are worth ${G.usd(total, true)} if you spent them all now; that cash is already sitting in the artists' reserves. Chips are store credit: they can't be sold or cashed out, and they can go down as well as up.</p></div>
     </section>
 
     <section class="invite" id="invite" aria-labelledby="h-inv">
       <div style="display:grid;gap:10px">
         <p class="eyebrow">Invite friends</p>
         <h2 id="h-inv" style="font-size:2rem">Bring someone in. You both get ${G.usd(G.REF_BONUS)} in chips.</h2>
-        <p class="muted">When a friend collects their first piece, you each get ${G.usd(G.REF_BONUS)} in chips from that artist. A new collector also raises that artist's chip price, so the chips you already hold go up too.</p>
+        <p class="muted">When a friend collects their first piece, you each get ${G.usd(G.REF_BONUS)} in chips from that artist. Gesso pays both bonuses into the artist's reserve, so they're backed like any other chip, and a new collector moves that artist up the curve.</p>
         <div class="codebox"><span class="mono" id="code">${G.refCode()}</span><button class="btn small" type="button" id="copy">Copy invite link</button></div>
         <span class="muted mono" style="font-size:var(--t-xs)" id="reflink"></span>
       </div>

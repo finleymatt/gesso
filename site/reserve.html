@@ -75,7 +75,7 @@
   <section class="hero">
     <p class="eyebrow">The reserve</p>
     <h1 class="display" style="font-size:clamp(2.6rem,7vw,5rem)">Every chip, backed by real money</h1>
-    <p class="lede">12% of every sale goes into the reserve. When someone spends chips, the reserve pays the artist in cash. These are the numbers, in the open, so anyone can check them.</p>
+    <p class="lede">12% of every sale goes into that artist's reserve, and the reserve mints chips on a bonding curve. A chip can't exist until its cash is in. When someone spends chips, they're burned and the reserve pays the artist. These are the numbers, in the open.</p>
     <p class="sample">Sample figures for the design preview · updated Oct 18, 2026</p>
   </section>
 
@@ -83,22 +83,22 @@
 
   <section class="section" style="padding-bottom:0" aria-labelledby="c1-h">
     <div class="panel">
-      <div class="section-head" style="margin:0"><div><h2 id="c1-h">Reserve and chip value, last 12 months</h2></div><div class="legend" id="lg"></div></div>
-      <div class="chartwrap" id="cw"><svg id="chart" viewBox="0 0 760 300" role="img" aria-label="Line chart: reserve balance and total chip value by month"></svg><div class="tip" id="tip"></div></div>
+      <div class="section-head" style="margin:0"><div><h2 id="c1-h">Cash in reserves, and chips at today's price</h2></div><div class="legend" id="lg"></div></div>
+      <div class="chartwrap" id="cw"><svg id="chart" viewBox="0 0 760 300" role="img" aria-label="Line chart: reserve cash and chips at today's price by month"></svg><div class="tip" id="tip"></div></div>
     </div>
   </section>
 
   <section class="section two" aria-labelledby="c2-h">
-    <div class="panel"><h2 id="c2-h">Chip value outstanding, by artist</h2><div class="bars" id="bars"></div></div>
+    <div class="panel"><h2 id="c2-h">Cash in each artist's reserve</h2><div class="bars" id="bars"></div></div>
     <div class="panel"><h2>The table</h2><div style="overflow-x:auto"><table class="t" id="tbl"></table></div></div>
   </section>
 
   <section aria-labelledby="r-h">
     <div class="section-head"><div><p class="eyebrow">Rules</p><h2 id="r-h">How the reserve stays healthy</h2></div></div>
     <div class="rules">
-      <div><b>12% of every sale</b><p>Originals, prints, objects, bookings and pledges all send 12% to the reserve before anyone else is paid.</p></div>
-      <div><b>Coverage stays above 1.0×</b><p>If the reserve ever drops below the value of all chips, the earn rate pauses at 5% until it recovers. No one's chips are cut.</p></div>
-      <div><b>Audited monthly</b><p>The reserve sits in a separate account. An outside accountant checks it every month and the report is posted here.</p></div>
+      <div><b>Minted against cash</b><p>Originals, prints, objects, bookings and pledges send 12% to the artist's reserve, and only then are chips minted. No chip exists without its cash.</p></div>
+      <div><b>Burned when spent</b><p>Spending chips burns them and the reserve pays the artist along the curve. If everyone spent at once, the reserve would pay every chip and end at exactly zero.</p></div>
+      <div><b>On the ledger, audited</b><p>Every mint and burn is on a public ledger, and the reserve sits in a separate account an outside accountant checks every month.</p></div>
     </div>
   </section>
 </main>
@@ -108,17 +108,18 @@
 (function () {
   G.chrome('reserve');
   // ---- the sample economy, derived from each artist's data ----
+  const C = G.curve;
   const rows = G.artists.map((a) => {
-    const ws = G.worksBy(a.slug), avg = ws.reduce((s, w) => s + w.price, 0) / ws.length, n = G.collectors(a.slug);
-    const volume = a.sold * avg, issued = volume * G.EARN * 1.1, now = issued * (G.price(n) / G.price(n * 0.6));
-    return { a, n, px: G.price(n), volume, issued, outstanding: now * 0.65, reserveIn: volume * G.SPLIT.reserve, paidOut: issued * 0.35 };
+    const n = G.collectors(a.slug), R = G.reserveFor(n), S = C.sOfR(R), px = C.pOfR(R);
+    return { a, n, px, R, S, spot: S * px };
   });
   const sum = (k) => rows.reduce((s, r) => s + r[k], 0);
-  const volume = sum('volume'), outstanding = sum('outstanding'), reserve = sum('reserveIn') - sum('paidOut') + outstanding * 0.22, coverage = reserve / outstanding;
+  const reserve = sum('R'), spot = sum('spot'), unwind = rows.reduce((s, r) => s + C.rOfS(r.S), 0);
+  const volume = reserve / G.SPLIT.reserve;
   const tiles = [
-    ['Reserve balance', G.usd(Math.round(reserve)), 'Held in a separate account'],
-    ['Value of all chips', G.usd(Math.round(outstanding)), 'At today’s prices'],
-    ['Coverage', coverage.toFixed(2) + '×', `<span class="status">Healthy, above 1.0×</span>`],
+    ['Cash in reserves', G.usd(Math.round(reserve)), 'Separate account, audited monthly'],
+    ['Chips at today’s price', G.usd(Math.round(spot)), `${Math.round(sum('S')).toLocaleString()} chips across ${rows.length} artists`],
+    ['Full unwind covered', Math.round(unwind / reserve * 100) + '%', `<span class="status">Every chip, by construction</span>`],
     ['Paid to artists', G.usd(Math.round(volume * G.SPLIT.artist)), `80% of ${G.usd(Math.round(volume))} in sales`]
   ];
   document.getElementById('tiles').innerHTML = tiles.map(([k, v, d]) => `<div class="tile"><span class="k">${k}</span><span class="v">${v}</span><span class="d">${d}</span></div>`).join('');
@@ -126,7 +127,8 @@
   // ---- line chart: two series, one dollar axis ----
   const months = Array.from({ length: 12 }, (_, i) => { const d = new Date(2025, 10 + i, 1); return d.toLocaleDateString('en-US', { month: 'short' }); });
   const g = (i) => Math.pow((i + 1) / 12, 1.5);
-  const S = [{ name: 'Reserve balance', c: 'var(--s1)', v: months.map((_, i) => reserve * g(i)) }, { name: 'Value of all chips', c: 'var(--s2)', v: months.map((_, i) => outstanding * Math.pow(g(i), 1.12)) }];
+  const spotAt = (f) => rows.reduce((s, r) => { const R = r.R * f; return s + C.sOfR(R) * C.pOfR(R); }, 0);
+  const S = [{ name: 'Cash in reserves', c: 'var(--s1)', v: months.map((_, i) => reserve * g(i)) }, { name: 'Chips at today’s price', c: 'var(--s2)', v: months.map((_, i) => spotAt(g(i))) }];
   document.getElementById('lg').innerHTML = S.map((s) => `<span><i style="--c:${s.c}"></i>${s.name}</span>`).join('');
   const W = 760, H = 300, L = 64, R = 120, T = 14, B = 30, max = Math.ceil(Math.max(...S.flatMap((s) => s.v)) / 2000) * 2000;
   const x = (i) => L + (i / 11) * (W - L - R), y = (v) => H - B - (v / max) * (H - T - B);
@@ -149,16 +151,16 @@
     const r = el.getBoundingClientRect(), px = ((e.clientX - r.left) / r.width) * W, i = Math.max(0, Math.min(11, Math.round(((px - L) / (W - L - R)) * 11)));
     el.querySelector('#xh').setAttribute('x1', x(i)); el.querySelector('#xh').setAttribute('x2', x(i)); el.querySelector('#xh').setAttribute('opacity', 1);
     S.forEach((s, k) => { const c = el.querySelector('#hd' + k); c.setAttribute('cx', x(i)); c.setAttribute('cy', y(s.v[i])); c.setAttribute('opacity', 1); });
-    tip.innerHTML = `<b>${months[i]} ${i < 2 ? 2025 : 2026}</b>` + S.map((s) => `<div class="r"><span><i style="--c:${s.c}"></i>${s.name}</span><b>${G.usd(Math.round(s.v[i]))}</b></div>`).join('') + `<div class="r"><span>Coverage</span><b>${(S[0].v[i] / S[1].v[i]).toFixed(2)}×</b></div>`;
+    tip.innerHTML = `<b>${months[i]} ${i < 2 ? 2025 : 2026}</b>` + S.map((s) => `<div class="r"><span><i style="--c:${s.c}"></i>${s.name}</span><b>${G.usd(Math.round(s.v[i]))}</b></div>`).join('') + `<div class="r"><span>Full unwind covered</span><b>100%</b></div>`;
     const left = (x(i) / W) * r.width; tip.style.left = Math.min(left + 12, r.width - 170) + 'px'; tip.style.top = '8px'; tip.style.opacity = 1;
   };
   el.querySelector('#hit').addEventListener('pointermove', hover);
   el.querySelector('#hit').addEventListener('pointerleave', () => { tip.style.opacity = 0; ['#xh', '#hd0', '#hd1'].forEach((s) => el.querySelector(s).setAttribute('opacity', 0)); });
 
   // ---- bars, one series, direct labels ----
-  const sorted = rows.slice().sort((a, b) => b.outstanding - a.outstanding), bmax = sorted[0].outstanding;
-  document.getElementById('bars').innerHTML = sorted.map((r) => `<div class="bar" title="${G.esc(r.a.name)}: ${G.usd(Math.round(r.outstanding))} in chips held by ${r.n} collectors"><span>${G.esc(r.a.name)}</span><div class="track"><div class="fill" style="width:${(r.outstanding / bmax) * 100}%"></div></div><span class="v">${G.usd(Math.round(r.outstanding))}</span></div>`).join('');
-  document.getElementById('tbl').innerHTML = `<thead><tr><th>Artist</th><th>Collectors</th><th>Chip price</th><th>Chips held</th><th>Into reserve</th></tr></thead><tbody>${sorted.map((r) => `<tr><td>${G.esc(r.a.name)}</td><td>${r.n}</td><td>${G.usd(r.px, true)}</td><td>${G.usd(Math.round(r.outstanding))}</td><td>${G.usd(Math.round(r.reserveIn))}</td></tr>`).join('')}</tbody>`;
+  const sorted = rows.slice().sort((a, b) => b.R - a.R), bmax = sorted[0].R || 1;
+  document.getElementById('bars').innerHTML = sorted.map((r) => `<div class="bar" title="${G.esc(r.a.name)}: ${G.usd(Math.round(r.R))} in the reserve behind ${G.chips(r.S)} chips"><span>${G.esc(r.a.name)}</span><div class="track"><div class="fill" style="width:${(r.R / bmax) * 100}%"></div></div><span class="v">${G.usd(Math.round(r.R))}</span></div>`).join('');
+  document.getElementById('tbl').innerHTML = `<thead><tr><th>Artist</th><th>Collectors</th><th>Chip price</th><th>Chips</th><th>Reserve</th></tr></thead><tbody>${sorted.map((r) => `<tr><td>${G.esc(r.a.name)}</td><td>${r.n}</td><td>${G.usd(r.px, true)}</td><td>${G.chips(r.S)}</td><td>${G.usd(Math.round(r.R))}</td></tr>`).join('')}</tbody>`;
 })();
 </script>
 </body>

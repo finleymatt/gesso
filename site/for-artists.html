@@ -58,6 +58,17 @@
   .apply form { background: var(--card); border: 1px solid var(--rule); padding: clamp(18px, 3vw, 32px); display: grid; gap: 16px; }
   .thanks { display: grid; gap: 12px; padding: 24px; background: var(--cobalt-soft); border-left: 4px solid var(--cobalt); }
   @media (max-width: 900px) { .apply { grid-template-columns: minmax(0, 1fr); } }
+  .launch { display: grid; grid-template-columns: minmax(0, .9fr) minmax(0, 1.3fr) minmax(0, .8fr); gap: clamp(20px, 4vw, 48px); align-items: start; padding: clamp(20px, 3vw, 32px); border: 2px solid var(--ink); background: var(--card); }
+  .lsteps { list-style: none; margin: 0; padding: 0; display: grid; gap: 14px; counter-reset: s; }
+  .lsteps li { display: grid; gap: 3px; padding-left: 40px; position: relative; counter-increment: s; }
+  .lsteps li::before { content: counter(s); position: absolute; left: 0; top: 0; width: 28px; height: 28px; border-radius: 50%; background: var(--ink); color: var(--wall); display: grid; place-items: center; font: 500 13px var(--mono); }
+  .lsteps span { color: var(--ink-2); font-size: var(--t-s); }
+  .goal { display: grid; gap: 10px; }
+  .goal .top { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; }
+  .goal b { font: 400 2.4rem/1 var(--board); }
+  .gbar { height: 12px; border-radius: 99px; background: var(--wall-2); overflow: hidden; }
+  .gbar i { display: block; height: 100%; background: var(--marker); }
+  @media (max-width: 900px) { .launch { grid-template-columns: minmax(0, 1fr); } }
 </style>
 </head>
 <body>
@@ -67,7 +78,7 @@
     <div class="copy">
       <p class="eyebrow">For artists</p>
       <h1 class="display">Keep 80%. Build collectors who win when you do.</h1>
-      <p class="lede">Every person who buys your work gets your chips. When new people collect you, those chips rise, so your collectors have a reason to tell everyone about you.</p>
+      <p class="lede">Every person who buys your work gets your chips. As you sell, those chips rise, so your collectors have a reason to tell everyone about you. Non-exclusive, you set the price, and you're paid in dollars.</p>
       <div class="cta-row"><a class="btn primary" href="#apply">Apply to sell</a><a class="btn" href="#compare">Compare fees</a></div>
     </div>
     <div class="payout" id="payout" aria-label="Example payout"></div>
@@ -83,7 +94,7 @@
   </section>
 
   <section class="wrap section" aria-labelledby="tools-h" style="padding-top:0">
-    <div class="section-head"><div><p class="eyebrow">What you get</p><h2 id="tools-h">Everything to run your wall</h2></div></div>
+    <div class="section-head"><div><p class="eyebrow">What you get</p><h2 id="tools-h">Everything to run your shop</h2></div></div>
     <div class="tools">
       <article><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><rect x="3" y="4" width="18" height="14"/><path d="M3 14l5-4 4 3 3-2 6 4"/></svg><h3>Studio feed</h3><p>Post process shots and drops. Only collectors can reply, which keeps it a room, not a comment section.</p></article>
       <article><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c.8-3.5 3.4-5.5 6.5-5.5s5.7 2 6.5 5.5"/><path d="M16 4.5a3.5 3.5 0 0 1 0 7M18.5 14.8c1.6.8 2.6 2.6 3 5.2"/></svg><h3>Know your collectors</h3><p>See every collector by number, invite founding collectors to early drops, and thank them by name.</p></article>
@@ -99,7 +110,7 @@
     <div class="cmp-wrap"><table class="cmp">
       <thead><tr><th scope="col">Platform</th><th scope="col">Artist keeps</th><th scope="col">Sells</th><th scope="col">Collectors rewarded</th><th scope="col">Collectors gain as you grow</th></tr></thead>
       <tbody>
-        <tr class="us"><th scope="row">Gesso</th><td><b>80%</b></td><td>Originals and prints</td><td class="y">10% back in your chips, 2× for the first 25</td><td class="y">Yes. Chip price rises with each new collector</td></tr>
+        <tr class="us"><th scope="row">Gesso</th><td><b>80%</b></td><td>Originals and prints</td><td class="y">12% back in your chips, fully backed by cash</td><td class="y">Yes. Your chip rises as you sell</td></tr>
         <tr><th scope="row">Saatchi Art</th><td>About 60 to 65%</td><td>Originals and prints</td><td class="n">No</td><td class="n">No</td></tr>
         <tr><th scope="row">Singulart</th><td>About 50%</td><td>Juried originals</td><td class="n">No</td><td class="n">No</td></tr>
         <tr><th scope="row">Society6</th><td>About 10% royalty</td><td>Prints and products</td><td class="n">No</td><td class="n">No</td></tr>
@@ -107,13 +118,27 @@
       </tbody></table></div>
   </section>
 
+  <section class="wrap section" id="launch" aria-labelledby="launch-h" style="padding-top:0">
+    <div class="launch">
+      <div style="display:grid;gap:14px;align-content:start"><p class="eyebrow">How we launch</p><h2 id="launch-h">Small, real, then bigger.</h2>
+        <p class="muted">Most art marketplaces fail for lack of buyers, not artists. So Gesso opens with a small roster of artists who already sell, and one goal before anything else gets built.</p></div>
+      <ol class="lsteps">
+        <li><b>10 to 20 founding artists</b><span>Each one already has buyers. HAMEL and Chor Boogie are the first two.</span></li>
+        <li><b>One goal: 100 real sales</b><span>Proof that buy, earn, spend works with real people and real money.</span></li>
+        <li><b>Artists invite artists</b><span>Each founding artist can invite two more. Invited artists are still vetted.</span></li>
+        <li><b>Then the rest</b><span>Projects, objects, FAME bookings and events open after the core loop works.</span></li>
+      </ol>
+      <div class="goal" aria-label="Progress toward 100 real sales"><div class="top"><span class="eyebrow">Real sales so far</span><b>0 / 100</b></div><div class="gbar"><i style="width:2%"></i></div><span class="muted" style="font-size:var(--t-xs)">Counter starts at launch. Founding roster: 2 of 20.</span></div>
+    </div>
+  </section>
+
   <section class="wrap section" id="apply" aria-labelledby="apply-h" style="padding-top:0">
     <div class="apply">
       <div style="display:grid;gap:18px">
         <p class="eyebrow">Apply</p>
-        <h2 id="apply-h">Get a wall on Gesso</h2>
-        <p class="muted">We open new walls in small batches so every artist gets real attention at launch. Tell us about your work and where we can see it.</p>
-        <details class="faq"><summary>Do I need a crypto wallet?</summary><p>No. You're paid in dollars to your bank. Chips live on Gesso and collectors never need a wallet either.</p></details>
+        <h2 id="apply-h">Ask for an invitation</h2>
+        <p class="muted">Gesso is invite-only. We add artists in small batches so each one gets real attention, starting with artists who already have buyers. Tell us about your work, where it sells today, and who sent you.</p>
+        <details class="faq"><summary>Do I need a crypto wallet?</summary><p>No. You're paid in dollars to your bank. Chips live on a public ledger, but they're store credit: nobody needs a wallet, and they can't be traded or cashed out.</p></details>
         <details class="faq"><summary>Can I keep selling elsewhere?</summary><p>Yes. Gesso is non-exclusive. Just mark a piece as sold here if it sells somewhere else.</p></details>
         <details class="faq"><summary>Who sets the prices?</summary><p>You do. We'll share what similar work sells for, but the number is yours.</p></details>
       </div>

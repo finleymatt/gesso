@@ -40,6 +40,13 @@
   .st-body .para { font-size: clamp(1.05rem, 1.5vw, 1.18rem); line-height: 1.65; color: var(--ink); margin: 0; text-wrap: pretty; }
   .st-close { margin: 6px 0 0; padding-left: 18px; border-left: 4px solid var(--marker); font-size: clamp(1.25rem, 2.2vw, 1.6rem); line-height: 1.35; font-weight: 600; letter-spacing: -.01em; text-wrap: balance; }
   .st-sig { font-family: var(--hand); color: var(--marker); font-size: 2rem; transform: rotate(-4deg); transform-origin: left; margin: 0; }
+  .whys { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 1px; background: var(--rule); border: 1px solid var(--rule); }
+  .whys article { background: var(--wall); padding: clamp(18px, 2.4vw, 26px); display: grid; gap: 10px; align-content: start; }
+  .whys .k { font: 400 26px/1 var(--board); color: var(--marker); }
+  .whys h3 { font-size: 1.25rem; }
+  .whys p { color: var(--ink-2); font-size: var(--t-s); }
+  @media (max-width: 1000px) { .whys { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+  @media (max-width: 560px) { .whys { grid-template-columns: minmax(0, 1fr); } }
   .board { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
   .seat { border: 2px solid var(--ink); padding: 18px; display: grid; gap: 6px; background: var(--card); }
   .seat.open { border-style: dashed; border-color: var(--ink-2); background: transparent; }
@@ -63,13 +70,28 @@
 <main class="wrap">
   <section class="hero">
     <p class="eyebrow">Mission</p>
-    <h1 class="display">Art should pay back the people who believe in it early.</h1>
-    <p class="lede">Gesso is an art market owned by the people who collect it. Artists keep most of every sale. Collectors earn a stake in the artists they back, and get a say in where Gesso goes next.</p>
+    <h1 class="display">A global home for the people who make things.</h1>
+    <p class="lede">Gesso connects collectors with artists, chefs, DJs, artisans and healers in every country. Artists keep 80% of every sale. Collectors earn chips that rise as the artists they back grow, and get a say in where Gesso goes next.</p>
   </section>
 
   <section class="vm" aria-label="Vision and mission">
-    <article><p class="eyebrow">Vision</p><h2>A culture where backing an artist is an investment in your own life.</h2><p>Art, food, music and experiences, all in one place, where every purchase or booking builds something for the person who made it and the person who paid for it.</p></article>
+    <article><p class="eyebrow">Vision</p><h2>Connection without the exploitation.</h2><p>Social media connected the world by feeding on people's need to look cool. Gesso connects people around the work itself: art, food, music and experiences, where every purchase builds something for the person who made it and the person who paid for it.</p></article>
     <article><p class="eyebrow">Mission</p><h2>Make collecting rewarding, and make the work last.</h2><p>Pay artists 80%. Reward collectors with chips that rise as artists grow. Make everything physical in natural materials, and open spaces where people can see the work and spend their chips in person.</p></article>
+  </section>
+
+  <section class="section" aria-labelledby="why-h">
+    <div class="section-head"><div><p class="eyebrow">What we're building toward</p><h2 id="why-h">Why Gesso, and why now</h2></div>
+      <p class="muted" style="max-width:32em">The founders' long view: where people and art should be in 50 and 100 years. Some of this is the launch. Most of it comes after.</p></div>
+    <div class="whys">
+      <article><span class="k">01</span><h3>Made by people</h3><p>As AI and automation take over more jobs, making things is what keeps us human. Gesso backs the creative process itself: starting something, finishing it, and learning to love what you made.</p></article>
+      <article><span class="k">02</span><h3>Things that last</h3><p>Buy fewer, better things from the people who made them. Every dollar here goes to an artist or a small maker, not a corporation that wants to buy them out.</p></article>
+      <article><span class="k">03</span><h3>Curated, by invitation</h3><p>Not everyone can post. Artists are vetted, and the artists already here invite the next ones, so the work stays good and every hub starts with people who vouch for each other.</p></article>
+      <article><span class="k">04</span><h3>Artists as healers</h3><p>Artists have always been the sensitive ones, the visionaries and the outcasts. Gesso makes room for healers too: somatic work, Internal Family Systems and family constellations, bookable through FAME.</p></article>
+      <article><span class="k">05</span><h3>Workshops to a first sale</h3><p>In-person workshops where people who never thought they could make art make some, then list their first piece on Gesso and sell it.</p></article>
+      <article><span class="k">06</span><h3>Care for the work</h3><p>Reviews on artists, messages with them, and appraisal and insurance through partners, so collectors can trust what they hang.</p></article>
+      <article><span class="k">07</span><h3>Back an artist's career</h3><p>A planned development fund where companies and patrons sponsor residencies, materials and shows. Sponsors get credit on the work, not a financial return.</p></article>
+      <article><span class="k">08</span><h3>Every country, its own hub</h3><p>Artists, cafés, studios and partners, country by country, from the United States to Mexico and Colombia. <a class="link" href="network.html">See the network</a>.</p></article>
+    </div>
   </section>
 
   <section class="section statement" id="statement" aria-labelledby="st-h">

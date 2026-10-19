@@ -168,7 +168,7 @@
       <div class="sec"><div class="row total"><span>${pl.n ? 'Due today' : 'You pay'}</span><span class="num" id="total">${G.usd(pl.today, true)}</span></div>
         ${pl.n ? `<div class="row muted"><span>${pl.name}</span><span class="num">then ${pl.n} × ${G.usd(pl.each, true)}</span></div><div class="row muted"><span>Order total</span><span class="num">${G.usd(total(), true)}</span></div>` : ''}</div>
       ${earn.length ? `<div class="sec earn"><p class="eyebrow" style="color:var(--cobalt)">You'll earn${rate > G.EARN ? ` · ${Math.round(rate * 100)}% ${tierBefore.name} rate` : ''}</p>
-        ${earn.map((e) => { const a = G.artist(e.k); return `<div class="row"><span><i class="dot" style="--c:${a.color}"></i> $${a.ticker}${G.isFounding(e.n) ? ' · 2× founding' : ''}</span><b>+${G.chips(e.chips)}</b></div>`; }).join('')}
+        ${earn.map((e) => { const a = G.artist(e.k); return `<div class="row"><span><i class="dot" style="--c:${a.color}"></i> $${a.ticker}${G.isFounding(e.n) ? ' · founding collector' : ''}</span><b>+${G.chips(e.chips)}</b></div>`; }).join('')}
         <div class="row muted"><span>Worth today</span><span class="num">${G.usd(earn.reduce((s, e) => s + e.chips * e.pxAfter, 0), true)}</span></div>
         ${pl.n ? '<div class="row muted"><span>Chips arrive with each payment</span><span></span></div>' : ''}</div>` : ''}
       <div class="cta"><button class="btn primary block" type="button" id="next" ${its.length ? '' : 'disabled'}>${step === 0 ? 'Continue to delivery' : step === 1 ? 'Continue to payment' : pl.n ? 'Place order · ' + G.usd(pl.today, true) + ' today' : 'Place order'}${step < 2 || !pl.n ? ' · ' + G.usd(step < 2 ? total() : pl.today, true) : ''}</button>
@@ -217,7 +217,7 @@
       <div class="grid-2">${f('city', 'City', form.city, 'text', 'address-level2')}${f('zip', 'ZIP code', form.zip, 'text', 'postal-code')}</div></div>
       <div class="card"><h2>Delivery</h2><div class="ship">
         <label class="opt"><input type="radio" name="ship" value="crate" ${shipping === 'crate' || !hasOriginal() ? 'checked' : ''}><span><b>${hasOriginal() ? 'Crated and insured' : 'Standard shipping'}</b><br><span class="d">${hasOriginal() ? 'Ships in 5 to 7 days, tracked to your door' : 'Prints and objects ship in 3 to 10 days'}</span></span><span class="p">Free</span></label>
-        ${hasOriginal() ? `<label class="opt"><input type="radio" name="ship" value="install" ${shipping === 'install' ? 'checked' : ''}><span><b>White-glove install</b><br><span class="d">${G.TIERS.indexOf(tierBefore) >= 3 ? 'Free with your Glaze milestone' : 'Delivered, unpacked and hung by an art handler'}</span></span><span class="p">$95</span></label>` : ''}
+        ${hasOriginal() ? `<label class="opt"><input type="radio" name="ship" value="install" ${shipping === 'install' ? 'checked' : ''}><span><b>White-glove install</b><br><span class="d">${G.TIERS.indexOf(tierBefore) >= 3 ? 'Free with your Patron milestone' : 'Delivered, unpacked and hung by an art handler'}</span></span><span class="p">$95</span></label>` : ''}
       </div></div>`;
   }
 

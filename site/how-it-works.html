@@ -4,11 +4,11 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>How Chips Work · Gesso</title>
-<meta name="description" content="How Gesso chips work: earn 10% back in the artist's chips, watch them rise as the artist gains collectors, and spend them on more art.">
+<meta name="description" content="How Gesso chips work: earn 12% back in the artist's chips, watch them rise as the artist gains collectors, and spend them on more art.">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Gesso">
 <meta property="og:title" content="How Chips Work · Gesso">
-<meta property="og:description" content="How Gesso chips work: earn 10% back in the artist's chips, watch them rise as the artist gains collectors, and spend them on more art.">
+<meta property="og:description" content="How Gesso chips work: earn 12% back in the artist's chips, watch them rise as the artist gains collectors, and spend them on more art.">
 <meta property="og:url" content="https://finleymatt.github.io/gesso/how-it-works.html">
 <meta property="og:image" content="https://finleymatt.github.io/gesso/og.jpg">
 <meta property="og:image:width" content="1200">
@@ -102,8 +102,8 @@
   <section class="wrap hero">
     <div class="copy">
       <p class="eyebrow">How chips work</p>
-      <h1 class="display">The more people collect an artist, the more their chips are worth.</h1>
-      <p class="lede">Every artist on Gesso has their own chip. You earn it by buying their work, it gains value as more people collect them, and you spend it on anything here.</p>
+      <h1 class="display">Chips rise as an artist grows. Every one is backed by cash.</h1>
+      <p class="lede">Every artist on Gesso has their own chip. You earn it by buying their work, and you spend it on your next piece. 12% of each sale goes into that artist's reserve and comes back to you as chips, so the money behind every chip is already there.</p>
       <div class="cta-row"><a class="btn primary" href="#curve">Try the curve</a><a class="btn" href="discover.html">Browse work</a></div>
     </div>
     <div class="anatomy" id="anatomy"></div>
@@ -113,9 +113,9 @@
     <div class="section-head"><div><p class="eyebrow">The loop, step by step</p><h2 id="loop-h">From first purchase to your next piece</h2></div></div>
     <div class="steps">
       <div class="srow"><span class="n">1</span><h3>Buy a piece.</h3><p>Pay by card or Apple Pay. Originals ship crated and insured; prints ship flat. 80% of the price goes to the artist the day it ships.</p></div>
-      <div class="srow"><span class="n">2</span><h3>Earn 10% back in their chips.</h3><p>Chips are priced off the artist's collector count at the moment you buy. Buy early and the same dollars get you more chips. The first 25 collectors get double.</p></div>
-      <div class="srow"><span class="n">3</span><h3>Watch the count climb.</h3><p>Each new person who collects that artist raises the price of every chip already out there, including yours. Buying more from the same artist doesn't move it; only new people do.</p></div>
-      <div class="srow"><span class="n">4</span><h3>Spend chips on any work.</h3><p>At checkout, chips can cover up to half of any piece by any artist. The reserve pays the artist the chip share in cash, so they're paid in full. That purchase earns you a new artist's chips, and the loop starts again.</p></div>
+      <div class="srow"><span class="n">2</span><h3>Earn 12% back in their chips.</h3><p>12% of the price goes into the artist's reserve, and the reserve mints you chips at the curve price. Buy early and the same dollars get you more chips, because the curve starts low.</p></div>
+      <div class="srow"><span class="n">3</span><h3>Watch the artist grow.</h3><p>Every new sale adds to the reserve and moves the price up the curve, including for the chips you already hold. When collectors spend chips, the price eases back down. Chips can fall as well as rise.</p></div>
+      <div class="srow"><span class="n">4</span><h3>Spend chips on any work.</h3><p>At checkout, chips can cover up to half of any piece by any artist. Spent chips are burned and the reserve pays the artist that share in cash, so they're paid in full. That purchase earns you a new artist's chips, and the loop starts again.</p></div>
     </div>
   </section>
 
@@ -125,9 +125,9 @@
       <p class="muted" style="max-width:32em">Pick what you'd spend and when you'd buy. The chart shows where each artist on Gesso sits today.</p>
     </div>
     <div class="lab">
-      <div class="chart"><svg id="chart" viewBox="0 0 640 360" role="img" aria-label="Chip price rises with the square root of collector count"></svg><div class="legend-row" id="legend"></div></div>
+      <div class="chart"><svg id="chart" viewBox="0 0 640 360" role="img" aria-label="Chip price rises with the cube root of the money in the artist's reserve"></svg><div class="legend-row" id="legend"></div></div>
       <div class="ctrl">
-        <div class="formula">price per chip = $1 × √(1 + collectors ÷ 10)</div>
+        <div class="formula">price per chip = ∛(1 + reserve ÷ $60)<br><small>The reserve is 12% of every sale. Here each collector adds about $60.</small></div>
         <div class="field"><span class="lbl">You spend</span><div class="amounts" id="amounts" role="group" aria-label="Purchase amount"></div></div>
         <div class="slider-row"><div class="top"><label for="nBuy">Collectors when you buy</label><output id="oBuy"></output></div><input type="range" id="nBuy" min="0" max="1000" step="1" value="40"></div>
         <div class="slider-row"><div class="top"><label for="nLater">Collectors later</label><output id="oLater"></output></div><input type="range" id="nLater" min="0" max="1000" step="1" value="400"></div>
@@ -135,7 +135,7 @@
       </div>
     </div>
     <div style="overflow-x:auto;margin-top:28px">
-      <table class="milestones"><thead><tr><th>Collectors</th><th>Price per chip</th><th>Chips from a $500 buy</th><th>Those chips at 1,000 collectors</th></tr></thead><tbody id="miles"></tbody></table>
+      <table class="milestones"><thead><tr><th>Collectors</th><th>Price per chip</th><th>Chips from a $500 buy (cash in: $60)</th><th>Those chips at 1,000 collectors</th></tr></thead><tbody id="miles"></tbody></table>
     </div>
   </section>
 
@@ -143,8 +143,8 @@
     <div class="two">
       <div style="display:grid;gap:18px">
         <p class="eyebrow">Founding collectors</p>
-        <h2 id="found-h">The first 25 get double.</h2>
-        <p class="muted">Every artist's first 25 collectors earn 2× chips on every purchase from that artist, for good. It rewards the people who show up before anyone else does.</p>
+        <h2 id="found-h">The first 25 get the bottom of the curve.</h2>
+        <p class="muted">An artist's first collectors buy chips when they're cheapest, so the same 12% gets them the most. They also get their names on the artist's plaque and first look at new work, for good. No bonus chips are printed out of thin air: every chip still has its cash in the reserve.</p>
         <p id="seat-note"></p>
       </div>
       <div style="display:grid;gap:14px;justify-items:start"><div class="seats" id="seats"></div><span class="mono muted" style="font-size:var(--t-xs)" id="seat-cap"></span></div>
@@ -156,15 +156,14 @@
       <div style="display:grid;gap:18px">
         <p class="eyebrow">Where the money goes</p>
         <h2 id="money-h">A $1,000 painting, split.</h2>
-        <p class="muted">The reserve is what makes chips worth something. When you pay with chips, the reserve pays the artist that share in cash, so the artist you buy from is always paid in full.</p>
+        <p class="muted">The 12% is the cash behind your chips. It goes into the artist's reserve and comes back to you as chips at the curve price. When anyone pays with chips, those chips are burned and the reserve pays the artist in cash, so artists are always paid in full.</p>
       </div>
       <div>
         <div class="split" aria-hidden="true"><div class="s1">$800</div><div class="s2">$120</div><div class="s3">$80</div></div>
         <div class="legend">
           <div><i style="background:var(--cobalt)"></i><span>The artist</span><b>$800</b></div>
-          <div><i style="background:var(--wall-2)"></i><span>Chip reserve, which pays out when anyone spends chips</span><b>$120</b></div>
+          <div><i style="background:var(--wall-2)"></i><span>The artist's reserve, minted to you as chips</span><b>$120</b></div>
           <div><i style="background:var(--card)"></i><span>Gesso: payments, shipping support, the app</span><b>$80</b></div>
-          <div style="padding-top:12px;border-top:1px solid var(--rule)"><i style="border-style:dashed"></i><span>Plus, back to you in the artist's chips</span><b>$100</b></div>
         </div>
       </div>
     </div>
@@ -172,7 +171,7 @@
 
   <section class="wrap section" id="milestones" aria-labelledby="ms-h" style="padding-top:0">
     <div class="section-head"><div><p class="eyebrow">Milestones</p><h2 id="ms-h">The more you collect, the more you get back</h2></div>
-      <p class="muted" style="max-width:34em">Everything you spend on Gesso counts: originals, prints, objects and project pledges. Milestones are named for the layers of a painting, from the first coat to the finished work.</p></div>
+      <p class="muted" style="max-width:34em">Everything you spend on Gesso counts: originals, prints, objects and project pledges. Higher milestones raise your rate from 12% up to 15%. The extra comes out of Gesso's 8% and goes into the reserve, so it's backed too.</p></div>
     <div class="tiers" id="tiers"></div>
   </section>
 
@@ -191,12 +190,12 @@
   <section class="wrap section" aria-labelledby="rules-h" style="padding-top:0">
     <div class="section-head"><div><p class="eyebrow">House rules</p><h2 id="rules-h">Six rules that keep chips honest</h2></div></div>
     <div class="rules">
-      <article><h3>One person, one count</h3><p>Buy five pieces from the same artist and you earn chips five times, but you count as one collector. Objects like mugs and aprons earn chips without counting. The price tracks real collectors, not volume.</p></article>
-      <article><h3>Prices only go up</h3><p>An artist's collector count never shrinks, so their chip price never falls. Early collectors are never punished for showing up first.</p></article>
+      <article><h3>Minted against cash</h3><p>A chip only exists once its cash is in the artist's reserve. If every collector spent at once, the price would walk back down the curve and the reserve would pay every chip, ending at exactly zero.</p></article>
+      <article><h3>Chips can go down</h3><p>Prices rise as an artist sells and ease back when people spend chips. Nobody promises they only go up.</p></article>
+      <article><h3>Real people only</h3><p>Anyone who counts as a collector verifies their ID once. Artists can't collect themselves, and buying five pieces still makes you one collector.</p></article>
       <article><h3>Up to half of any piece</h3><p>Chips can pay for up to 50% of a work. The rest is card or Apple Pay, so real money keeps reaching artists.</p></article>
-      <article><h3>Chips are for art first</h3><p>Spend them on any piece, object, booking or project, and at partner stores. From the Glaze milestone, a weekly drip pays 1% of your chips out to your bank (planned, pending legal review).</p></article>
-      <article><h3>They never expire</h3><p>Hold them for a week or five years. If an artist leaves Gesso, their chips stay spendable on everything else.</p></article>
-      <article><h3>Every sale on the record</h3><p>Each artist page shows the collector count, the chip price history, and provenance for every work, so anyone can check the math.</p></article>
+      <article><h3>Store credit, not cash</h3><p>Chips live on a public ledger but can't be sent, sold or cashed out. You spend them on art, objects, bookings and projects, and at partner stores.</p></article>
+      <article><h3>Every mint and burn on the record</h3><p>The ledger shows every chip minted and burned and the reserve behind it, so anyone can check the math.</p></article>
     </div>
   </section>
 
@@ -204,11 +203,13 @@
     <div class="two">
       <div style="display:grid;gap:14px;align-content:start"><p class="eyebrow">Questions</p><h2 id="faq-h">Things people ask first</h2></div>
       <div>
-        <details class="faq" open><summary>Are chips a cryptocurrency?</summary><p>Chips are recorded on a public ledger, so anyone can verify how many exist and how they moved. Today they work like store credit that grows with the artist's community. A weekly cash drip and buying chips directly are planned, and both wait on legal review because they turn chips into a financial product.</p></details>
+        <details class="faq" open><summary>Are chips a cryptocurrency?</summary><p>Chips are recorded on a public ledger, so anyone can verify how many exist and the cash behind them. But they're non-transferable store credit: you can't trade them, sell them or cash them out. We chose that path on purpose, and a lawyer who works on digital assets reviews it before launch.</p></details>
+        <details class="faq"><summary>Can chips lose value?</summary><p>Yes. The price follows the artist's reserve, which grows with sales and shrinks a little each time someone spends chips. What can't happen is a chip without cash behind it.</p></details>
+        <details class="faq"><summary>What stops fake accounts from pumping an artist?</summary><p>Only ID-verified people count as collectors, artists can't buy their own work for chips, and the price moves only when real money lands in the reserve. A fake buyer would have to spend real dollars, and 88% of them would go to the artist and Gesso, not back to the faker.</p></details>
         <details class="faq"><summary>Which chips get used when I pay?</summary><p>You choose at checkout. By default Gesso spends the chips with the highest value first, and you can switch any of them off.</p></details>
         <details class="faq"><summary>What happens if I return a piece?</summary><p>Returns are open for 14 days after delivery. The chips you earned from that piece are taken back, and any chips you spent on it are returned to you.</p></details>
-        <details class="faq"><summary>How does an artist get paid when I use chips?</summary><p>The artist gets the full price either way. The card portion comes from you and the chip portion comes from the reserve, which 12% of every sale funds.</p></details>
-        <details class="faq"><summary>Why does a $1,000 piece earn more chips from a new artist?</summary><p>A new artist's chips are cheap because few people collect them yet, so 10% back buys more chips. If the artist catches on, those chips gain the most.</p></details>
+        <details class="faq"><summary>How does an artist get paid when I use chips?</summary><p>The artist gets the full price either way. The card portion comes from you, and the chip portion comes from the reserve, which pays out as your chips are burned.</p></details>
+        <details class="faq"><summary>Why does a $1,000 piece earn more chips from a new artist?</summary><p>A new artist's reserve is small, so the curve price is low and the same 12% mints more chips. If the artist catches on, those chips gain the most.</p></details>
       </div>
     </div>
   </section>
@@ -260,7 +261,7 @@
     document.getElementById('oLater').textContent = b.toLocaleString();
     const chips = G.chipsFor(amount, a), v0 = chips * G.price(a), v1 = chips * G.price(b);
     document.getElementById('readout').innerHTML = `
-      <div><b>${G.chips(chips)}</b><span>chips earned${G.isFounding(a) ? ' (founding 2×)' : ''}</span></div>
+      <div><b>${G.chips(chips)}</b><span>chips minted for ${G.usd(amount * G.EARN)}</span></div>
       <div><b>${G.usd(G.price(a), true)}</b><span>price when you buy</span></div>
       <div><b>${G.usd(v0, true)}</b><span>chip value at purchase</span></div>
       <div><b>${G.usd(G.price(b), true)}</b><span>price later</span></div>
@@ -279,7 +280,7 @@
 
   document.getElementById('miles').innerHTML = [0, 10, 25, 90, 250, 500, 1000].map((n) => {
     const c = G.chipsFor(500, n);
-    return `<tr><td class="num">${n.toLocaleString()}</td><td class="num">${G.usd(G.price(n), true)}</td><td class="num">${G.chips(c)}${G.isFounding(n) ? ' <span class="muted">(2×)</span>' : ''}</td><td class="num">${G.usd(c * G.price(1000), true)}</td></tr>`;
+    return `<tr><td class="num">${n.toLocaleString()}</td><td class="num">${G.usd(G.price(n), true)}</td><td class="num">${G.chips(c)}</td><td class="num">${G.usd(c * G.price(1000), true)}</td></tr>`;
   }).join('');
 
   // founding seats: the artist closest to filling them

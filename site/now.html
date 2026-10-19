@@ -82,6 +82,8 @@
   .pair2 img:first-child { transform: rotate(-6deg); } .pair2 img:last-child { transform: rotate(5deg) translateY(8px); margin-left: 8px; }
   .way:hover .faces3 i:nth-child(2) { transform: scale(1.08); } .faces3 i { transition: transform .3s; }
   @media (max-width: 760px) { .ways { grid-template-columns: minmax(0, 1fr); } .way { gap: 14px; padding: 16px; } .faces3, .pair2 { height: 76px; } .faces3 i { width: 46px; height: 46px; margin-left: -14px; } .faces3 i:nth-child(2) { width: 56px; height: 56px; } .pair2 img { width: 46px; height: 62px; } }
+  .feature.alt { --wall: #EFF8F6; --ink: #062B27; --marker: #3FE0C8; border-color: #0B3F39; }
+  .feature.alt .who { font-size: clamp(3.2rem, 8.5vw, 7rem); }
   .feature { --wall: #F0EEE8; --ink: #130A10; --marker: #FF4F93; background: var(--ink); color: var(--wall); overflow: hidden; border-block: 1px solid #2A1C24; }
   .feature .wrap { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: clamp(32px, 6vw, 88px); align-items: center; padding-block: clamp(56px, 8vw, 104px); }
   .feature .stack { position: relative; padding: 0 12% 14% 0; }
@@ -154,31 +156,25 @@
 <main>
   <section class="wrap hero">
     <div class="hero-copy">
-      <p class="eyebrow">Art that pays you back</p>
-      <h1 class="display">Find your<br><span class="rise">own<svg viewBox="0 0 200 20" preserveAspectRatio="none" aria-hidden="true"><path d="M4 12 C 50 4, 120 18, 196 7"/></svg></span> faces.</h1>
-      <p class="lede">Justin's paintings are full of faces that were never planned. What you find in them is yours. Every piece you buy pays you back 10% in that artist's chips, and chips rise as more people collect.</p>
+      <p class="eyebrow">Gesso</p>
+      <h1 class="display">Buy original art. Artists keep <span class="rise">80%<svg viewBox="0 0 200 20" preserveAspectRatio="none" aria-hidden="true"><path d="M4 12 C 50 4, 120 18, 196 7"/></svg></span>.</h1>
+      <p class="lede">You earn the artist's chips, which rise as they grow. Spend them on your next piece. Every chip is backed by cash in that artist's reserve.</p>
       <div class="cta-row">
         <a class="btn primary" href="discover.html">Start collecting</a>
         <a class="btn" href="how-it-works.html">How chips work</a>
       </div>
       <dl class="hero-stats">
         <div><dt>80%</dt><dd>of every sale to the artist</dd></div>
-        <div><dt>10%</dt><dd>back to you in chips</dd></div>
-        <div><dt>2×</dt><dd>chips for the first 25 collectors</dd></div>
+        <div><dt>12%</dt><dd>back to you in the artist's chips</dd></div>
+        <div><dt>100%</dt><dd>of chips backed by cash</dd></div>
       </dl>
     </div>
     <div class="hang" id="hang" aria-label="Works hung salon style, with HAMEL's chip"></div>
   </section>
 
-  <section class="dropband" id="drop" aria-label="Next live drop"><div class="wrap">
-    <span class="k">● LIVE DROP</span><b id="dt"></b><span class="cdn" id="cdn"></span>
-    <span class="acts"><a class="btn small" id="cal" download="gesso-live-drop.ics">Add to calendar</a><a class="btn small" href="events.html">All events</a></span>
-  </div></section>
-
-
   <section class="wrap section" aria-labelledby="loop-h">
     <div class="section-head">
-      <div><p class="eyebrow">How it works</p><h2 id="loop-h">One loop: buy, earn, spend.</h2></div>
+      <div><p class="eyebrow">How it works</p><h2 id="loop-h">Three steps: buy, earn, spend.</h2></div>
       <a class="link" href="how-it-works.html">Read the full mechanics</a>
     </div>
     <div class="loop" id="loop"></div>
@@ -197,29 +193,43 @@
         <p id="feat-bio"></p>
         <div class="fstats" id="feat-stats"></div>
         <div class="cta-row">
-          <a class="btn solid" href="artist.html#hamel">See HAMEL's wall</a>
+          <a class="btn solid" href="artist.html#hamel">See HAMEL's work</a>
           <a class="btn" href="https://www.instagram.com/justintime7189/" target="_blank" rel="noopener">Instagram ↗</a>
         </div>
       </div>
     </div>
   </section>
 
-  <section class="wrap section ways" aria-label="Two ways in" style="padding-bottom:0">
-    <a class="way" href="faces.html"><span class="faces3" id="faces3"></span><span><span class="eyebrow">The faces wall</span><b>Everyone sees someone.</b><small>Every face collectors found in Justin's paintings, cropped from where it hides.</small></span></a>
-    <a class="way" href="quiz.html"><span class="pair2" id="pair2"></span><span><span class="eyebrow">One minute</span><b>Find your piece.</b><small>Pick between paintings. We'll match you to the HAMEL for your wall.</small></span></a>
+  <section class="feature alt" aria-labelledby="chor-h">
+    <div class="wrap">
+      <div class="copy">
+        <p class="eyebrow">Founding artist</p>
+        <div>
+          <h2 class="who" id="chor-h">Chor Boogie</h2>
+          <span class="keep">THE COLOR SHAMAN.</span>
+        </div>
+        <p id="chor-bio"></p>
+        <div class="fstats" id="chor-stats"></div>
+        <div class="cta-row">
+          <a class="btn solid" href="artist.html#chor">See Chor's work</a>
+          <a class="btn" href="https://chorboogie.com/" target="_blank" rel="noopener">chorboogie.com ↗</a>
+        </div>
+      </div>
+      <div class="stack" id="chor-art"></div>
+    </div>
   </section>
 
   <section class="wrap section" id="board" aria-labelledby="board-h">
     <div class="section-head">
       <div><p class="eyebrow">Chip board</p><h2 id="board-h">Every artist has a chip.</h2></div>
-      <p class="muted" style="max-width:34em">Price per chip is set by how many different people collect that artist. It only moves up. Tap a chip to see the artist's wall.</p>
+      <p class="muted" style="max-width:34em">Each artist's chip rises as more people collect them and eases back when collectors spend chips. Every one is backed by cash. Tap a chip to see the artist.</p>
     </div>
     <div class="board" id="board-grid"></div>
   </section>
 
   <section class="wrap" aria-labelledby="fresh-h">
     <div class="section-head">
-      <div><p class="eyebrow">Fresh on the wall</p><h2 id="fresh-h">New this week</h2></div>
+      <div><p class="eyebrow">Just listed</p><h2 id="fresh-h">New this week</h2></div>
       <a class="btn small" href="discover.html">See all work</a>
     </div>
     <div class="salon" id="fresh"></div>
@@ -231,41 +241,10 @@
         <p class="eyebrow">See it on your wall</p>
         <h2 id="room-h">Hang it before you buy it.</h2>
         <p class="muted">Every piece can be previewed to scale in six rooms, with your choice of wall color, frame and light. Or add a photo of your own wall: an AI model running on your device finds the wall and hangs the piece on it. Your photo never leaves your phone.</p>
-        <ul class="ticks"><li>Six rooms, drawn to scale in inches</li><li>Your own walls, saved for every piece</li><li>Wallpaper previews on your actual wall</li><li>Meta glasses support coming in the app</li></ul>
+        <ul class="ticks"><li>Six rooms, drawn to scale in inches</li><li>Your own walls, saved for every piece</li><li>Frames and light, previewed before you pay</li></ul>
         <div class="cta-row"><a class="btn primary" href="piece.html#hamel-01">Try it with HAMEL's work</a></div>
       </div>
       <div id="homestudio"></div>
-    </div>
-  </section>
-
-  <section class="wrap" aria-labelledby="obj-h">
-    <div class="section-head">
-      <div><p class="eyebrow">Objects</p><h2 id="obj-h">Wear it, paper a room with it, drink coffee out of it.</h2></div>
-      <a class="btn small" href="discover.html#objects">All objects</a>
-    </div>
-    <div class="objgrid" id="objs"></div>
-  </section>
-
-  <section class="wrap section" aria-labelledby="proj-h">
-    <div class="section-head">
-      <div><p class="eyebrow">Projects</p><h2 id="proj-h">Back what an artist makes next</h2></div>
-      <p class="muted" style="max-width:32em">A wall, a press, a research trip. Pledge any amount, get a reward, and earn chips when it's funded. Nobody is charged unless the goal is met.</p>
-    </div>
-    <div class="cards" id="projs"></div>
-  </section>
-
-  <section class="wrap" aria-labelledby="visit-h">
-    <div class="section-head">
-      <div><p class="eyebrow">Visit</p><h2 id="visit-h">See it in person</h2></div>
-      <a class="btn small" href="visit.html">All places</a>
-    </div>
-    <div class="cards" id="venues"></div>
-  </section>
-
-  <section class="wrap section" aria-labelledby="ms-h">
-    <div class="msband">
-      <div style="display:grid;gap:12px"><p class="eyebrow">Milestones</p><h2 id="ms-h">Collect more, get more back.</h2><p class="muted">Every dollar you spend or pledge counts toward milestones named for the layers of a painting.</p><a class="link" href="how-it-works.html#milestones">See every perk</a></div>
-      <ol class="msrow" id="msrow"></ol>
     </div>
   </section>
 
@@ -274,7 +253,7 @@
       <div style="display:grid;gap:18px">
         <p class="eyebrow">For artists</p>
         <h2 id="fees-h">Artists keep 80%. Collectors stay because they're invested.</h2>
-        <p class="muted">Big marketplaces take a third or more of each sale. Gesso keeps 8%, puts 12% in the reserve that backs everyone's chips, and sends the rest to you.</p>
+        <p class="muted">Big marketplaces take a third or more of each sale. Gesso keeps 8%, puts 12% in your reserve as the collector's chips, and sends the rest to you, in dollars. Non-exclusive, and you set the price.</p>
         <div class="cta-row"><a class="btn primary" href="for-artists.html">Sell on Gesso</a></div>
       </div>
       <div class="bars">
@@ -294,21 +273,13 @@
 <script>
 (function () {
   G.chrome('now');
-  document.getElementById('faces3').innerHTML = ['hamel-j11', 'hamel-01', 'hamel-j19'].map((id) => { const f = G.faces(id)[0], w = G.work(id); return `<i style="--u:url(${G.workArt(w, 560)});--p:${(f.x * 100).toFixed(0)}% ${(f.y * 100).toFixed(0)}%"></i>`; }).join('');
-  document.getElementById('pair2').innerHTML = ['hamel-j20', 'hamel-07'].map((id) => `<img src="${G.workArt(G.work(id), 200)}" alt="">`).join('');
-  const drop = G.events().find((e) => e.type === 'Live drop');
-  document.getElementById('dt').textContent = `${drop.title} · ${drop.d.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })}, ${drop.d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })}`;
-  document.getElementById('cal').href = G.ics(drop);
-  const cd = () => { const c = G.countdown(drop.d); document.getElementById('cdn').textContent = c.ms ? `${c.d}D ${String(c.h).padStart(2, '0')}H ${String(c.m).padStart(2, '0')}M ${String(c.s).padStart(2, '0')}S` : 'LIVE NOW'; };
-  cd(); if (!matchMedia('(prefers-reduced-motion: reduce)').matches) setInterval(cd, 1000);
-
   // salon hang
   const hangIds = ['hamel-j16', 'hamel-j11', 'hamel-j24', 'hamel-j20', 'hamel-j14', 'hamel-j19', 'hamel-j12'];
   const hang = document.getElementById('hang');
   hang.innerHTML = hangIds.map((id, i) => `<a href="piece.html#${id}" class="p${i + 1}" style="display:block">${G.artImg(G.work(id), i === 0 ? 720 : 420, 'art hung')}</a>`).join('')
     + G.chipCard('hamel', { tag: 'div' }).replace('<span class="notch"></span>', '<span class="notch"></span><span class="newbie" id="newbie"></span>')
     ;
-  hang.querySelector('.chip').insertAdjacentHTML('beforeend', `<div class="annot" aria-hidden="true"><svg width="34" height="26" viewBox="0 0 34 26"><path d="M30 22 C 22 20, 10 16, 6 4 M2 10 L6 3 L11 9"/></svg>ticks up every time someone new collects</div>`);
+  hang.querySelector('.chip').insertAdjacentHTML('beforeend', `<div class="annot" aria-hidden="true"><svg width="34" height="26" viewBox="0 0 34 26"><path d="M30 22 C 22 20, 10 16, 6 4 M2 10 L6 3 L11 9"/></svg>rises as new people collect</div>`);
   // the hung pieces are links; the absolute positioning class sits on the link
   hang.querySelectorAll('a[class^="p"]').forEach((a) => { a.style.position = 'absolute'; });
 
@@ -331,17 +302,17 @@
 
   // loop demo with real numbers
   const buy = G.work('hamel-02'), nH = G.collectors('hamel'), earned = G.chipsFor(buy.price, nH);
-  const spendOn = G.work('june-03'), spend = spendOn.price * G.SPEND_CAP, chipsNeeded = spend / G.price(nH);
+  const spendOn = G.work('chor-p14'), spend = spendOn.price * G.SPEND_CAP, chipsNeeded = spend / G.price(nH);
   document.getElementById('loop').innerHTML = `
     <article class="step"><span class="no">STEP 1</span><h3>Buy a piece you love.</h3>
       <p>Card or Apple Pay, same as any shop. 80% of the price goes straight to the artist.</p>
       <div class="demo"><span><b>${G.esc(buy.title)}</b>, HAMEL</span><span>${G.esc(buy.medium)}</span><span><b>${G.usd(buy.price)}</b></span></div></article>
     <article class="step"><span class="no">STEP 2</span><h3>Earn the artist's chips.</h3>
-      <p>You get 10% back in that artist's chips at today's price. Each new collector after you raises what they're worth.</p>
+      <p>12% of what you pay goes into the artist's reserve and comes back to you as their chips. They rise as the artist grows.</p>
       <div class="demo"><span><b>+${G.chips(earned)} $HAMEL</b></span><span>at ${G.usd(G.price(nH), true)} per chip</span><span>worth <b>${G.usd(earned * G.price(nH), true)}</b> today</span></div></article>
     <article class="step"><span class="no">STEP 3</span><h3>Spend them on more art.</h3>
       <p>Chips cover up to half of any piece on Gesso, by any artist. The artist you buy from is still paid in full.</p>
-      <div class="demo"><span><b>${G.esc(spendOn.title)}</b>, June Watanabe</span><span>${G.usd(spendOn.price)} = ${G.usd(spendOn.price - spend)} card + ${G.chips(chipsNeeded)} $HAMEL</span><span>you pay <b>${G.usd(spendOn.price - spend)}</b></span></div></article>`;
+      <div class="demo"><span><b>${G.esc(spendOn.title)}</b>, Chor Boogie</span><span>${G.usd(spendOn.price)} = ${G.usd(spendOn.price - spend)} card + ${G.chips(chipsNeeded)} $HAMEL</span><span>you pay <b>${G.usd(spendOn.price - spend)}</b></span></div></article>`;
 
   // feature
   const a = G.artist('hamel'), n = G.collectors('hamel');
@@ -353,20 +324,24 @@
     <div><b class="up" style="color:#3DCB84">${G.pct(G.change('hamel'))}</b><span>last 30 days</span></div>
     <div><b>${a.sold}</b><span>works collected</span></div>`;
 
+  const c = G.artist('chor'), nc = G.collectors('chor');
+  document.getElementById('chor-bio').textContent = c.short + ' Shown at the Smithsonian and the Beijing 2008 Olympics, now selling originals and prints on Gesso.';
+  document.getElementById('chor-art').innerHTML = `<a href="piece.html#chor-giver">${G.artImg(G.work('chor-giver'), 900, 'art')}</a><a href="piece.html#chor-14" class="b">${G.artImg(G.work('chor-14'), 500, 'art')}</a>`;
+  document.getElementById('chor-stats').innerHTML = `
+    <div><b>${G.FOUNDING - nc}</b><span>founding seats open</span></div>
+    <div><b>${G.usd(G.price(nc), true)}</b><span>per $CHOR, the floor</span></div>
+    <div><b>${G.worksBy('chor').filter((w) => w.edition === 'Original').length}</b><span>originals</span></div>
+    <div><b>${G.chips(G.chipsFor(G.work('chor-01').price, nc))}</b><span>$CHOR for a first piece</span></div>`;
+
   // chip board
   document.getElementById('board-grid').innerHTML = G.artists.map((x) => G.chipCard(x.slug)).join('');
 
   // fresh
-  const fresh = ['hamel-02', 'mika-01', 'ama-02', 'odalys-02', 'teo-01', 'june-01', 'ruben-01', 'hamel-05', 'hamel-08', 'mika-04', 'ama-03', 'teo-02'];
+  const fresh = ['chor-01', 'hamel-02', 'chor-10', 'hamel-j16', 'chor-giver', 'mika-01', 'hamel-08', 'chor-p14', 'ama-02', 'hamel-j11', 'chor-28', 'odalys-02'];
   document.getElementById('fresh').innerHTML = fresh.map((id) => G.workCard(G.work(id), { size: 520 })).join('');
 
-  // room studio, objects, projects, places, milestones
+  // see it on your wall
   G.roomStudio(document.getElementById('homestudio'), { img: G.workArt(G.work('hamel-01'), 1000), dims: { w: 35, h: 40 } });
-  document.getElementById('objs').innerHTML = ['hamel-wallpaper', 'hamel-apron', 'hamel-deck', 'june-tote'].map((id) => G.productCard(G.product(id))).join('');
-  document.getElementById('projs').innerHTML = G.projects.map(G.projectCard).join('');
-  document.getElementById('venues').innerHTML = G.venues.filter((v) => !v.tbd).sort((a, b) => G.openToday(b) - G.openToday(a)).slice(0, 3).map((v) => G.venueCard(v, true)).join('');
-  const msColors = ['#B9B4A8', '#D4931C', '#2140E3', '#16865A', '#DC1F68'];
-  document.getElementById('msrow').innerHTML = G.TIERS.slice(1).map((t, i) => `<li style="--c:${msColors[i]}"><span>${G.usd(t.at)}</span><b>${t.name}</b><small>${G.esc(t.perks[0])}</small></li>`).join('');
   G.hydrate();
 })();
 </script>

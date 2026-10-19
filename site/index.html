@@ -15,7 +15,7 @@
 <meta property="og:image:height" content="630">
 <meta property="og:image:alt" content="Four paintings by HAMEL beside the words Find your own faces.">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="theme-color" content="#0B0C0F">
+<meta name="theme-color" content="#FFFFFF">
 <script>
   // Returning visitors go straight in; the intro is for the first visit (or index.html#intro).
   try { if (/^#ref-/.test(location.hash)) localStorage.setItem('gesso:referredBy', JSON.stringify(location.hash.slice(5)));
@@ -30,50 +30,54 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <link rel="stylesheet" href="gesso.css">
 <style>
+  /* Justin's ask: just gesso, black and white, with the countries circling it */
+  :root { --wall: #FFFFFF; --ink: #000000; --ink-2: #555555; --rule: #D9D9D9; }
+  html, body { background: #FFFFFF; color: #000000; }
   body { min-height: 100vh; display: flex; flex-direction: column; overflow-x: hidden; }
   .stage { flex: 1; display: grid; place-items: center; padding: clamp(28px, 6vh, 72px) var(--gut) clamp(28px, 5vh, 56px); }
-  .center { display: grid; justify-items: center; gap: clamp(18px, 3vh, 28px); text-align: center; }
+  .center { display: grid; justify-items: center; gap: clamp(18px, 3vh, 30px); text-align: center; }
 
-  /* the logo, with Justin's work slowly orbiting it */
-  .orbit { --r: clamp(150px, 27vw, 230px); --t: clamp(46px, 7.5vw, 74px); position: relative; width: min(100%, calc(var(--r) * 2 + var(--t))); aspect-ratio: 1; display: grid; place-items: center; }
-  .ring { position: absolute; inset: 0; animation: spin 90s linear infinite; }
-  .ring img { position: absolute; left: 50%; top: 50%; width: var(--t); height: var(--t); margin: calc(var(--t) / -2) 0 0 calc(var(--t) / -2); border-radius: 50%; object-fit: cover; border: 3px solid var(--wall); box-shadow: 0 8px 18px -8px rgba(40, 30, 10, .45);
-    transform: rotate(var(--a)) translate(var(--r)) rotate(calc(-1 * var(--a))); }
-  .ring img:nth-child(even) { width: calc(var(--t) * .78); height: calc(var(--t) * .78); margin: calc(var(--t) * -.39) 0 0 calc(var(--t) * -.39); }
+  .orbit { --r: clamp(140px, 30vw, 250px); position: relative; width: min(100%, calc(var(--r) * 2 + 120px)); aspect-ratio: 1; display: grid; place-items: center; }
+  .ring { position: absolute; inset: 0; animation: spin 120s linear infinite; }
+  .ring a { position: absolute; left: 50%; top: 50%; transform: rotate(var(--a)) translate(var(--r)) rotate(calc(-1 * var(--a))); text-decoration: none; }
+  .ring a span { display: block; transform: translate(-50%, -50%); animation: spin 120s linear infinite reverse; font: 400 clamp(15px, 2.2vw, 21px)/1 var(--board); letter-spacing: .14em; color: #000; white-space: nowrap; padding: 6px 8px; border-radius: 4px; }
+  .ring a span::before { content: "● "; font-size: .6em; vertical-align: .2em; }
+  .ring a:hover span, .ring a:focus-visible span { background: #000; color: #fff; }
+  .ring:hover, .ring:hover a span { animation-play-state: paused; }
   @keyframes spin { to { transform: rotate(360deg); } }
-  .track-line { position: absolute; inset: calc(var(--t) / 2); border-radius: 50%; border: 1px dashed var(--rule); }
+  .track-line { position: absolute; inset: 60px; border-radius: 50%; border: 1px dashed #CFCFCF; }
 
   .enter { position: relative; z-index: 2; border: 0; background: none; padding: 0; cursor: pointer; border-radius: 50%; }
-  .enter .glogo { --s: clamp(150px, 24vw, 220px); box-shadow: 0 26px 50px -26px rgba(30, 20, 5, .55); transition: transform .5s cubic-bezier(.2,1.2,.3,1); }
-  .enter .glogo span { transform: rotate(-9deg); }
+  .enter .glogo { --s: clamp(150px, 26vw, 230px); background: #000; color: #fff; box-shadow: 0 26px 50px -26px rgba(0, 0, 0, .55); transition: transform .5s cubic-bezier(.2,1.2,.3,1); }
+  .enter .glogo span { transform: rotate(-9deg); color: #fff; }
   .enter:hover .glogo { transform: rotate(-6deg) scale(1.04); }
-  .enter:focus-visible { outline: 3px solid var(--cobalt); outline-offset: 8px; }
-  .enter .cue { position: absolute; left: 50%; bottom: 15%; transform: translateX(-50%); font: 400 17px/1 var(--board); letter-spacing: .14em; color: var(--wall); opacity: .75; white-space: nowrap; animation: blink 1.6s steps(2) infinite; }
+  .enter:focus-visible { outline: 3px solid #000; outline-offset: 8px; }
+  .enter .cue { position: absolute; left: 50%; bottom: 15%; transform: translateX(-50%); font: 400 17px/1 var(--board); letter-spacing: .14em; color: #fff; opacity: .75; white-space: nowrap; animation: blink 1.6s steps(2) infinite; }
   @keyframes blink { 50% { opacity: .25; } }
 
-  /* one tap: the black circle swallows the screen, then the site opens */
   .go .enter .glogo { transform: scale(18); transition: transform .65s cubic-bezier(.7,0,.3,1); }
   .go .enter .glogo span, .go .enter .cue, .go .ring, .go .track-line, .go .after { opacity: 0; transition: opacity .2s; }
 
-  .tag { font-size: clamp(1.1rem, 2.1vw, 1.35rem); color: var(--ink-2); max-width: 26em; text-wrap: balance; }
-  .tag b { color: var(--ink); font-weight: 700; }
-  .invited { font-weight: 700; background: #FFE14D; color: #16151B; padding: 8px 14px; border-radius: 999px; font-size: var(--t-s); }
+  .tag { font-size: clamp(1.1rem, 2.1vw, 1.35rem); color: #444; max-width: 28em; text-wrap: balance; }
+  .tag b { color: #000; font-weight: 700; }
+  .invited { font-weight: 700; background: #000; color: #fff; padding: 8px 14px; border-radius: 999px; font-size: var(--t-s); }
   .quick { display: flex; flex-wrap: wrap; justify-content: center; gap: 4px 6px; }
-  .quick a { font: 400 21px/1 var(--board); letter-spacing: .1em; text-decoration: none; color: var(--ink); padding: 8px 10px; border-radius: 4px; }
-  .quick a:hover { background: var(--ink); color: var(--wall); }
-  .quick span { font: 400 21px/1 var(--board); color: var(--rule); align-self: center; }
-  @media (max-width: 520px) { .quick a, .quick span { font-size: 18px; } .quick a { padding: 6px; } }
-  @media (prefers-reduced-motion: reduce) { .ring, .enter .cue { animation: none; } .go .enter .glogo { transition: none; } }
+  .quick a { font: 400 21px/1 var(--board); letter-spacing: .1em; text-decoration: none; color: #000; padding: 8px 10px; border-radius: 4px; }
+  .quick a:hover { background: #000; color: #fff; }
+  .quick span { font: 400 21px/1 var(--board); color: #BBB; align-self: center; }
+  /* the design bar and ticker keep their own colors; everything else here stays black and white */
+  @media (max-width: 520px) { .quick a, .quick span { font-size: 18px; } .quick a { padding: 6px; } .orbit { --r: 38vw; width: 100%; } .ring a span { font-size: 13px; letter-spacing: .1em; } }
+  @media (prefers-reduced-motion: reduce) { .ring, .ring a span, .enter .cue { animation: none; } .go .enter .glogo { transition: none; } }
 </style>
 </head>
 <body>
 <div id="board"></div>
 <main class="stage">
   <div class="center" id="center">
-    <div class="orbit"><span class="track-line" aria-hidden="true"></span><div class="ring" id="ring" aria-hidden="true"></div>
+    <div class="orbit"><span class="track-line" aria-hidden="true"></span><nav class="ring" id="ring" aria-label="Hubs by country"></nav>
       <button class="enter" type="button" id="enter" aria-label="Enter Gesso"></button></div>
     <p class="invited after" id="invited" hidden></p>
-    <p class="tag after">An art market owned by the people who collect it. <b>Buy art, earn the artist's chips, spend them on more art.</b></p>
+    <p class="tag after"><b>Buy original art. Artists keep 80%.</b> You earn the artist's chips, which rise as they grow.</p>
     <nav class="quick after" aria-label="Go straight to"></nav>
   </div>
 </main>
@@ -82,15 +86,15 @@
 (function () {
   document.getElementById('board').outerHTML = G.looksBar() + G.pulse();
   document.getElementById('enter').innerHTML = G.logo() + '<span class="cue" aria-hidden="true">ENTER</span>';
-  const t = G.store.get('theme', 'light'); document.documentElement.setAttribute('data-theme', t === 'dark' ? 'dark' : 'light');
-  const ids = ['hamel-j16', 'hamel-j11', 'hamel-j19', 'hamel-j20', 'hamel-j06', 'hamel-j12', 'hamel-j02', 'hamel-j17', 'hamel-j22', 'hamel-j01'];
-  document.getElementById('ring').innerHTML = ids.map((id, i) => `<img src="${G.workArt(G.work(id), 200)}" alt="" style="--a:${(360 / ids.length) * i}deg">`).join('');
-  const links = [['now.html', 'NOW'], ['artists.html', 'ARTISTS'], ['discover.html', 'SHOP'], ['book.html', 'FAME'], ['mission.html', 'MISSION'], ['partners.html', 'PARTNERS']];
+  document.documentElement.setAttribute('data-theme', 'light');
+  const HUBS = [['US', 'UNITED STATES'], ['MX', 'MEXICO'], ['CO', 'COLOMBIA'], ['IT', 'ITALY'], ['GH', 'GHANA'], ['JP', 'JAPAN'], ['FI', 'FINLAND'], ['FR', 'FRANCE'], ['NL', 'NETHERLANDS'], ['XX', 'EVERYWHERE']];
+  document.getElementById('ring').innerHTML = HUBS.map(([cc, n], i) => `<a href="network.html#${cc}" style="--a:${(360 / HUBS.length) * i - 90}deg"><span>${n}</span></a>`).join('');
+  const links = [['now.html', 'ENTER'], ['network.html', 'NETWORK'], ['discover.html', 'SHOP'], ['artists.html', 'ARTISTS'], ['how-it-works.html', 'HOW IT WORKS'], ['mission.html', 'MISSION']];
   document.querySelector('.quick').innerHTML = links.map(([h, l]) => `<a href="${h}">${l}</a>`).join('<span aria-hidden="true">·</span>');
   const ref = G.store.get('referredBy', null);
   if (ref) { const el = document.getElementById('invited'); el.hidden = false; el.textContent = `A collector invited you (${ref}). Your first piece comes with ${G.usd(G.REF_BONUS)} in chips.`; }
   const remember = () => G.store.set('entered', true);
-  document.querySelectorAll('.quick a').forEach((a) => a.addEventListener('click', remember));
+  document.querySelectorAll('.quick a, .ring a').forEach((a) => a.addEventListener('click', remember));
   document.getElementById('enter').addEventListener('click', () => {
     remember();
     if (matchMedia('(prefers-reduced-motion: reduce)').matches) { location.href = 'now.html'; return; }

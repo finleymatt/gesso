@@ -155,7 +155,7 @@
             <div class="pricebox"><span class="usd">${G.usd(w.price)}</span><span class="muted" style="font-size:var(--t-s)">Free crated shipping in the US</span></div>
             <div class="earnbox">
               <span class="big">Earns you <b>${G.chips(earn)} $${a.ticker}</b> <a class="link" href="how-it-works.html" style="font-size:var(--t-s);font-weight:600;margin-left:6px">What are chips?</a></span>
-              <p>Worth ${G.usd(earn * px, true)} today at ${G.usd(px, true)} per chip${G.isFounding(n) ? ', including the founding 2× bonus' : ''}${G.myRate() > G.EARN ? `, at your ${G.tierOf(G.spent()).name} rate of ${Math.round(G.myRate() * 100)}%` : ''}. ${alreadyCollector ? `You're already ${G.esc(a.name)}'s collector #${wallet.collectorNo[w.artist]}, so this buy adds chips without changing the count.` : `You'd become ${G.esc(a.name)}'s collector #${n + 1}, which raises every $${a.ticker} chip to ${G.usd(G.price(n + 1), true)}.`}</p>
+              <p>Worth ${G.usd(earn * px, true)} today at ${G.usd(px, true)} per chip, backed by the ${G.usd(w.price * G.myRate(), true)} this sale puts in the reserve${G.myRate() > G.EARN ? `, at your ${G.tierOf(G.spent()).name} rate of ${Math.round(G.myRate() * 100)}%` : ''}. ${alreadyCollector ? `You're already ${G.esc(a.name)}'s collector #${wallet.collectorNo[w.artist]}, so this buy adds chips without changing the count.` : `You'd become ${G.esc(a.name)}'s collector #${n + 1}, which raises every $${a.ticker} chip to ${G.usd(G.price(n + 1), true)}.`}</p>
               <p>You hold ${G.usd(G.walletValue(wallet), true)} in chips. Up to <b style="color:var(--ink)">${G.usd(canChip, true)}</b> of this piece can be paid with them.</p>
             </div>
             <div class="pays"><p class="eyebrow">Framing</p><div class="slots" id="frames">${Object.entries(G.FRAMES).map(([k, f]) => `<button type="button" class="pill" data-frame-pick="${k}" aria-pressed="${k === 'none'}">${f.name}${G.framePrice(w, k) ? ' +' + G.usd(G.framePrice(w, k)) : ''}</button>`).join('')}</div>
@@ -177,7 +177,7 @@
           <div style="display:grid;gap:14px">
             <p class="eyebrow">Provenance</p>
             <ol class="prov">
-              <li><span><b>Made</b> ${a.real ? 'by Justin, on the road' : 'in ' + G.esc(a.city)}</span><span class="d">${w.year}</span></li>
+              <li><span><b>Made</b> ${a.slug === 'hamel' ? 'by Justin, on the road' : 'in ' + G.esc(a.city)}</span><span class="d">${w.year}</span></li>
               <li><span><b>Listed</b> on Gesso by the artist</span><span class="d">${listed.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</span></li>
               ${sold ? `<li><span><b>Collected</b> by collector #${w.by || n}</span><span class="d">2026</span></li>` : `<li class="next"><span><b>Next owner</b>: you, if you want it</span><span class="d">—</span></li>`}
             </ol>
