@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Events · Gesso</title>
+<meta name="description" content="Live drops, FAME nights, openings and open studios on Gesso.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wdth,wght@12..96,75..100,300..800&family=DM+Mono:wght@400;500&family=Permanent+Marker&family=VT323&family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=Jost:wght@400;500;600&display=swap">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/png" href="icons/favicon-64.png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<link rel="stylesheet" href="gesso.css">
+<style>
+  .hero { padding-block: clamp(32px, 5vw, 64px) 24px; display: grid; gap: 14px; max-width: 46em; }
+  .next { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 18px 32px; align-items: center; padding: clamp(20px, 3vw, 32px); background: #0B0C0F; color: #F2F2EE; margin-bottom: 36px; }
+  .next .k { font: 400 22px var(--board); color: #FFC247; letter-spacing: .08em; }
+  .next h2 { color: #fff; }
+  .next p { color: #B9BAC2; max-width: 40em; }
+  .cd { display: flex; gap: 10px; }
+  .cd div { display: grid; justify-items: center; min-width: 64px; padding: 10px 6px; border: 1px solid #2A2C33; }
+  .cd b { font: 400 40px/1 var(--board); color: #39F28A; }
+  .cd span { font: 500 10px var(--mono); color: #8A8C96; letter-spacing: .1em; }
+  .month { margin: 30px 0 12px; font: 500 var(--t-xs) var(--mono); text-transform: uppercase; letter-spacing: .14em; color: var(--ink-2); border-bottom: 1px solid var(--rule); padding-bottom: 8px; }
+  .ev { display: grid; grid-template-columns: 74px minmax(0, 1fr) auto; gap: 18px; align-items: center; padding: 16px 0; border-bottom: 1px solid var(--rule); }
+  .ev .date { display: grid; justify-items: center; border: 2px solid var(--ink); padding: 6px 0; background: var(--card); }
+  .ev .date b { font: 800 1.7rem/1 var(--display); }
+  .ev .date span { font: 500 10px var(--mono); text-transform: uppercase; letter-spacing: .1em; color: var(--ink-2); }
+  .ev .type { font: 500 var(--t-xs) var(--mono); text-transform: uppercase; letter-spacing: .1em; color: var(--c, var(--cobalt)); }
+  .ev h3 { font-size: 1.3rem; margin: 2px 0; }
+  .ev p { font-size: var(--t-s); color: var(--ink-2); }
+  .ev .acts { display: flex; gap: 8px; flex-wrap: wrap; justify-content: end; }
+  @media (max-width: 680px) { .next { grid-template-columns: minmax(0, 1fr); } .ev { grid-template-columns: 60px minmax(0, 1fr); } .ev .acts { grid-column: 2; justify-content: start; } }
+</style>
+</head>
+<body>
+<div id="chrome-top"></div>
+<main class="wrap">
+  <section class="hero"><p class="eyebrow">Events</p><h1 class="display" style="font-size:clamp(2.6rem,7vw,5rem)">What's coming up</h1>
+    <p class="lede">Live drops, FAME nights, openings and open studios, all in one place. Add any of them to your calendar.</p></section>
+  <section class="next" id="drop" aria-labelledby="nx-h"></section>
+  <div id="list"></div>
+</main>
+<div id="chrome-bottom"></div>
+<script src="gesso.js"></script>
+<script>
+(function () {
+  G.chrome('events');
+  const ev = G.events(), first = ev.find((e) => e.type === 'Live drop');
+  const nx = document.getElementById('drop');
+  const tick = () => {
+    const c = G.countdown(first.d);
+    nx.innerHTML = `<div style="display:grid;gap:10px"><span class="k">▶ NEXT LIVE DROP</span><h2 id="nx-h">${G.esc(first.title)}</h2><p>${G.esc(first.text)}</p>
+      <div class="cta-row"><a class="btn" style="border-color:#fff;color:#fff" href="${G.ics(first)}" download="gesso-live-drop.ics">Add to calendar</a><a class="btn" style="border-color:#fff;color:#fff" href="artist.html#hamel">See HAMEL's wall</a></div></div>
+      <div class="cd" aria-label="Time until the drop">${[['d', 'DAYS'], ['h', 'HRS'], ['m', 'MIN'], ['s', 'SEC']].map(([k, l]) => `<div><b>${String(c[k]).padStart(2, '0')}</b><span>${l}</span></div>`).join('')}</div>`;
+  };
+  tick(); if (!matchMedia('(prefers-reduced-motion: reduce)').matches) setInterval(() => { const c = G.countdown(first.d); nx.querySelectorAll('.cd b').forEach((b, i) => (b.textContent = String([c.d, c.h, c.m, c.s][i]).padStart(2, '0'))); }, 1000);
+  let last = '';
+  document.getElementById('list').innerHTML = ev.map((e) => {
+    const m = e.d.toLocaleDateString('en-US', { month: 'long', year: 'numeric' }), a = G.artist(e.a);
+    const head = m !== last ? `<p class="month">${m}</p>` : ''; last = m;
+    return head + `<article class="ev" style="--c:${a ? a.color : 'var(--cobalt)'}"><div class="date"><b>${e.d.getDate()}</b><span>${e.d.toLocaleDateString('en-US', { weekday: 'short' })}</span></div>
+      <div><span class="type">${G.esc(e.type)}</span><h3>${G.esc(e.title)}</h3><p>${G.esc(e.where)} · ${e.d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })}. ${G.esc(e.text)}</p></div>
+      <div class="acts"><a class="btn small" href="${e.href}">Details</a><a class="btn small" href="${G.ics(e)}" download="${G.esc(e.title)}.ics">Add to calendar</a></div></article>`;
+  }).join('');
+})();
+</script>
+</body>
+</html>

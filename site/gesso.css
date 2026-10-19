@@ -487,3 +487,106 @@ details.faq p { padding: 0 0 20px; color: var(--ink-2); max-width: 62ch; }
 .glogo span { font-family: var(--hand); font-size: calc(var(--s) * .3); letter-spacing: -.02em; transform: rotate(-8deg); line-height: 1; }
 .glogo.big { --s: 88px; }
 .logo-link:hover .glogo { transform: rotate(-10deg) scale(1.05); }
+
+/* ================= three looks to compare (switch at the very top) ================= */
+.looks { display: flex; align-items: center; justify-content: center; gap: 6px 10px; flex-wrap: wrap; padding: 6px var(--gut); background: #FFE14D; color: #16151B; font: 600 12px/1.2 var(--body); position: relative; z-index: 60; }
+.looks b { font-weight: 700; letter-spacing: .02em; }
+.looks button { border: 1.5px solid #16151B; background: transparent; color: #16151B; border-radius: 999px; padding: 4px 12px; font: 700 12px/1.2 var(--body); cursor: pointer; }
+.looks button[aria-pressed="true"] { background: #16151B; color: #FFE14D; }
+.looks button span { opacity: .6; font-weight: 500; margin-right: 4px; }
+
+/* ---------- 2. Archive: quiet gallery luxury, from Justin's staged interiors ---------- */
+:root[data-look="archive"] {
+  --wall: #F5F1EA; --wall-2: #ECE5DA; --card: #FBF8F2; --ink: #1F1B16; --ink-2: #6D6458; --rule: #DCD2C2;
+  --cobalt: #7A5C33; --cobalt-soft: #EFE6D6; --on-cobalt: #FBF8F2; --marker: #7A5C33;
+  --display: 'Cormorant Garamond', 'Iowan Old Style', Georgia, serif;
+  --body: 'Jost', 'Avenir Next', system-ui, sans-serif;
+  --hang: 0 1px 2px rgba(60, 40, 15, .08), 0 22px 40px -18px rgba(60, 40, 15, .35);
+}
+:root[data-look="archive"][data-theme="dark"] { --wall: #171512; --wall-2: #201D19; --card: #1E1B17; --ink: #F1EBE0; --ink-2: #ABA190; --rule: #36312A; --cobalt: #C9A26B; --cobalt-soft: #2B2419; --on-cobalt: #171512; --marker: #C9A26B; }
+:root[data-look="archive"] .display, :root[data-look="archive"] h2, :root[data-look="archive"] .h2, :root[data-look="archive"] .info h1, :root[data-look="archive"] .fame, :root[data-look="archive"] .feature .who, :root[data-look="archive"] .top .val {
+  font-weight: 500; letter-spacing: -.01em; font-variation-settings: normal; line-height: 1;
+}
+:root[data-look="archive"] .display { font-size: clamp(2.8rem, 7.6vw, 6.2rem); }
+:root[data-look="archive"] h3, :root[data-look="archive"] .h3 { font-family: var(--display); font-weight: 600; letter-spacing: 0; font-size: 1.35rem; }
+:root[data-look="archive"] .eyebrow { font-family: var(--body); letter-spacing: .22em; font-size: 11px; }
+:root[data-look="archive"] .btn { border-width: 1px; border-radius: 0; text-transform: uppercase; letter-spacing: .14em; font-size: 12px; font-weight: 500; min-height: 46px; }
+:root[data-look="archive"] .btn:hover { transform: none; box-shadow: none; background: var(--ink); color: var(--wall); }
+:root[data-look="archive"] .btn.primary:hover { background: var(--ink); border-color: var(--ink); }
+:root[data-look="archive"] .pill { border-radius: 0; border-width: 1px; font-weight: 500; letter-spacing: .04em; }
+:root[data-look="archive"] .pulse { --led: #6D6458; --up-led: #5E7A4A; --down-led: #A6493A; --amber: #7A5C33; background: #ECE5DA; border-bottom: 1px solid #DCD2C2; font-family: var(--body); font-size: 12px; letter-spacing: .14em; text-transform: uppercase; height: 32px; }
+:root[data-look="archive"] .pulse-l { background: #ECE5DA; border-color: #DCD2C2; color: var(--ink); }
+:root[data-look="archive"] .pulse-t .q b { color: #1F1B16; font-weight: 600; }
+:root[data-look="archive"] .pulse .ekg path { stroke: #7A5C33; filter: none; }
+:root[data-look="archive"] .glogo { background: var(--ink); }
+:root[data-look="archive"] .glogo span { font-family: 'Cormorant Garamond', serif; font-style: italic; font-weight: 500; font-size: calc(var(--s) * .34); transform: none; letter-spacing: 0; }
+:root[data-look="archive"] .hand, :root[data-look="archive"] .annot, :root[data-look="archive"] .quote, :root[data-look="archive"] .keep, :root[data-look="archive"] .st-sig { font-family: 'Cormorant Garamond', serif; font-style: italic; font-weight: 500; }
+:root[data-look="archive"] .hero h1 .rise svg { display: none; }
+:root[data-look="archive"] .chip, :root[data-look="archive"] .proj, :root[data-look="archive"] .venue, :root[data-look="archive"] .card, :root[data-look="archive"] .tal, :root[data-look="archive"] .acard { box-shadow: none; border-color: var(--rule); }
+:root[data-look="archive"] .chip .swatch .tick, :root[data-look="archive"] .chippanel .sw .tick, :root[data-look="archive"] .hold .sw .tick { font-family: var(--display); font-weight: 600; letter-spacing: 0; }
+:root[data-look="archive"] .work .art.hung { border: 10px solid var(--card); outline: 1px solid var(--rule); }
+:root[data-look="archive"] .feature { --ink: #1F1B16; --wall: #F1EBE0; }
+:root[data-look="archive"] .fees, :root[data-look="archive"] .lab, :root[data-look="archive"] .summary, :root[data-look="archive"] .chippanel, :root[data-look="archive"] .chipspend { border-width: 1px; }
+
+/* ---------- 3. Marker: Justin's hand-lettered zine side ---------- */
+:root[data-look="marker"] {
+  --wall: #FFFFFF; --wall-2: #F2F2F0; --card: #FFFFFF; --ink: #0B0B0C; --ink-2: #3E3E42; --rule: #0B0B0C;
+  --cobalt: #FF2E88; --cobalt-soft: #FFE3F0; --on-cobalt: #0B0B0C; --marker: #FF2E88;
+  --display: 'Permanent Marker', 'Segoe Print', cursive;
+  --hang: 6px 6px 0 #0B0B0C;
+}
+:root[data-look="marker"][data-theme="dark"] { --wall: #0B0B0C; --wall-2: #18181A; --card: #121214; --ink: #F7F7F5; --ink-2: #BDBDC2; --rule: #F7F7F5; --hang: 6px 6px 0 #FF2E88; }
+:root[data-look="marker"] .display, :root[data-look="marker"] h2, :root[data-look="marker"] .h2, :root[data-look="marker"] .info h1, :root[data-look="marker"] .fame, :root[data-look="marker"] .feature .who, :root[data-look="marker"] .top .val {
+  font-weight: 400; letter-spacing: 0; font-variation-settings: normal; text-transform: uppercase; line-height: 1.02;
+}
+:root[data-look="marker"] .display { font-size: clamp(2.4rem, 6.6vw, 5.4rem); transform: rotate(-1.2deg); transform-origin: left; }
+:root[data-look="marker"] h3, :root[data-look="marker"] .h3 { font-family: var(--display); font-weight: 400; text-transform: uppercase; letter-spacing: .01em; }
+:root[data-look="marker"] .btn { border-width: 2.5px; border-radius: 0; font-family: var(--display); font-weight: 400; text-transform: uppercase; letter-spacing: .04em; }
+:root[data-look="marker"] .btn.primary { background: var(--ink); border-color: var(--ink); color: var(--wall); }
+:root[data-look="marker"] .btn.primary:hover { box-shadow: 4px 4px 0 var(--marker); }
+:root[data-look="marker"] .pill { border: 2px solid var(--ink); font-weight: 700; }
+:root[data-look="marker"] .pill[aria-pressed="true"] { background: var(--marker); color: var(--ink); border-color: var(--ink); }
+:root[data-look="marker"] .chip, :root[data-look="marker"] .proj, :root[data-look="marker"] .venue, :root[data-look="marker"] .card, :root[data-look="marker"] .tal, :root[data-look="marker"] .acard, :root[data-look="marker"] .tier, :root[data-look="marker"] .hold, :root[data-look="marker"] .vote, :root[data-look="marker"] .reward, :root[data-look="marker"] .step { border: 2.5px solid var(--ink); box-shadow: 5px 5px 0 var(--ink); }
+:root[data-look="marker"] .work .art.hung { border: 3px solid var(--ink); }
+:root[data-look="marker"] .chip .swatch .tick, :root[data-look="marker"] .chippanel .sw .tick, :root[data-look="marker"] .hold .sw .tick { font-family: var(--display); font-weight: 400; }
+:root[data-look="marker"] .glogo { background: var(--ink); box-shadow: 0 0 0 3px var(--wall), 0 0 0 6px var(--ink); }
+:root[data-look="marker"] .nav .grp > a { font-family: var(--display); text-transform: uppercase; font-weight: 400; color: var(--ink); }
+:root[data-look="marker"] .nav .grp > a[aria-current="page"] { background: var(--ink); color: var(--wall); }
+:root[data-look="marker"] .topbar { border-bottom: 3px solid var(--ink); }
+:root[data-look="marker"] .eyebrow { color: var(--ink); font-weight: 600; }
+:root[data-look="marker"] .lede { color: var(--ink); }
+:root[data-look="marker"] .feature { --ink: #0B0B0C; --wall: #FFFFFF; }
+:root[data-look="marker"] .hero h1 .rise path { stroke: #FF2E88; }
+
+/* ---------- four-item navigation with dropdowns ---------- */
+.nav { align-items: center; }
+.nav .grp { position: relative; }
+.nav .grp > a { display: inline-flex; align-items: center; gap: 4px; }
+.nav .car { font-size: 10px; opacity: .6; }
+.nav .drop { position: absolute; top: calc(100% + 6px); left: -8px; min-width: 270px; display: grid; gap: 2px; padding: 8px; background: var(--card); border: 1px solid var(--rule); box-shadow: 0 24px 50px -24px rgba(40, 30, 10, .4); opacity: 0; visibility: hidden; transform: translateY(-4px); transition: opacity .15s, transform .15s, visibility .15s; z-index: 60; }
+.nav .drop::before { content: ""; position: absolute; left: 0; right: 0; top: -10px; height: 10px; }
+.nav .grp:hover .drop, .nav .grp:focus-within .drop { opacity: 1; visibility: visible; transform: none; }
+.nav .drop a { display: grid; gap: 1px; padding: 9px 12px; border-radius: 6px; text-decoration: none; color: var(--ink); }
+.nav .drop a:hover { background: var(--wall-2); }
+.nav .drop a b { font-size: var(--t-s); font-weight: 700; }
+.nav .drop a span { font-size: var(--t-xs); color: var(--ink-2); }
+:root[data-look="marker"] .nav .drop { border: 2.5px solid var(--ink); box-shadow: 6px 6px 0 var(--ink); }
+:root[data-look="marker"] .nav .drop a b { font-family: var(--display); font-weight: 400; text-transform: uppercase; }
+
+/* will it fit, and resale tags on cards */
+.fitb { justify-self: start; margin-top: 4px; font: 600 11px/1 var(--body); padding: 4px 8px; border-radius: 999px; background: var(--wall-2); color: var(--ink-2); }
+.fitb.fits { background: color-mix(in srgb, var(--up) 16%, transparent); color: var(--up); }
+.fitb.tight { background: color-mix(in srgb, #D4931C 18%, transparent); color: #9A6A0E; }
+.fitb.big { background: color-mix(in srgb, var(--down) 14%, transparent); color: var(--down); }
+.fitb.resale { background: var(--cobalt-soft); color: var(--cobalt); }
+/* certificate */
+.coa { display: grid; gap: 18px; padding: 8px; }
+.coa-top { display: flex; justify-content: space-between; gap: 12px; border-bottom: 1px solid var(--rule); padding-bottom: 12px; font-size: var(--t-xs); }
+.coa-main { display: grid; grid-template-columns: 160px minmax(0, 1fr); gap: 20px; align-items: start; }
+.coa-txt { display: grid; gap: 8px; }
+.coa-txt h2 { font-size: 1.8rem; }
+.coa-bot { display: flex; justify-content: space-between; align-items: end; gap: 16px; border-top: 1px solid var(--rule); padding-top: 14px; }
+.coa-sig { font-family: var(--hand); font-size: 2rem; color: var(--ink); transform: rotate(-4deg); margin: 0; }
+.coa-qr img, .coa-qr canvas { display: block; }
+@media (max-width: 520px) { .coa-main { grid-template-columns: minmax(0, 1fr); } }
+:root[data-look="archive"] .chippanel .sw .tick, :root[data-look="marker"] .chippanel .sw .tick { font-size: 1.5rem; word-break: normal; overflow-wrap: anywhere; }

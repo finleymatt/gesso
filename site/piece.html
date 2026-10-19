@@ -7,7 +7,11 @@
 <meta name="description" content="An artwork on Gesso, with its wall label, provenance, and the chips it earns you.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wdth,wght@12..96,75..100,300..800&family=DM+Mono:wght@400;500&family=Permanent+Marker&family=VT323&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wdth,wght@12..96,75..100,300..800&family=DM+Mono:wght@400;500&family=Permanent+Marker&family=VT323&family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=Jost:wght@400;500;600&display=swap">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/png" href="icons/favicon-64.png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
 <link rel="stylesheet" href="gesso.css">
 <style>
   .crumbs { display: flex; flex-wrap: wrap; gap: 8px; font-size: var(--t-s); color: var(--ink-2); padding-block: 20px; }
@@ -22,6 +26,27 @@
   .seg button[aria-pressed="true"] { background: var(--ink); color: var(--wall); }
   .vnote { font-size: var(--t-xs); font-family: var(--mono); color: var(--ink-2); }
   .viewer.roommode { position: static; }
+  .stage.faces-on, .stage.marking { cursor: crosshair; }
+  .facewrap { position: relative; display: inline-block; max-width: 84cqw; }
+  .facewrap .art { max-width: 100%; max-height: 74cqw; }
+  .fdot { position: absolute; width: 30px; height: 30px; margin: -15px 0 0 -15px; border-radius: 50%; border: 2.5px solid #fff; background: rgba(255, 46, 136, .35); box-shadow: 0 0 0 2px rgba(0,0,0,.35), 0 0 18px rgba(255,46,136,.6); cursor: pointer; padding: 0; animation: fpop .4s cubic-bezier(.2,1.4,.4,1) backwards; animation-delay: calc(var(--i) * 60ms); }
+  .fdot.mine { background: rgba(255, 225, 77, .5); }
+  .fdot:hover::after, .fdot:focus-visible::after { content: attr(data-name); position: absolute; left: 50%; bottom: calc(100% + 8px); transform: translateX(-50%); white-space: nowrap; background: #16151B; color: #fff; font: 600 12px/1.3 var(--body); padding: 6px 9px; border-radius: 4px; pointer-events: none; }
+  @keyframes fpop { from { transform: scale(0); } }
+  .facebar { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+  .facebar .note { font-size: var(--t-xs); color: var(--ink-2); }
+  .ask { position: absolute; z-index: 5; width: 230px; background: var(--card); border: 2px solid var(--ink); padding: 10px; display: grid; gap: 8px; box-shadow: 0 16px 30px -12px rgba(0,0,0,.4); }
+  .ask input { min-height: 38px; }
+  .namecard, .resale-box { border: 2px solid var(--ink); background: var(--card); padding: 18px; display: grid; gap: 12px; }
+  .namecard ol { margin: 0; padding: 0; list-style: none; display: grid; gap: 6px; }
+  .namecard li { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 10px; align-items: center; padding: 8px 10px; background: var(--wall-2); }
+  .namecard li b { font-size: var(--t-s); }
+  .namecard li span { font-size: var(--t-xs); color: var(--ink-2); }
+  .namecard form { display: flex; gap: 8px; }
+  .namecard form input { flex: 1; min-width: 0; min-height: 40px; }
+  .resale-box .row { display: flex; justify-content: space-between; gap: 10px; font-size: var(--t-s); }
+  .tools-row { display: flex; flex-wrap: wrap; gap: 8px; }
+  model-viewer { width: 100%; height: min(62vh, 520px); background: var(--wall-2); --poster-color: transparent; }
   .viewer .seg .new { font: 500 10px var(--mono); text-transform: uppercase; letter-spacing: .06em; color: var(--marker); margin-left: 4px; }
   .pays { display: grid; gap: 10px; }
 
@@ -84,6 +109,12 @@
             <div class="seg" role="group" aria-label="View"><button type="button" data-mode="art" aria-pressed="${mode === 'art'}">Artwork</button><button type="button" data-mode="room" aria-pressed="${mode === 'room'}">See it in a room<span class="new">+ your wall</span></button></div>
             <span class="vnote" id="vnote"></span>
           </div>
+          <div class="facebar" id="facebar">
+            <button class="pill" type="button" id="showfaces" aria-pressed="false">Faces people found · ${G.faces(id).length}</button>
+            <button class="pill" type="button" id="markface" aria-pressed="false">I see a face</button>
+            <button class="pill" type="button" id="ar">View on your wall in AR</button>
+            <span class="note" id="facenote">"People find faces in my paintings that I never intended to paint." Justin</span>
+          </div>
         </div>
         <div class="info">
           <div style="display:grid;gap:12px">
@@ -96,6 +127,14 @@
             <span class="m mono" style="font-size:var(--t-xs)">${G.dims(w)}</span>
             <span class="m">${w.edition === 'Original' ? 'Original, one of one. Signed on the reverse.' : G.esc(w.edition) + ', signed and numbered.'}</span>
           </div>
+          ${sold && G.resaleFor(id) ? (() => { const r = G.resaleFor(id); return `
+            <div class="resale-box"><span class="eyebrow">Available from a collector</span>
+              <div class="pricebox"><span class="usd">${G.usd(r.ask)}</span><span class="muted" style="font-size:var(--t-s)">from collector #${r.seller}</span></div>
+              ${r.note ? `<p class="muted" style="font-size:var(--t-s)">"${G.esc(r.note)}"</p>` : ''}
+              <div class="row"><span>To ${G.esc(a.name)}, for good</span><b class="mono">${G.usd(r.ask * G.ROYALTY)}</b></div>
+              <div class="row"><span>You earn</span><b class="mono" style="color:var(--cobalt)">${G.chips(G.chipsFor(r.ask, n, G.myRate()))} $${a.ticker}</b></div>
+              <div class="buy"><button class="btn" type="button" data-add="r:${id}">Add to bag</button><a class="btn primary" href="checkout.html" id="buyresale">Buy from collector</a></div>
+              <span class="muted" style="font-size:var(--t-xs)">Every resale on Gesso pays the artist ${Math.round(G.ROYALTY * 100)}%. Ownership history updates when it ships.</span></div>` })() : ''}
           ${sold ? `
             <div class="pricebox"><span class="sold-tag" style="font-size:var(--t-m)">Collected by collector #${w.by || n}</span></div>
             <p class="muted">This one has a home. Follow ${G.esc(a.name)} to hear first when new work is listed, or see what's still available below.</p>
@@ -119,12 +158,14 @@
           <ul class="trust">
             <li>${w.edition === 'Original' ? 'Ships crated and insured in 5 to 7 days' : 'Ships flat in a rigid mailer in 3 to 5 days'}</li>
             <li>14-day returns; any chips you spent come back to you</li>
-            <li>Certificate of authenticity, with provenance kept on record</li>
+            <li>Certificate of authenticity, with provenance kept on record. <button type="button" class="link" id="coa" style="background:none;border:0;padding:0;cursor:pointer;font-size:inherit">See the certificate</button></li>
+            <li>Every resale pays ${G.esc(a.name)} ${Math.round(G.ROYALTY * 100)}%, for good</li>
           </ul>
+          ${G.untitled(w) ? `<div class="namecard" id="namecard"></div>` : ''}
           <div style="display:grid;gap:14px">
             <p class="eyebrow">Provenance</p>
             <ol class="prov">
-              <li><span><b>Made</b> in ${G.esc(a.real ? "the artist's studio" : a.city)}</span><span class="d">${w.year}</span></li>
+              <li><span><b>Made</b> ${a.real ? 'by Justin, on the road' : 'in ' + G.esc(a.city)}</span><span class="d">${w.year}</span></li>
               <li><span><b>Listed</b> on Gesso by the artist</span><span class="d">${listed.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</span></li>
               ${sold ? `<li><span><b>Collected</b> by collector #${w.by || n}</span><span class="d">2026</span></li>` : `<li class="next"><span><b>Next owner</b>: you, if you want it</span><span class="d">—</span></li>`}
             </ol>
@@ -137,17 +178,69 @@
       </section>`;
 
     const stage = document.getElementById('stage'), studio = document.getElementById('studio'), vnote = document.getElementById('vnote');
-    let mounted = false;
+    let mounted = false, facesOn = false, marking = false, drawFaces = () => {};
     const show = () => {
       stage.hidden = mode !== 'art'; studio.hidden = mode === 'art';
       document.querySelector('.viewer').classList.toggle('roommode', mode !== 'art');
-      if (mode === 'art') { stage.innerHTML = G.artImg(w, 1100, 'art hung'); G.hydrate(stage); }
+      if (mode === 'art') { stage.innerHTML = G.artImg(w, 1100, 'art hung'); G.hydrate(stage); if (facesOn || marking) setTimeout(drawFaces, 30); }
       else if (!mounted) { mounted = true; G.roomStudio(studio, { img: G.workArt(w, 1000), dims: { w: w.w, h: w.h } }); }
       vnote.textContent = mode === 'art' ? G.size(w) : '';
       document.querySelectorAll('[data-mode]').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.mode === mode)));
     };
     document.querySelector('.seg').addEventListener('click', (e) => { const b = e.target.closest('[data-mode]'); if (b) { mode = b.dataset.mode; show(); } });
     show();
+
+    // ---- faces people found ----
+    drawFaces = () => {
+      stage.classList.toggle('faces-on', facesOn); stage.classList.toggle('marking', marking);
+      const img = stage.querySelector('img'); if (!img) return;
+      let wrap = stage.querySelector('.facewrap');
+      if (!wrap) { wrap = document.createElement('div'); wrap.className = 'facewrap'; img.replaceWith(wrap); wrap.appendChild(img); }
+      wrap.querySelectorAll('.fdot,.ask').forEach((x) => x.remove());
+      if (facesOn) G.faces(id).forEach((f, i) => wrap.insertAdjacentHTML('beforeend', `<button type="button" class="fdot ${f.mine ? 'mine' : ''}" style="left:${f.x * 100}%;top:${f.y * 100}%;--i:${i}" data-name="${G.esc(f.name)} · ${G.esc(f.by)}${f.seen > 1 ? ' · seen by ' + f.seen : ''}" aria-label="${G.esc(f.name)}, found by ${G.esc(f.by)}"></button>`));
+      document.getElementById('showfaces').textContent = `Faces people found · ${G.faces(id).length}`;
+      document.getElementById('showfaces').setAttribute('aria-pressed', String(facesOn));
+      document.getElementById('markface').setAttribute('aria-pressed', String(marking));
+      document.getElementById('facenote').textContent = marking ? 'Tap the painting where you see a face.' : '"People find faces in my paintings that I never intended to paint." Justin';
+    };
+    document.getElementById('showfaces').addEventListener('click', () => { if (mode !== 'art') { mode = 'art'; show(); } facesOn = !facesOn; marking = false; drawFaces(); });
+    document.getElementById('markface').addEventListener('click', () => { if (mode !== 'art') { mode = 'art'; show(); } marking = !marking; facesOn = true; drawFaces(); });
+    stage.addEventListener('click', (e) => {
+      if (!marking || e.target.closest('.ask,.fdot')) return;
+      const wrap = stage.querySelector('.facewrap'); if (!wrap) return;
+      const r = wrap.getBoundingClientRect(), x = (e.clientX - r.left) / r.width, y = (e.clientY - r.top) / r.height;
+      if (x < 0 || x > 1 || y < 0 || y > 1) return;
+      wrap.querySelectorAll('.ask').forEach((q) => q.remove());
+      wrap.insertAdjacentHTML('beforeend', `<form class="ask" style="left:${Math.min(x * 100, 60)}%;top:${Math.min(y * 100 + 4, 80)}%"><label class="lbl" for="fname" style="font:500 11px var(--mono);text-transform:uppercase;letter-spacing:.08em;color:var(--ink-2)">Who do you see?</label><input class="input" id="fname" placeholder="the owl, my uncle…" maxlength="40" autocomplete="off"><button class="btn small primary" type="submit">Add face</button></form>`);
+      const f = wrap.querySelector('.ask'); f.querySelector('input').focus();
+      f.addEventListener('submit', (ev) => { ev.preventDefault(); const name = f.querySelector('input').value.trim() || 'a face'; G.addFace(id, { x, y, name }); marking = false; drawFaces(); G.toast(`Added <b>${G.esc(name)}</b>. Justin sees every face people find.`); });
+    });
+
+    // ---- collectors name the piece ----
+    const nc = document.getElementById('namecard');
+    const drawNames = () => {
+      if (!nc) return; const list = G.titles(id), voted = (G.store.get('titleVotes', {}) || {})[id];
+      nc.innerHTML = `<span class="eyebrow">Name this piece</span>
+        <p style="font-size:var(--t-s)">Justin picks a title from collectors' ideas on the 1st of each month. If yours is chosen, you get ${G.usd(50)} in $${a.ticker} and your name in its ownership history.</p>
+        <ol>${list.slice(0, 5).map((t) => `<li><div><b>${G.esc(t.t)}</b><br><span>${t.mine ? 'Your idea' : 'from ' + G.esc(t.by)} · ${t.votes} vote${t.votes === 1 ? '' : 's'}</span></div><button class="btn small" type="button" data-vote="${G.esc(t.t)}" ${voted != null && list[voted] && list[voted].t === t.t ? 'disabled' : ''}>${voted != null && list[voted] && list[voted].t === t.t ? 'Voted' : 'Vote'}</button></li>`).join('')}</ol>
+        <form id="nameform"><label for="newtitle" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)">Your title</label><input class="input" id="newtitle" placeholder="Your title for it" maxlength="48" autocomplete="off"><button class="btn small primary" type="submit">Suggest</button></form>`;
+      nc.querySelectorAll('[data-vote]').forEach((b) => b.addEventListener('click', () => { G.voteTitle(id, b.dataset.vote); drawNames(); }));
+      nc.querySelector('#nameform').addEventListener('submit', (e) => { e.preventDefault(); const v = nc.querySelector('#newtitle').value.trim(); if (!v) return; G.proposeTitle(id, v); drawNames(); G.toast('Title suggested. Votes are open until the 1st.'); });
+    };
+    drawNames();
+
+    // ---- AR and certificate ----
+    document.getElementById('ar').addEventListener('click', async () => {
+      const body = G.sheet(`<p class="eyebrow">View on your wall in AR</p><h2 style="font-size:1.8rem;margin:6px 0 12px">${G.esc(w.title)}</h2><div id="mvhost" style="display:grid;place-items:center;min-height:200px"><span class="spin"></span></div>
+        <p class="muted" style="font-size:var(--t-s);margin-top:12px">On an iPhone or Android phone, tap the AR button in the corner, point at a wall, and the piece appears at its real size: ${G.dims(w)}. On a computer you can turn it around here.</p>`, { wide: true });
+      try {
+        const [url] = await Promise.all([G.makeGLB(G.workArt(w, 1100), w.w, w.h), G.loadScript('https://cdn.jsdelivr.net/npm/@google/model-viewer@3.5.0/dist/model-viewer.min.js', true)]);
+        body.querySelector('#mvhost').innerHTML = `<model-viewer loading="eager" reveal="auto" src="${url}" alt="${G.esc(w.title)} as a 3D panel" ar ar-modes="webxr scene-viewer quick-look" ar-placement="wall" ar-scale="fixed" camera-controls touch-action="pan-y" shadow-intensity="1" exposure="1.05" camera-orbit="0deg 90deg auto"></model-viewer>`;
+      } catch (e) { body.querySelector('#mvhost').innerHTML = '<p class="muted">AR needs a connection to load the 3D viewer. Try again in a moment.</p>'; }
+    });
+    document.getElementById('coa').addEventListener('click', () => G.certificate(w));
+    const br = document.getElementById('buyresale'); if (br) br.addEventListener('click', () => G.setBag(G.bag().filter((k) => k !== 'r:' + id).concat('r:' + id)));
+
     document.querySelectorAll('input[name="plan"]').forEach((r) => r.addEventListener('change', () => G.store.set('plan', r.value)));
     const bn = document.getElementById('buynow');
     let frame = 'none';

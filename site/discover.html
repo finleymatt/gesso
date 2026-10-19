@@ -7,7 +7,11 @@
 <meta name="description" content="Originals and prints from artists on Gesso. Every purchase earns you the artist's chips.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wdth,wght@12..96,75..100,300..800&family=DM+Mono:wght@400;500&family=Permanent+Marker&family=VT323&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wdth,wght@12..96,75..100,300..800&family=DM+Mono:wght@400;500&family=Permanent+Marker&family=VT323&family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=Jost:wght@400;500;600&display=swap">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/png" href="icons/favicon-64.png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
 <link rel="stylesheet" href="gesso.css">
 <style>
   .head { display: flex; flex-wrap: wrap; align-items: end; justify-content: space-between; gap: 20px 40px; padding-block: clamp(32px, 5vw, 64px) 24px; }
@@ -31,6 +35,12 @@
   .modes button { border: 0; background: var(--card); padding: 10px 18px; font-weight: 700; cursor: pointer; color: var(--ink); }
   .modes button[aria-selected="true"] { background: var(--ink); color: var(--wall); }
   .objgrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 220px), 1fr)); gap: clamp(20px, 3vw, 36px); }
+  .clab { font: 500 var(--t-xs) var(--mono); text-transform: uppercase; letter-spacing: .1em; color: var(--ink-2); margin-right: 4px; }
+  .cdot { flex: none; width: 30px; height: 30px; border-radius: 50%; border: 3px solid var(--card); background: var(--c); box-shadow: 0 0 0 1.5px var(--rule); cursor: pointer; padding: 0; }
+  .cdot[aria-pressed="true"] { box-shadow: 0 0 0 2.5px var(--ink); }
+  .cdot.mono { background: conic-gradient(#16151B 0 50%, #F4F4F0 0); }
+  .fitin { display: inline-flex; align-items: center; gap: 6px; font-size: var(--t-s); font-weight: 600; white-space: nowrap; }
+  .fitin .input { width: 78px; min-height: 36px; padding: 0 10px; border-radius: 999px; }
   .empty { padding: 64px 0; text-align: center; display: grid; gap: 14px; justify-items: center; color: var(--ink-2); }
 </style>
 </head>
@@ -54,13 +64,15 @@
   <div class="filters">
     <div class="wrap">
       <div class="frow" id="artists" role="group" aria-label="Filter by artist"></div>
+      <div class="frow" id="colors" role="group" aria-label="Shop by color"><span class="clab">Color</span></div>
       <div class="frow">
         <label for="kind" class="sr" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)">Type</label>
-        <select class="input" id="kind"><option value="all">Originals and prints</option><option value="orig">Originals only</option><option value="print">Prints only</option></select>
+        <select class="input" id="kind"><option value="all">Originals and prints</option><option value="orig">Originals only</option><option value="print">Prints only</option><option value="resale">Resale from collectors</option></select>
         <label for="price" class="sr" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)">Price</label>
         <select class="input" id="price"><option value="any">Any price</option><option value="0-250">Under $250</option><option value="250-1000">$250 to $1,000</option><option value="1000-99999">Over $1,000</option></select>
         <label for="sort" class="sr" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)">Sort</label>
         <select class="input" id="sort"><option value="new">Newest</option><option value="chips">Most chips earned</option><option value="low">Price, low to high</option><option value="high">Price, high to low</option></select>
+        <label class="fitin" for="wallin">My wall <input class="input" id="wallin" type="number" min="12" max="600" placeholder="width" inputmode="numeric"> in</label>
         <label class="tog" for="avail"><span class="switch"><input type="checkbox" id="avail"><span></span></span>Available only</label>
       </div>
     </div>
@@ -76,7 +88,8 @@
 <script>
 (function () {
   G.chrome('discover');
-  const state = { mode: 'art', artist: 'all', q: '', kind: 'all', price: 'any', sort: 'new', avail: false };
+  const state = { mode: 'art', artist: 'all', q: '', kind: 'all', price: 'any', sort: 'new', avail: false, color: 'all' };
+  const colorMap = {};
   const saved = G.store.get('discover', null); if (saved) Object.assign(state, saved, { q: '' });
   const fromHash = location.hash.slice(1); if (G.artist(fromHash)) state.artist = fromHash;
   state.mode = fromHash === 'objects' ? 'objects' : fromHash === 'art' ? 'art' : (state.mode || 'art');
@@ -97,7 +110,17 @@
   $('clear').addEventListener('click', () => { Object.assign(state, { artist: 'all', q: '', kind: 'all', price: 'any', avail: false }); $('q').value = ''; ['kind', 'price'].forEach((k) => ($(k).value = state[k])); $('avail').checked = false; render(); });
 
   const order = G.works.map((w) => w.id);
+  // shop by color: read each painting's main colors once, then filter
+  const cEl = document.getElementById('colors');
+  cEl.insertAdjacentHTML('beforeend', `<button type="button" class="pill" data-c="all" style="min-height:30px">Any</button>` + G.COLORS.map(([k, c]) => `<button type="button" class="cdot ${k === 'mono' ? 'mono' : ''}" data-c="${k}" style="--c:${c}" aria-label="${k === 'mono' ? 'Black and white' : k}" title="${k === 'mono' ? 'Black and white' : k}"></button>`).join(''));
+  cEl.addEventListener('click', (e) => { const b = e.target.closest('[data-c]'); if (!b) return; state.color = b.dataset.c; render(); });
+  Promise.all(G.works.map((w) => G.colorsOf(w).then((c) => (colorMap[w.id] = c)).catch(() => {}))).then(() => { if (state.color !== 'all') render(); });
+  const wi = document.getElementById('wallin'); if (G.wallIn()) wi.value = G.wallIn();
+  wi.addEventListener('change', () => { G.store.set('wallIn', Math.max(0, +wi.value || 0)); render(); });
+
   function render() {
+    cEl.querySelectorAll('[data-c]').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.c === state.color)));
+    cEl.hidden = state.mode === 'objects';
     document.querySelectorAll('[data-mode]').forEach((b) => b.setAttribute('aria-selected', String(b.dataset.mode === state.mode)));
     document.getElementById('h1').textContent = state.mode === 'objects' ? 'Objects and wallpaper' : 'The whole wall';
     $('avail').closest('label').hidden = state.mode === 'objects';
@@ -111,6 +134,8 @@
       if (state.kind === 'print' && w.edition === 'Original') return false;
       if (state.price !== 'any') { const [lo, hi] = state.price.split('-').map(Number); if (w.price < lo || w.price >= hi) return false; }
       if (state.avail && G.isSold(w)) return false;
+      if (state.kind === 'resale' && !(G.isSold(w) && G.resaleFor(w.id))) return false;
+      if (state.color !== 'all' && !(colorMap[w.id] || []).includes(state.color)) return false;
       if (state.q && !(w.title + ' ' + a.name + ' ' + w.medium + ' ' + a.city).toLowerCase().includes(state.q)) return false;
       return true;
     });

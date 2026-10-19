@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Gift Cards · Gesso</title>
+<meta name="description" content="Give someone their first piece of art. Gesso gift cards work on any original, print, object or booking.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wdth,wght@12..96,75..100,300..800&family=DM+Mono:wght@400;500&family=Permanent+Marker&family=VT323&family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=Jost:wght@400;500;600&display=swap">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/png" href="icons/favicon-64.png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<link rel="stylesheet" href="gesso.css">
+<style>
+  .pg { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: clamp(28px, 5vw, 64px); align-items: start; padding-block: clamp(32px, 5vw, 64px); }
+  .card3 { position: sticky; top: calc(env(safe-area-inset-top, 0px) + 96px); aspect-ratio: 1.6; border-radius: 18px; overflow: hidden; position: relative; box-shadow: 0 30px 60px -28px rgba(40, 30, 10, .55); background: #16151B center / cover; color: #fff; }
+  .card3 .shade { position: absolute; inset: 0; background: linear-gradient(160deg, rgba(0,0,0,.05), rgba(0,0,0,.65)); }
+  .card3 .in { position: absolute; inset: 0; padding: 22px; display: grid; grid-template-rows: auto 1fr auto; }
+  .card3 .glogo { --s: 58px; background: #16151B; color: #FBF7EF; }
+  .card3 .amt { font: 800 clamp(2.4rem, 6vw, 3.6rem)/1 var(--display); letter-spacing: -.04em; align-self: end; }
+  .card3 .to { font-size: var(--t-s); opacity: .9; margin-top: 6px; }
+  .card3 .msg { font-family: var(--hand); font-size: 1.05rem; opacity: .95; margin-top: 4px; }
+  .form { display: grid; gap: 18px; }
+  .designs { display: flex; gap: 8px; flex-wrap: wrap; }
+  .designs button { width: 64px; height: 44px; border-radius: 8px; border: 2px solid var(--rule); background: center / cover; cursor: pointer; padding: 0; }
+  .designs button[aria-pressed="true"] { border-color: var(--ink); box-shadow: 0 0 0 2px var(--ink); }
+  @media (max-width: 860px) { .pg { grid-template-columns: minmax(0, 1fr); } .card3 { position: relative; top: 0; } }
+</style>
+</head>
+<body>
+<div id="chrome-top"></div>
+<main class="wrap">
+  <div class="pg">
+    <div class="card3" id="card" role="img" aria-label="Gift card preview"></div>
+    <div class="form">
+      <div style="display:grid;gap:12px"><p class="eyebrow">Gift cards</p><h1 class="display" style="font-size:clamp(2.4rem,6vw,4.2rem)">Give someone their first piece</h1>
+        <p class="lede">Works on any original, print, object, booking or project. When they buy their first piece with it, they earn that artist's chips like everyone else.</p></div>
+      <div class="field"><span class="lbl">Amount</span><div class="slots" id="amts"></div></div>
+      <div class="field"><span class="lbl">Card art</span><div class="designs" id="designs"></div></div>
+      <div class="grid-2"><div class="field"><label for="to">To</label><input class="input" id="to" placeholder="Their name" maxlength="28"></div><div class="field"><label for="from">From</label><input class="input" id="from" placeholder="Your name" maxlength="28"></div></div>
+      <div class="field"><label for="msg">Message</label><input class="input" id="msg" placeholder="Find your own faces" maxlength="60"></div>
+      <div class="field"><label for="when">Send on</label><input class="input" id="when" type="date" value="2026-10-18"></div>
+      <button class="btn primary block" type="button" id="buy"></button>
+      <p class="mono muted" style="font-size:var(--t-xs)">Gift cards never expire. Preview: nothing is charged or sent.</p>
+    </div>
+  </div>
+</main>
+<div id="chrome-bottom"></div>
+<script src="gesso.js"></script>
+<script>
+(function () {
+  G.chrome('gift');
+  const AM = [50, 100, 250, 500], DS = ['hamel-j16', 'hamel-j11', 'hamel-j19', 'hamel-j20', 'hamel-j14', 'hamel-j22'];
+  const st = { amt: 100, art: DS[0] };
+  const $ = (id) => document.getElementById(id);
+  $('amts').innerHTML = AM.map((a) => `<button type="button" class="pill" data-a="${a}">${G.usd(a)}</button>`).join('');
+  $('designs').innerHTML = DS.map((d) => `<button type="button" data-d="${d}" style="background-image:url('${G.workArt(G.work(d), 200)}')" aria-label="${G.esc(G.work(d).title)}"></button>`).join('');
+  const draw = () => {
+    document.querySelectorAll('[data-a]').forEach((b) => b.setAttribute('aria-pressed', String(+b.dataset.a === st.amt)));
+    document.querySelectorAll('[data-d]').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.d === st.art)));
+    $('card').style.backgroundImage = `url('${G.workArt(G.work(st.art), 900)}')`;
+    $('card').innerHTML = `<div class="shade"></div><div class="in">${G.logo()}<span></span><div><div class="amt">${G.usd(st.amt)}</div><div class="to">${$('to').value ? 'For ' + G.esc($('to').value) : 'For someone'}${$('from').value ? ', from ' + G.esc($('from').value) : ''}</div><div class="msg">${G.esc($('msg').value || 'Find your own faces.')}</div></div></div>`;
+    $('buy').textContent = `Send gift card · ${G.usd(st.amt)}`;
+  };
+  document.addEventListener('click', (e) => { const a = e.target.closest('[data-a]'), d = e.target.closest('[data-d]'); if (a) st.amt = +a.dataset.a; if (d) st.art = d.dataset.d; if (a || d) draw(); });
+  ['to', 'from', 'msg'].forEach((i) => $(i).addEventListener('input', draw));
+  $('buy').addEventListener('click', () => {
+    const w = G.wallet(); w.spent = (w.spent || 0) + st.amt; w.sample = false; w.log.unshift({ t: '2026-10-18', text: `Sent a ${G.usd(st.amt)} gift card${$('to').value ? ' to ' + $('to').value : ''}`, chips: 0, a: 'hamel' }); G.saveWallet(w);
+    G.sheet(`<p class="eyebrow">Sent</p><h2 style="font-size:2rem;margin:8px 0">${G.usd(st.amt)} on its way${$('to').value ? ' to ' + G.esc($('to').value) : ''}</h2><p class="muted">They'll get the card by email on ${G.esc($('when').value)}. It counts toward your milestones too. Nothing was charged in this preview.</p><button class="btn block" type="button" data-close style="margin-top:16px">Done</button>`);
+  });
+  draw();
+})();
+</script>
+</body>
+</html>

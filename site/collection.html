@@ -7,7 +7,11 @@
 <meta name="description" content="Your Gesso collection: the chips you hold, the art you own, and what your chips can buy.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wdth,wght@12..96,75..100,300..800&family=DM+Mono:wght@400;500&family=Permanent+Marker&family=VT323&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wdth,wght@12..96,75..100,300..800&family=DM+Mono:wght@400;500&family=Permanent+Marker&family=VT323&family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=Jost:wght@400;500;600&display=swap">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/png" href="icons/favicon-64.png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
 <link rel="stylesheet" href="gesso.css">
 <style>
   .top { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 20px 40px; align-items: end; padding-block: clamp(32px, 5vw, 64px) clamp(24px, 4vw, 40px); }
@@ -38,6 +42,16 @@
   .tagp { font: 500 10px var(--mono); padding: 2px 6px; border: 1px dashed var(--ink-2); margin-left: 6px; }
   .dripbar { height: 10px; background: var(--wall-2); border-radius: 999px; overflow: hidden; }
   .dripbar i { display: block; height: 100%; background: linear-gradient(90deg, var(--cobalt), var(--up)); }
+  .invite { display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(0, .8fr); gap: clamp(20px, 4vw, 48px); padding: clamp(20px, 3vw, 32px); margin-bottom: clamp(32px, 5vw, 56px); border: 2px solid var(--ink); background: var(--cobalt-soft); align-items: start; }
+  .codebox { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; padding: 10px 12px; background: var(--card); border: 1.5px dashed var(--ink-2); justify-self: start; }
+  .codebox .mono { font-size: 1.2rem; letter-spacing: .06em; }
+  .refs { display: grid; gap: 8px; }
+  .ref { display: grid; grid-template-columns: 36px minmax(0, 1fr) auto; gap: 10px; align-items: center; padding: 10px; background: var(--card); font-size: var(--t-s); }
+  .ref .av { width: 36px; height: 36px; border-radius: 50%; background: var(--ink); color: var(--wall); display: grid; place-items: center; font-weight: 800; }
+  .ownedw { break-inside: avoid; margin-bottom: clamp(28px, 4vw, 48px); }
+  .ownedw .work { margin-bottom: 10px; }
+  .resell { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+  @media (max-width: 760px) { .invite { grid-template-columns: minmax(0, 1fr); } }
   .log { width: 100%; border-collapse: collapse; font-size: var(--t-s); }
   .log td { padding: 14px 10px; border-bottom: 1px solid var(--rule); vertical-align: top; }
   .log td:first-child { font-family: var(--mono); font-size: var(--t-xs); color: var(--ink-2); white-space: nowrap; padding-left: 0; }
@@ -76,7 +90,7 @@
         <div class="val">${G.usd(total, true)}</div>
         <div class="sub"><span class="${total - basis >= 0 ? 'up' : 'down'}" style="font-family:var(--mono)">${total - basis >= 0 ? '+' : '−'}${G.usd(Math.abs(total - basis), true)} since you earned them</span><span>${holds.length} artist${holds.length === 1 ? '' : 's'}</span><span>${owned.length} work${owned.length === 1 ? '' : 's'} owned</span></div>
       </div>
-      <a class="btn primary" href="discover.html">Spend chips</a>
+      <div class="cta-row"><button class="btn" type="button" id="share">Share my wall</button><a class="btn primary" href="discover.html">Spend chips</a></div>
     </section>
 
     <section class="section" id="milestones" aria-labelledby="h-ms" style="padding-top:8px">
@@ -92,6 +106,17 @@
         <p class="muted">${spent >= G.DRIP_AT ? 'Each week 1% of your chips converts to cash and pays out to your bank. The rest keeps riding with the artists.' : `You're ${G.usd(G.DRIP_AT - spent)} away. At today's chip value it would pay about ${G.usd(total * G.DRIP_RATE, true)} a week, and grow as your artists gain collectors.`}</p></div>
       <div class="dripbar" aria-hidden="true"><i style="width:${Math.min(100, spent / G.DRIP_AT * 100)}%"></i></div>
       <p class="mono muted" style="font-size:var(--t-xs)">Paying chips out as cash needs legal and banking review before it can launch.</p>
+    </section>
+
+    <section class="invite" id="invite" aria-labelledby="h-inv">
+      <div style="display:grid;gap:10px">
+        <p class="eyebrow">Invite friends</p>
+        <h2 id="h-inv" style="font-size:2rem">Bring someone in. You both get ${G.usd(G.REF_BONUS)} in chips.</h2>
+        <p class="muted">When a friend collects their first piece, you each get ${G.usd(G.REF_BONUS)} in chips from that artist. A new collector also raises that artist's chip price, so the chips you already hold go up too.</p>
+        <div class="codebox"><span class="mono" id="code">${G.refCode()}</span><button class="btn small" type="button" id="copy">Copy invite link</button></div>
+        <span class="muted mono" style="font-size:var(--t-xs)" id="reflink"></span>
+      </div>
+      <div class="refs"><p class="eyebrow">Your invites</p>${G.referrals().map((r) => `<div class="ref"><span class="av">${G.esc(r.name[0])}</span><div><b>${G.esc(r.name)}</b><br><span class="muted">${G.esc(r.status)}</span></div><span class="mono ${r.chips ? 'up' : 'muted'}">${r.chips ? '+' + G.usd(r.chips) : 'waiting'}</span></div>`).join('')}</div>
     </section>
 
     <section aria-labelledby="h-chips">
@@ -115,14 +140,48 @@
 
     <section class="section" aria-labelledby="h-owned" style="padding-bottom:0">
       <div class="section-head"><div><p class="eyebrow">On your walls</p><h2 id="h-owned">Works you own</h2></div></div>
-      <div class="salon">${owned.map((x) => G.workCard(x).replace(/<span class="red-dot"[^>]*><\/span>|<button class="quick-add"[^>]*>[^<]*<\/button>/, '').replace(/<span class="price">[\s\S]*?<\/span>\s*<\/span>/, `<span class="price"><span class="sold-tag" style="--sold:var(--up)">Yours</span><span class="earn">${x.edition === 'Original' ? 'Original' : G.esc(x.edition)}</span></span>`)).join('')}</div>
+      <div class="salon">${owned.map((x) => `<div class="ownedw">` + G.workCard(x).replace(/<span class="red-dot"[^>]*><\/span>|<button class="quick-add"[^>]*>[^<]*<\/button>/, '').replace(/<span class="price">[\s\S]*?<\/span>\s*<\/span>/, `<span class="price"><span class="sold-tag" style="--sold:var(--up)">Yours</span><span class="earn">${x.edition === 'Original' ? 'Original' : G.esc(x.edition)}</span></span>`) + `<div class="resell">${(G.store.get('resales', []) || []).some((r) => r.id === x.id) ? `<span class="mono" style="font-size:var(--t-xs)">Listed for resale at ${G.usd((G.store.get('resales', []) || []).find((r) => r.id === x.id).ask)}</span><button class="link" type="button" data-unlist="${x.id}" style="background:none;border:0;padding:0;cursor:pointer;font-size:var(--t-xs)">Unlist</button>` : `<button class="btn small" type="button" data-resell="${x.id}">Resell</button><button class="link" type="button" data-coa="${x.id}" style="background:none;border:0;padding:0;cursor:pointer;font-size:var(--t-xs)">Certificate</button>`}</div></div>`).join('')}</div>
     </section>
 
     <section class="section" aria-labelledby="h-log" style="padding-bottom:0">
       <div class="section-head"><div><p class="eyebrow">Activity</p><h2 id="h-log">Your chip ledger</h2></div><button class="btn small" type="button" data-reset>Reset preview</button></div>
-      <div style="overflow-x:auto"><table class="log"><tbody>${w.log.map((l) => { const a = G.artist(l.a); return `<tr><td>${new Date(l.t + 'T12:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</td><td><i class="dot" style="--c:${a.color}"></i> ${G.esc(l.text)}</td><td class="num ${l.chips >= 0 ? 'up' : 'down'}">${l.chips >= 0 ? '+' : '−'}${G.chips(Math.abs(l.chips))} $${a.ticker}</td></tr>`; }).join('')}</tbody></table></div>
+      <div style="overflow-x:auto"><table class="log"><tbody>${w.log.map((l) => { const a = G.artist(l.a) || { color: 'var(--ink-2)', ticker: 'GESSO' }; return `<tr><td>${new Date(l.t + 'T12:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</td><td><i class="dot" style="--c:${a.color}"></i> ${G.esc(l.text)}</td><td class="num ${l.chips >= 0 ? 'up' : 'down'}">${l.chips >= 0 ? '+' : '−'}${G.chips(Math.abs(l.chips))} $${a.ticker}</td></tr>`; }).join('')}</tbody></table></div>
     </section>`;
   G.hydrate();
+
+  // invite link
+  const link = new URL('index.html#ref-' + G.refCode(), location.href).href;
+  document.getElementById('reflink').textContent = link;
+  document.getElementById('copy').addEventListener('click', async (e) => {
+    try { await navigator.clipboard.writeText(link); e.target.textContent = 'Copied'; } catch (err) { const r = document.createRange(); r.selectNodeContents(document.getElementById('reflink')); getSelection().removeAllRanges(); getSelection().addRange(r); e.target.textContent = 'Selected, press copy'; }
+  });
+  if (location.hash === '#invite') document.getElementById('invite').scrollIntoView();
+
+  // resell a piece you own
+  document.querySelectorAll('[data-coa]').forEach((b) => b.addEventListener('click', () => G.certificate(G.work(b.dataset.coa))));
+  document.querySelectorAll('[data-unlist]').forEach((b) => b.addEventListener('click', () => { G.store.set('resales', (G.store.get('resales', []) || []).filter((r) => r.id !== b.dataset.unlist)); location.reload(); }));
+  document.querySelectorAll('[data-resell]').forEach((b) => b.addEventListener('click', () => {
+    const x = G.work(b.dataset.resell), a = G.artist(x.artist);
+    const body = G.sheet(`<p class="eyebrow">Resell on Gesso</p><h2 style="font-size:1.9rem;margin:6px 0 12px">${G.esc(x.title)}</h2>
+      <div class="field"><label for="ask">Your price (USD)</label><input class="input mono" id="ask" type="number" min="10" value="${Math.round(x.price * 1.1)}"></div>
+      <div id="split" style="display:grid;gap:6px;margin-top:14px;font-size:var(--t-s)"></div>
+      <div class="field" style="margin-top:12px"><label for="why">A note for buyers (optional)</label><input class="input" id="why" maxlength="80" placeholder="Why it's moving on"></div>
+      <button class="btn primary block" type="button" id="list" style="margin-top:16px">List for resale</button>
+      <p class="mono muted" style="font-size:var(--t-xs);margin-top:10px">Gesso ships it from you to the buyer and updates its ownership history. Preview: nothing is listed publicly.</p>`);
+    const ask = body.querySelector('#ask');
+    const upd = () => { const v = Math.max(10, +ask.value || 0); body.querySelector('#split').innerHTML = `<div style="display:flex;justify-content:space-between"><span>To ${G.esc(a.name)} (${Math.round(G.ROYALTY * 100)}%, every resale)</span><b class="mono">${G.usd(v * G.ROYALTY, true)}</b></div><div style="display:flex;justify-content:space-between"><span>Gesso (5%)</span><b class="mono">${G.usd(v * 0.05, true)}</b></div><div style="display:flex;justify-content:space-between;border-top:1px solid var(--rule);padding-top:6px"><span>You get</span><b class="mono">${G.usd(v * 0.85, true)}</b></div>`; };
+    ask.addEventListener('input', upd); upd();
+    body.querySelector('#list').addEventListener('click', () => { const l = (G.store.get('resales', []) || []).filter((r) => r.id !== x.id); l.push({ id: x.id, ask: Math.max(10, +ask.value || 0), note: body.querySelector('#why').value.trim() }); G.store.set('resales', l); G.closeSheet(); location.reload(); });
+  }));
+
+  // share card
+  document.getElementById('share').addEventListener('click', async () => {
+    const body = G.sheet('<p class="eyebrow">Share my wall</p><div id="sc" style="display:grid;place-items:center;min-height:240px;margin-top:10px"><span class="spin"></span></div>', { wide: false });
+    const blob = await G.shareCard(), url = URL.createObjectURL(blob), file = new File([blob], 'my-gesso-wall.png', { type: 'image/png' });
+    const canShare = navigator.canShare && navigator.canShare({ files: [file] });
+    body.querySelector('#sc').innerHTML = `<img src="${url}" alt="Your Gesso wall as a shareable card" style="width:100%;max-width:360px;box-shadow:var(--hang)"><div class="cta-row" style="margin-top:16px;justify-content:center">${canShare ? '<button class="btn primary" type="button" id="doshare">Share</button>' : ''}<a class="btn ${canShare ? '' : 'primary'}" href="${url}" download="my-gesso-wall.png">Save image</a></div>`;
+    const ds = body.querySelector('#doshare'); if (ds) ds.addEventListener('click', () => navigator.share({ files: [file], title: 'My Gesso wall' }).catch(() => {}));
+  });
 })();
 </script>
 </body>

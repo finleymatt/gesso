@@ -8,11 +8,16 @@
 <meta name="theme-color" content="#0B0C0F">
 <script>
   // Returning visitors go straight in; the intro is for the first visit (or index.html#intro).
-  try { if (localStorage.getItem('gesso:entered') && location.hash !== '#intro') location.replace('now.html'); } catch (e) {}
+  try { if (/^#ref-/.test(location.hash)) localStorage.setItem('gesso:referredBy', JSON.stringify(location.hash.slice(5)));
+    else if (localStorage.getItem('gesso:entered') && location.hash !== '#intro') location.replace('now.html'); } catch (e) {}
 </script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wdth,wght@12..96,75..100,300..800&family=DM+Mono:wght@400;500&family=Permanent+Marker&family=VT323&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wdth,wght@12..96,75..100,300..800&family=DM+Mono:wght@400;500&family=Permanent+Marker&family=VT323&family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=Jost:wght@400;500;600&display=swap">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/png" href="icons/favicon-64.png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
 <link rel="stylesheet" href="gesso.css">
 <style>
   body { min-height: 100vh; display: flex; flex-direction: column; overflow-x: hidden; }
@@ -42,6 +47,7 @@
 
   .tag { font-size: clamp(1.1rem, 2.1vw, 1.35rem); color: var(--ink-2); max-width: 26em; text-wrap: balance; }
   .tag b { color: var(--ink); font-weight: 700; }
+  .invited { font-weight: 700; background: #FFE14D; color: #16151B; padding: 8px 14px; border-radius: 999px; font-size: var(--t-s); }
   .quick { display: flex; flex-wrap: wrap; justify-content: center; gap: 4px 6px; }
   .quick a { font: 400 21px/1 var(--board); letter-spacing: .1em; text-decoration: none; color: var(--ink); padding: 8px 10px; border-radius: 4px; }
   .quick a:hover { background: var(--ink); color: var(--wall); }
@@ -56,6 +62,7 @@
   <div class="center" id="center">
     <div class="orbit"><span class="track-line" aria-hidden="true"></span><div class="ring" id="ring" aria-hidden="true"></div>
       <button class="enter" type="button" id="enter" aria-label="Enter Gesso"></button></div>
+    <p class="invited after" id="invited" hidden></p>
     <p class="tag after">An art market owned by the people who collect it. <b>Buy art, earn the artist's chips, spend them on more art.</b></p>
     <nav class="quick after" aria-label="Go straight to"></nav>
   </div>
@@ -63,13 +70,15 @@
 <script src="gesso.js"></script>
 <script>
 (function () {
-  document.getElementById('board').outerHTML = G.pulse();
+  document.getElementById('board').outerHTML = G.looksBar() + G.pulse();
   document.getElementById('enter').innerHTML = G.logo() + '<span class="cue" aria-hidden="true">ENTER</span>';
   const t = G.store.get('theme', 'light'); document.documentElement.setAttribute('data-theme', t === 'dark' ? 'dark' : 'light');
   const ids = ['hamel-j16', 'hamel-j11', 'hamel-j19', 'hamel-j20', 'hamel-j06', 'hamel-j12', 'hamel-j02', 'hamel-j17', 'hamel-j22', 'hamel-j01'];
   document.getElementById('ring').innerHTML = ids.map((id, i) => `<img src="${G.workArt(G.work(id), 200)}" alt="" style="--a:${(360 / ids.length) * i}deg">`).join('');
   const links = [['now.html', 'NOW'], ['artists.html', 'ARTISTS'], ['discover.html', 'SHOP'], ['book.html', 'FAME'], ['mission.html', 'MISSION'], ['partners.html', 'PARTNERS']];
   document.querySelector('.quick').innerHTML = links.map(([h, l]) => `<a href="${h}">${l}</a>`).join('<span aria-hidden="true">·</span>');
+  const ref = G.store.get('referredBy', null);
+  if (ref) { const el = document.getElementById('invited'); el.hidden = false; el.textContent = `A collector invited you (${ref}). Your first piece comes with ${G.usd(G.REF_BONUS)} in chips.`; }
   const remember = () => G.store.set('entered', true);
   document.querySelectorAll('.quick a').forEach((a) => a.addEventListener('click', remember));
   document.getElementById('enter').addEventListener('click', () => {

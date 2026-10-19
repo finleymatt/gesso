@@ -8,7 +8,11 @@
 <meta name="theme-color" content="#FBF7EF">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wdth,wght@12..96,75..100,300..800&family=DM+Mono:wght@400;500&family=Permanent+Marker&family=VT323&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wdth,wght@12..96,75..100,300..800&family=DM+Mono:wght@400;500&family=Permanent+Marker&family=VT323&family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=Jost:wght@400;500;600&display=swap">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/png" href="icons/favicon-64.png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
 <link rel="stylesheet" href="gesso.css">
 <style>
   /* ---- hero ---- */
@@ -31,7 +35,7 @@
   .hang .p3 { left: 82cqw; top: 6cqw; width: 16cqw; --d: .14s; }
   .hang .p4 { left: 52cqw; top: 38cqw; width: 22cqw; --d: .2s; --tilt: 2deg; }
   .hang .p5 { left: 78cqw; top: 24cqw; width: 18cqw; --d: .26s; }
-  .hang .p6 { left: 54cqw; top: 72cqw; width: 34cqw; --d: .32s; --tilt: -1deg; }
+  .hang .p6 { left: 56cqw; top: 72cqw; width: 22cqw; --d: .32s; --tilt: -1deg; }
   .hang .p7 { left: 78cqw; top: 55cqw; width: 14cqw; --d: .38s; --tilt: 2deg; }
   .hang .chip { left: 2cqw; top: 67cqw; width: 46cqw; animation: rise .8s .5s cubic-bezier(.2,.8,.2,1) backwards; }
   .hang .chip .swatch { min-height: 0; gap: 6cqw; padding: 3cqw 3cqw 2.4cqw; }
@@ -90,6 +94,15 @@
   .bar.us .fill { background: var(--cobalt); }
   .bars .src { font-size: var(--t-xs); color: var(--ink-2); }
 
+  .dropband { background: #0B0C0F; color: #F2F2EE; }
+  .dropband .wrap { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 20px; padding-block: 14px; }
+  .dropband .k { font: 400 22px var(--board); color: #FF4F7A; letter-spacing: .08em; animation: blinkd 1.4s steps(2) infinite; }
+  @keyframes blinkd { 50% { opacity: .35; } }
+  .dropband b { font-weight: 700; }
+  .dropband .cdn { font: 400 24px var(--board); color: #39F28A; letter-spacing: .06em; }
+  .dropband .acts { margin-left: auto; display: flex; gap: 8px; }
+  .dropband .btn { border-color: #F2F2EE; color: #F2F2EE; }
+  @media (prefers-reduced-motion: reduce) { .dropband .k { animation: none; } }
   .roomfeat { display: grid; grid-template-columns: minmax(0, .8fr) minmax(0, 1.2fr); gap: clamp(28px, 5vw, 64px); align-items: start; }
   .ticks { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; font-size: var(--t-s); }
   .ticks li::before { content: "✓"; color: var(--up); font-family: var(--mono); margin-right: 10px; }
@@ -118,9 +131,9 @@
 <main>
   <section class="wrap hero">
     <div class="hero-copy">
-      <p class="eyebrow">The art market that pays collectors back</p>
-      <h1 class="display">Buy art.<br><span class="rise">Rise<svg viewBox="0 0 200 20" preserveAspectRatio="none" aria-hidden="true"><path d="M4 12 C 50 4, 120 18, 196 7"/></svg></span> with<br>the artist.</h1>
-      <p class="lede">Every piece you buy on Gesso pays you back 10% in that artist's chips. Each new collector pushes their chip price up, and you can spend chips on any work here.</p>
+      <p class="eyebrow">Art that pays you back</p>
+      <h1 class="display">Find your<br><span class="rise">own<svg viewBox="0 0 200 20" preserveAspectRatio="none" aria-hidden="true"><path d="M4 12 C 50 4, 120 18, 196 7"/></svg></span> faces.</h1>
+      <p class="lede">Justin's paintings are full of faces that were never planned. What you find in them is yours. Every piece you buy pays you back 10% in that artist's chips, and chips rise as more people collect.</p>
       <div class="cta-row">
         <a class="btn primary" href="discover.html">Start collecting</a>
         <a class="btn" href="how-it-works.html">How chips work</a>
@@ -133,6 +146,11 @@
     </div>
     <div class="hang" id="hang" aria-label="Works hung salon style, with HAMEL's chip"></div>
   </section>
+
+  <section class="dropband" id="drop" aria-label="Next live drop"><div class="wrap">
+    <span class="k">● LIVE DROP</span><b id="dt"></b><span class="cdn" id="cdn"></span>
+    <span class="acts"><a class="btn small" id="cal" download="gesso-live-drop.ics">Add to calendar</a><a class="btn small" href="events.html">All events</a></span>
+  </div></section>
 
 
   <section class="wrap section" aria-labelledby="loop-h">
@@ -248,9 +266,14 @@
 <script>
 (function () {
   G.chrome('now');
+  const drop = G.events().find((e) => e.type === 'Live drop');
+  document.getElementById('dt').textContent = `${drop.title} · ${drop.d.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })}, ${drop.d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })}`;
+  document.getElementById('cal').href = G.ics(drop);
+  const cd = () => { const c = G.countdown(drop.d); document.getElementById('cdn').textContent = c.ms ? `${c.d}D ${String(c.h).padStart(2, '0')}H ${String(c.m).padStart(2, '0')}M ${String(c.s).padStart(2, '0')}S` : 'LIVE NOW'; };
+  cd(); if (!matchMedia('(prefers-reduced-motion: reduce)').matches) setInterval(cd, 1000);
 
   // salon hang
-  const hangIds = ['hamel-01', 'june-03', 'teo-03', 'ama-01', 'odalys-01', 'mika-03', 'ruben-04'];
+  const hangIds = ['hamel-j16', 'hamel-j11', 'hamel-j24', 'hamel-j20', 'hamel-j14', 'hamel-j19', 'hamel-j12'];
   const hang = document.getElementById('hang');
   hang.innerHTML = hangIds.map((id, i) => `<a href="piece.html#${id}" class="p${i + 1}" style="display:block">${G.artImg(G.work(id), i === 0 ? 720 : 420, 'art hung')}</a>`).join('')
     + G.chipCard('hamel', { tag: 'div' }).replace('<span class="notch"></span>', '<span class="notch"></span><span class="newbie" id="newbie"></span>')

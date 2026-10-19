@@ -178,6 +178,9 @@
     PRODUCTS.push(Object.assign({ id: artist + '-' + type, artist, type, src }, TYPES[type]))));
   // every work also comes as a print
   WORKS.forEach((w) => { if (w.edition === 'Original') PRODUCTS.push(Object.assign({ id: w.id + '-print', artist: w.artist, type: 'print', src: w.id }, TYPES.print, { name: 'Print of ' + w.title })); });
+  // limited brand collab
+  PRODUCTS.push(Object.assign({}, TYPES.tee, { id: 'hamel-collab', artist: 'hamel', type: 'tee', src: 'hamel-j18', name: 'HAMEL × Common Thread hemp tee', price: 64, collab: { partner: 'Common Thread', edition: 100, left: 37 },
+    desc: 'A limited run of 100, cut and sewn in hemp by Common Thread with Street to the Museum printed on the back. Numbered inside the collar.' }));
   G.types = TYPES;
   G.products = PRODUCTS;
   G.product = (id) => PRODUCTS.find((p) => p.id === id);
@@ -345,6 +348,11 @@
       if (p.type === 'print' && G.FRAMES[parts[1]]) { const m = parts[0].match(/(\d+) × (\d+)/); unit += G.framePrice({ w: +m[1], h: +m[2] }, parts[1]); }
       return { key, kind: 'product', id, artist: p.artist, title: p.name, sub: `${p.type === 'print' ? opt.replace(/ · (\w+)$/, (m, k) => ' · ' + (G.FRAMES[k] ? G.FRAMES[k].name.toLowerCase() + ' frame' : k)) : opt}${q > 1 ? ' · ' + q + ' ' + (p.unit ? p.unit + 's' : 'pieces') : ''}`, opt, qty: q, unit, price: unit * q, href: `product.html#${id}`, p };
     }
+    if (key.startsWith('r:')) {
+      const rid = key.slice(2), r = G.resales().find((x) => x.id === rid && !x.mine), w = G.work(rid);
+      if (!r || !w) return null;
+      return { key, kind: 'work', resale: r, id: rid, artist: w.artist, title: `${w.title}, ${w.year}`, sub: `Resale from collector #${r.seller} · ${G.size(w)} · ${Math.round(G.ROYALTY * 100)}% to the artist`, qty: 1, unit: r.ask, price: r.ask, href: `piece.html#${rid}`, w };
+    }
     const [wid, frame] = key.split('|'), w = G.work(wid);
     if (!w || G.isSold(w)) return null;
     const fp = G.framePrice(w, frame);
@@ -433,6 +441,7 @@
         <span class="who"><i class="dot" style="--c:${a.color}"></i>${esc(a.name)}</span>
         <span class="title"><b>${esc(w.title)}</b>, ${w.year}</span>
         <span class="meta">${esc(w.medium)} · ${G.size(w)}${w.edition !== 'Original' ? ' · ' + esc(w.edition) : ''}</span>
+        ${G.fit(w) ? `<span class="fitb ${G.fit(w)[0]}">${G.fit(w)[1]}</span>` : ''}${sold && G.resaleFor(w.id) ? `<span class="fitb resale">Resale ${G.usd(G.resaleFor(w.id).ask)}</span>` : ''}
         <span class="price">${sold ? '<span class="sold-tag">Collected</span>' : `<span class="usd">${G.usd(w.price)}</span>`}
           <span class="earn" ${sold ? '' : `title="${G.chips(earn)} $${a.ticker} chips at today's price"`}>${sold ? `by collector #${w.by || n}` : `${G.usd(Math.round(earn * G.price(n)))} back in chips`}</span></span>
       </div></a>`;
@@ -891,7 +900,7 @@
       <div class="walllabel">
         <span class="who"><i class="dot" style="--c:${a.color}"></i>${esc(a.name)}</span>
         <span class="title"><b>${esc(p.name)}</b></span>
-        <span class="meta">Printed with ${esc(G.work(p.src).title)} · made to order</span>
+        <span class="meta">${p.collab ? `Limited: ${p.collab.left} of ${p.collab.edition} left · with ${esc(p.collab.partner)}` : `Printed with ${esc(G.work(p.src).title)} · made to order`}</span>
         <span class="price"><span class="usd">${G.usd(p.price)}${p.unit ? ' / ' + p.unit : ''}</span><span class="earn">${G.usd(back)} back in chips</span></span>
       </div></a>`;
   };
@@ -932,6 +941,166 @@
     });
   };
 
+
+  /* ================= viewers find the faces ================= */
+  const FACE_NAMES = ['the owl', 'my grandmother', 'a laughing moon', 'the fish king', 'someone yawning', 'a sleepy dog', 'two lovers', 'the boss', 'a tiny alien', 'my old teacher', 'the singer', 'a crying cloud', 'a cat in a hat', 'the watcher', 'a baby', 'the mailman'];
+  const VIEWERS = ['Priya R.', 'Marcus D.', 'Lena K.', 'Dante S.', 'Sol M.', 'Imani B.', 'Theo W.', 'Rosa M.', 'Kenji T.', 'Aisha N.', 'Wes P.', 'Noor A.'];
+  G.faces = (id) => {
+    const r = rng(hash('faces' + id)), n = 3 + Math.floor(r() * 6), seed = [];
+    for (let i = 0; i < n; i++) seed.push({ x: 0.12 + r() * 0.76, y: 0.1 + r() * 0.8, name: FACE_NAMES[Math.floor(r() * FACE_NAMES.length)], by: VIEWERS[Math.floor(r() * VIEWERS.length)], seen: 1 + Math.floor(r() * 40) });
+    return seed.concat(((store.get('faces', {}) || {})[id] || []).map((f) => Object.assign({ mine: true, by: 'You', seen: 1 }, f)));
+  };
+  G.addFace = (id, f) => { const all = store.get('faces', {}) || {}; (all[id] = all[id] || []).push(f); store.set('faces', all); };
+
+  /* ================= collectors name the untitled pieces ================= */
+  const TITLE_IDEAS = ['Crowded Heaven', 'Everybody Came', 'Sunday Static', 'The Quiet Ones', 'Neighbors', 'Loud Prayer', 'Eyes on the Bus', 'Nobody Asked', 'Soft Riot', 'Good Morning, Chaos', 'Family Reunion', 'Lucky Dog', 'Open Late', 'Second Breakfast'];
+  G.untitled = (w) => /^Untitled/.test(w.title);
+  G.titles = (id) => {
+    const r = rng(hash('titles' + id)), list = [];
+    for (let i = 0; i < 3; i++) list.push({ t: TITLE_IDEAS[Math.floor(r() * TITLE_IDEAS.length)], by: VIEWERS[Math.floor(r() * VIEWERS.length)], votes: 3 + Math.floor(r() * 40) });
+    const mine = (store.get('titles', {}) || {})[id] || [], votes = (store.get('titleVotes', {}) || {})[id];
+    mine.forEach((t) => list.push({ t, by: 'You', votes: 1, mine: true }));
+    if (votes != null && list[votes]) list[votes].votes += 1;
+    return list.filter((x, i, a) => a.findIndex((y) => y.t === x.t) === i).sort((a, b) => b.votes - a.votes);
+  };
+  G.proposeTitle = (id, t) => { const all = store.get('titles', {}) || {}; (all[id] = all[id] || []).push(t); store.set('titles', all); };
+  G.voteTitle = (id, t) => { const all = store.get('titleVotes', {}) || {}; const l = G.titles(id); all[id] = l.findIndex((x) => x.t === t); store.set('titleVotes', all); };
+
+  /* ================= referrals ================= */
+  G.refCode = () => 'GESSO-' + (hash('me' + (store.get('wallet', null) ? 'w' : 's')) % 9000 + 1000);
+  G.REF_BONUS = 25; // dollars of chips, for both people, when the friend collects a first piece
+  G.referrals = () => store.get('referrals', null) || [{ name: 'Rosa M.', status: 'Collected', chips: G.REF_BONUS, a: 'hamel' }, { name: 'Theo W.', status: 'Collected', chips: G.REF_BONUS, a: 'june' }, { name: 'Imani B.', status: 'Joined, no piece yet', chips: 0 }];
+
+  /* ================= resale with a royalty for the artist ================= */
+  G.ROYALTY = 0.10;
+  const RESALE = [
+    { id: 'hamel-05', ask: 2900, seller: 128, note: 'Moving abroad, it needs a new wall.' },
+    { id: 'odalys-03', ask: 1500, seller: 74, note: 'Making room for a bigger piece.' },
+    { id: 'teo-04', ask: 2200, seller: 51, note: '' },
+    { id: 'june-04', ask: 95, seller: 88, note: 'Edition 31 of 60, never framed.' }
+  ];
+  G.resales = () => RESALE.concat((store.get('resales', []) || []).map((x) => Object.assign({ mine: true, seller: 'you' }, x))).filter((r) => !(store.get('boughtResale', []) || []).includes(r.id));
+  G.resaleFor = (id) => G.resales().find((r) => r.id === id && !r.mine);
+
+  /* ================= events: drops, nights, open studios ================= */
+  G.LIVE_DROP = new Date(2026, 9, 24, 20, 0);
+  G.events = () => [
+    { d: G.LIVE_DROP, type: 'Live drop', title: 'HAMEL paints live', where: 'Streamed on Gesso', text: 'Justin paints a new piece live. It goes on sale the moment the last line is down. Varnish and Masterwork collectors get first claim for an hour.', href: 'now.html#drop', a: 'hamel' },
+    { d: new Date(2026, 9, 30, 19, 0), type: 'FAME night', title: 'Wood fire and vinyl', where: 'Mexico City, MX', text: 'Leo Martín cooks, Sam Rivera plays records. 24 seats.', href: 'book.html', a: 'leo-chef' },
+    { d: new Date(2026, 10, 7, 18, 0), type: 'Opening', title: 'Líneas, a group show', where: 'Centro, Oaxaca, MX', text: 'Odalys Fuente and four other ink artists.', href: 'visit.html', a: 'odalys' },
+    { d: new Date(2026, 10, 15, 12, 0), type: 'Open studio', title: 'Studio Marchetti open weekend', where: 'San Salvario, Turin, IT', text: 'Teo opens the studio for two days.', href: 'visit.html', a: 'teo' },
+    { d: new Date(2026, 10, 2, 23, 59), type: 'Vote closes', title: 'Open the first Gesso House', where: 'Mission page', text: 'Collectors and founders decide.', href: 'mission.html#votes', a: 'hamel' },
+    { d: new Date(2026, 11, 1, 12, 0), type: 'Pop-up', title: 'Midnight Sun pop-up', where: 'Kallio, Helsinki, FI', text: 'Mika Laine prints, two weeks only.', href: 'visit.html', a: 'mika' },
+    { d: new Date(2026, 10, 5, 23, 59), type: 'Project ends', title: 'Scale it up: a 40-foot wall', where: 'Projects', text: 'Last day to back HAMEL\u2019s wall (example project).', href: 'project.html#hamel-wall', a: 'hamel' }
+  ].sort((a, b) => a.d - b.d);
+  G.ics = (e) => {
+    const f = (d) => d.toISOString().replace(/[-:]/g, '').replace(/\.\d{3}/, '');
+    const end = new Date(e.d.getTime() + 2 * 3600e3);
+    return 'data:text/calendar;charset=utf-8,' + encodeURIComponent(['BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//Gesso//EN', 'BEGIN:VEVENT', 'UID:' + hash(e.title) + '@gesso', 'DTSTAMP:' + f(new Date()), 'DTSTART:' + f(e.d), 'DTEND:' + f(end), 'SUMMARY:' + e.title, 'LOCATION:' + e.where, 'DESCRIPTION:' + e.text, 'END:VEVENT', 'END:VCALENDAR'].join('\r\n'));
+  };
+  G.countdown = (to) => { const ms = Math.max(0, to - Date.now()), d = Math.floor(ms / 864e5), h = Math.floor(ms / 36e5) % 24, m = Math.floor(ms / 6e4) % 60, sec = Math.floor(ms / 1e3) % 60; return { ms, d, h, m, s: sec }; };
+
+  /* ================= will it fit? ================= */
+  G.wallIn = () => +store.get('wallIn', 0) || 0;
+  G.fit = (w) => { const W = G.wallIn(); if (!W) return null; return w.w <= W * 0.66 ? ['fits', 'Fits your wall'] : w.w <= W * 0.9 ? ['tight', 'A snug fit'] : ['big', 'Too wide for your wall']; };
+
+  /* ================= shop by color ================= */
+  G.COLORS = [['red', '#E0362C'], ['orange', '#F08A1C'], ['yellow', '#F2CC1C'], ['green', '#2FA84F'], ['blue', '#2D6BE0'], ['purple', '#8A4FD8'], ['pink', '#F05FA8'], ['earth', '#9A6B43'], ['mono', '#8C8C8C']];
+  G.colorsOf = async (w) => {
+    const cache = store.get('colors', {}) || {};
+    if (cache[w.id]) return cache[w.id];
+    const img = await loadImg(G.workArt(w, 300)), c = document.createElement('canvas'); c.width = c.height = 36;
+    const x = c.getContext('2d', { willReadFrequently: true }); x.drawImage(img, 0, 0, 36, 36);
+    const d = x.getImageData(0, 0, 36, 36).data, count = {};
+    for (let i = 0; i < d.length; i += 4) {
+      const r = d[i] / 255, g = d[i + 1] / 255, b = d[i + 2] / 255, mx = Math.max(r, g, b), mn = Math.min(r, g, b), l = (mx + mn) / 2, sat = mx === mn ? 0 : (mx - mn) / (1 - Math.abs(2 * l - 1));
+      let k;
+      if (sat < 0.22 || l < 0.12 || l > 0.92) k = 'mono';
+      else {
+        let h = mx === r ? ((g - b) / (mx - mn)) % 6 : mx === g ? (b - r) / (mx - mn) + 2 : (r - g) / (mx - mn) + 4; h = (h * 60 + 360) % 360;
+        k = h < 15 || h >= 345 ? (l > 0.6 ? 'pink' : 'red') : h < 40 ? (l < 0.42 ? 'earth' : 'orange') : h < 70 ? 'yellow' : h < 165 ? 'green' : h < 255 ? 'blue' : h < 300 ? 'purple' : 'pink';
+      }
+      count[k] = (count[k] || 0) + 1;
+    }
+    const tot = 36 * 36, out = Object.entries(count).filter(([k, v]) => v / tot > (k === 'mono' ? 0.45 : 0.12)).sort((a, b) => b[1] - a[1]).map(([k]) => k).slice(0, 3);
+    cache[w.id] = out; store.set('colors', cache);
+    return out;
+  };
+
+  /* ================= see it in your room, in AR (GLB built in the browser) ================= */
+  // A canvas-wrapped panel at true size: the painting on the front, white edges. model-viewer turns it into
+  // AR on Android and a USDZ for iPhone Quick Look, placed on a wall.
+  G.makeGLB = async (src, wIn, hIn) => {
+    const img = await loadImg(src), M = 0.0254, w = wIn * M, h = hIn * M, d = 1.5 * M, X = w / 2, Y = h / 2, Z = d / 2;
+    const c = document.createElement('canvas'), sc = Math.min(1, 1024 / Math.max(img.width, img.height)); c.width = Math.round(img.width * sc); c.height = Math.round(img.height * sc);
+    c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
+    const jpg = new Uint8Array(await (await new Promise((r) => c.toBlob(r, 'image/jpeg', 0.88))).arrayBuffer());
+    const fPos = [-X, -Y, Z, X, -Y, Z, X, Y, Z, -X, Y, Z], fNrm = [0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1], fUV = [0, 1, 1, 1, 1, 0, 0, 0], fIdx = [0, 1, 2, 0, 2, 3];
+    const faces = [ // back, left, right, top, bottom: [4 corners], normal
+      [[X, -Y, -Z], [-X, -Y, -Z], [-X, Y, -Z], [X, Y, -Z], [0, 0, -1]], [[-X, -Y, -Z], [-X, -Y, Z], [-X, Y, Z], [-X, Y, -Z], [-1, 0, 0]],
+      [[X, -Y, Z], [X, -Y, -Z], [X, Y, -Z], [X, Y, Z], [1, 0, 0]], [[-X, Y, Z], [X, Y, Z], [X, Y, -Z], [-X, Y, -Z], [0, 1, 0]], [[-X, -Y, -Z], [X, -Y, -Z], [X, -Y, Z], [-X, -Y, Z], [0, -1, 0]]];
+    const sPos = [], sNrm = [], sIdx = [];
+    faces.forEach((f, i) => { f.slice(0, 4).forEach((v) => { sPos.push(...v); sNrm.push(...f[4]); }); sIdx.push(i * 4, i * 4 + 1, i * 4 + 2, i * 4, i * 4 + 2, i * 4 + 3); });
+    const parts = [new Float32Array(fPos), new Float32Array(fNrm), new Float32Array(fUV), new Uint16Array(fIdx), new Float32Array(sPos), new Float32Array(sNrm), new Uint16Array(sIdx), jpg];
+    const views = [], chunks = []; let off = 0;
+    parts.forEach((a, i) => { const b = new Uint8Array(a.buffer, a.byteOffset, a.byteLength), pad = (4 - (b.byteLength % 4)) % 4; views.push({ buffer: 0, byteOffset: off, byteLength: b.byteLength, ...(i === 7 ? {} : { target: i === 3 || i === 6 ? 34963 : 34962 }) }); chunks.push(b, new Uint8Array(pad)); off += b.byteLength + pad; });
+    const mm = (a) => { const mn = [Infinity, Infinity, Infinity], mx = [-Infinity, -Infinity, -Infinity]; for (let i = 0; i < a.length; i += 3) for (let k = 0; k < 3; k++) { mn[k] = Math.min(mn[k], a[i + k]); mx[k] = Math.max(mx[k], a[i + k]); } return { min: mn, max: mx }; };
+    const json = {
+      asset: { version: '2.0', generator: 'Gesso' }, scene: 0, scenes: [{ nodes: [0] }], nodes: [{ mesh: 0 }],
+      meshes: [{ primitives: [{ attributes: { POSITION: 0, NORMAL: 1, TEXCOORD_0: 2 }, indices: 3, material: 0 }, { attributes: { POSITION: 4, NORMAL: 5 }, indices: 6, material: 1 }] }],
+      materials: [{ pbrMetallicRoughness: { baseColorTexture: { index: 0 }, metallicFactor: 0, roughnessFactor: 0.85 } }, { pbrMetallicRoughness: { baseColorFactor: [0.95, 0.94, 0.91, 1], metallicFactor: 0, roughnessFactor: 0.9 } }],
+      textures: [{ source: 0, sampler: 0 }], samplers: [{ magFilter: 9729, minFilter: 9729, wrapS: 33071, wrapT: 33071 }], images: [{ bufferView: 7, mimeType: 'image/jpeg' }],
+      accessors: [
+        Object.assign({ bufferView: 0, componentType: 5126, count: 4, type: 'VEC3' }, mm(fPos)), { bufferView: 1, componentType: 5126, count: 4, type: 'VEC3' }, { bufferView: 2, componentType: 5126, count: 4, type: 'VEC2' }, { bufferView: 3, componentType: 5123, count: 6, type: 'SCALAR' },
+        Object.assign({ bufferView: 4, componentType: 5126, count: 20, type: 'VEC3' }, mm(sPos)), { bufferView: 5, componentType: 5126, count: 20, type: 'VEC3' }, { bufferView: 6, componentType: 5123, count: 30, type: 'SCALAR' }],
+      bufferViews: views, buffers: [{ byteLength: off }]
+    };
+    let js = new TextEncoder().encode(JSON.stringify(json)); const jpad = (4 - (js.byteLength % 4)) % 4;
+    js = Uint8Array.from([...js, ...new Array(jpad).fill(0x20)]);
+    const total = 12 + 8 + js.byteLength + 8 + off, glb = new Uint8Array(total), dv = new DataView(glb.buffer);
+    dv.setUint32(0, 0x46546C67, true); dv.setUint32(4, 2, true); dv.setUint32(8, total, true);
+    dv.setUint32(12, js.byteLength, true); dv.setUint32(16, 0x4E4F534A, true); glb.set(js, 20);
+    let o = 20 + js.byteLength; dv.setUint32(o, off, true); dv.setUint32(o + 4, 0x004E4942, true); o += 8;
+    chunks.forEach((b) => { glb.set(b, o); o += b.byteLength; });
+    return URL.createObjectURL(new Blob([glb], { type: 'model/gltf-binary' }));
+  };
+  G.loadScript = (src, module) => new Promise((res, rej) => { if (document.querySelector(`script[src="${src}"]`)) return res(); const t = document.createElement('script'); t.src = src; if (module) t.type = 'module'; t.onload = res; t.onerror = rej; document.head.appendChild(t); });
+
+  /* ================= certificate of authenticity ================= */
+  G.certificate = async (w) => {
+    const a = G.artist(w.artist), no = 'GS-' + String(hash('coa' + w.id) % 900000 + 100000);
+    const url = new URL('piece.html#' + w.id, location.href).href;
+    const body = G.sheet(`<div class="coa">
+      <div class="coa-top"><span class="eyebrow">Certificate of authenticity</span><span class="mono">${no}</span></div>
+      <div class="coa-main">${G.artImg(w, 320, 'art')}
+        <div class="coa-txt"><h2>${esc(w.title)}</h2><p>${esc(a.fullName || a.name)}${a.fullName ? ' (' + esc(a.name) + ')' : ''}</p><p class="muted">${w.year} · ${esc(w.medium)}<br>${G.dims(w)}<br>${w.edition === 'Original' ? 'Original, one of one' : esc(w.edition)}</p></div></div>
+      <div class="coa-bot"><div><p class="coa-sig">${esc(a.name)}</p><span class="muted" style="font-size:var(--t-xs)">Signed by the artist</span></div><div class="coa-qr" id="coa-qr" aria-label="QR code linking to this piece's record"></div></div>
+      <p class="mono muted" style="font-size:var(--t-xs)">The QR code is printed on the back of the canvas and links to this piece's ownership history on Gesso.</p></div>`, { wide: true });
+    G.hydrate(body);
+    try {
+      await G.loadScript('https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js');
+      new window.QRCode(body.querySelector('#coa-qr'), { text: url, width: 112, height: 112, colorDark: '#16151B', colorLight: '#FFFDF8' });
+    } catch (e) { body.querySelector('#coa-qr').textContent = url; }
+  };
+
+  /* ================= share card: your wall as an image ================= */
+  G.shareCard = async () => {
+    const w = G.wallet(), S = { w: 1080, h: 1350 }, c = document.createElement('canvas'); c.width = S.w; c.height = S.h; const x = c.getContext('2d');
+    x.fillStyle = '#FBF7EF'; x.fillRect(0, 0, S.w, S.h);
+    const owned = (w.owned || []).map(G.work).filter(Boolean).slice(0, 6);
+    const imgs = await Promise.all(owned.map((o) => loadImg(G.workArt(o, 600)).catch(() => null)));
+    x.fillStyle = '#16151B'; x.beginPath(); x.arc(120, 120, 64, 0, 7); x.fill();
+    x.fillStyle = '#FBF7EF'; x.font = "38px 'Permanent Marker', cursive"; x.textAlign = 'center'; x.textBaseline = 'middle'; x.save(); x.translate(120, 122); x.rotate(-0.15); x.fillText('gesso', 0, 0); x.restore();
+    x.textAlign = 'left'; x.textBaseline = 'alphabetic'; x.fillStyle = '#16151B'; x.font = "800 76px 'Bricolage Grotesque', sans-serif"; x.fillText('My wall', 210, 140);
+    x.fillStyle = '#625D55'; x.font = "500 30px 'DM Mono', monospace"; x.fillText(`${G.tierOf(w.spent || 0).name.toUpperCase()} COLLECTOR`, 212, 186);
+    const cols = 3, gw = 300, gh = 360, gx = 60, gy = 250;
+    imgs.forEach((im, i) => { if (!im) return; const cx = gx + (i % cols) * (gw + 30), cy = gy + Math.floor(i / cols) * (gh + 30); const r = Math.max(gw / im.width, gh / im.height); x.save(); x.shadowColor = 'rgba(40,30,10,.35)'; x.shadowBlur = 24; x.shadowOffsetY = 12; x.fillRect(cx, cy, gw, gh); x.restore(); x.save(); x.beginPath(); x.rect(cx, cy, gw, gh); x.clip(); x.drawImage(im, cx + (gw - im.width * r) / 2, cy + (gh - im.height * r) / 2, im.width * r, im.height * r); x.restore(); });
+    const holds = Object.entries(w.chips).map(([k, v]) => [G.artist(k), v * G.priceOf(k)]).filter(([a]) => a).sort((a, b) => b[1] - a[1]).slice(0, 3);
+    let y = 1080; holds.forEach(([a, v]) => { x.fillStyle = a.color; x.fillRect(60, y - 34, 44, 44); x.fillStyle = '#16151B'; x.font = "800 40px 'Bricolage Grotesque', sans-serif"; x.fillText('$' + a.ticker, 124, y); x.font = "500 34px 'DM Mono', monospace"; x.textAlign = 'right'; x.fillText(G.usd(v, true), 1020, y); x.textAlign = 'left'; y += 64; });
+    x.fillStyle = '#625D55'; x.font = "500 26px 'DM Mono', monospace"; x.fillText('finleymatt.github.io/gesso', 60, 1300);
+    return new Promise((r) => c.toBlob(r, 'image/png'));
+  };
+
   /* ================= chrome: top bar, tab bar, footer, toast ================= */
   const I = {
     pin: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M12 21s-7-6.2-7-11.5A7 7 0 0 1 19 9.5C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></svg>',
@@ -960,16 +1129,31 @@
       <a class="pulse-l" href="now.html#board"><svg class="ekg" viewBox="0 0 120 24" aria-hidden="true"><path d="M0 13 H34 L39 13 L43 4 L48 21 L53 8 L57 13 H82 L85 10 L88 13 H120"/></svg><span>GESSO</span><i class="u">▲${(idx * 100).toFixed(2)}%</i></a>
       <div class="pulse-v"><div class="pulse-t">${row}${row}</div></div></div>`;
   };
+  /* three looks to show Justin: Studio (the original), Archive (gallery), Marker (hand-lettered zine) */
+  G.LOOKS = [['studio', 'Studio'], ['archive', 'Archive'], ['marker', 'Marker']];
+  G.applyLook = () => { const l = store.get('look', 'studio'); document.documentElement.setAttribute('data-look', G.LOOKS.some(([k]) => k === l) ? l : 'studio'); };
+  G.applyLook();
+  G.looksBar = () => `<div class="looks" role="group" aria-label="Compare designs"><b>Compare designs:</b>${G.LOOKS.map(([k, n], i) => `<button type="button" data-look-set="${k}" aria-pressed="${document.documentElement.getAttribute('data-look') === k}"><span>${i + 1}</span>${n}</button>`).join('')}</div>`;
+  document.addEventListener('click', (e) => {
+    const b = e.target.closest('[data-look-set]'); if (!b) return;
+    store.set('look', b.dataset.lookSet); G.applyLook();
+    document.querySelectorAll('[data-look-set]').forEach((x) => x.setAttribute('aria-pressed', String(x.dataset.lookSet === b.dataset.lookSet)));
+  });
   G.logo = (cls = '') => `<span class="glogo ${cls}" aria-hidden="true"><span>gesso</span></span>`;
 
   G.chrome = (page) => {
-    const nav = [['now.html', 'Now', 'now'], ['artists.html', 'Artists', 'artists'], ['discover.html', 'Shop', 'discover'], ['book.html', 'FAME', 'book'], ['partners.html', 'Partners', 'partners'], ['mission.html', 'Mission', 'mission']];
-    const menu = [['now.html', 'Now on Gesso'], ['artists.html', 'Artists'], ['discover.html', 'Shop art'], ['discover.html#objects', 'Hoodies, wallpaper and more'], ['book.html', 'FAME: book chefs, DJs and more'], ['project.html', 'Back a project'], ['visit.html', 'See art in person'], ['partners.html', 'Partners and Gesso House'], ['mission.html', 'Mission and votes'], ['collection.html', 'Your collection and milestones'], ['how-it-works.html', 'How chips work'], ['for-artists.html', 'Sell on Gesso']];
+    const NAV = [
+      { label: 'Art', href: 'discover.html', keys: ['now', 'discover', 'artists', 'projects', 'visit', 'events'], sub: [['now.html', 'Now', "What's new and the next live drop"], ['discover.html', 'Shop art', 'Originals, prints and resale'], ['discover.html#objects', 'Objects', 'Hoodies, wallpaper, collabs'], ['artists.html', 'Artists', 'The roster'], ['project.html', 'Projects', "Back what's next"], ['events.html', 'Events', 'Drops, nights, open studios'], ['visit.html', 'Visit', 'See it in person']] },
+      { label: 'FAME', href: 'book.html', keys: ['book'], sub: null },
+      { label: 'Collection', href: 'collection.html', keys: ['collection', 'checkout', 'gift'], sub: [['collection.html', 'Your collection', 'Chips, milestones, your wall'], ['collection.html#invite', 'Invite friends', `You both get ${G.usd(G.REF_BONUS)} in chips`], ['gift.html', 'Gift cards', 'Give someone their first piece']] },
+      { label: 'About', href: 'mission.html', keys: ['mission', 'partners', 'how', 'reserve', 'spaces'], sub: [['mission.html', 'Mission', "Justin's statement and votes"], ['how-it-works.html', 'How chips work', 'The curve, milestones, plans'], ['reserve.html', 'The reserve', 'Live numbers behind every chip'], ['spaces.html', 'Art for spaces', 'Rent-to-own for businesses'], ['partners.html', 'Partners', 'Where chips work'], ['for-artists.html', 'Sell on Gesso', 'For artists and creators']] }
+    ];
+    const menu = [['now.html', 'Now on Gesso'], ['artists.html', 'Artists'], ['discover.html', 'Shop art'], ['discover.html#objects', 'Hoodies, wallpaper and more'], ['book.html', 'FAME: book chefs, DJs and more'], ['project.html', 'Back a project'], ['visit.html', 'See art in person'], ['partners.html', 'Partners and Gesso House'], ['events.html', 'Events and live drops'], ['reserve.html', 'The reserve'], ['spaces.html', 'Art for spaces'], ['gift.html', 'Gift cards'], ['mission.html', 'Mission and votes'], ['collection.html', 'Your collection and milestones'], ['how-it-works.html', 'How chips work'], ['for-artists.html', 'Sell on Gesso']];
     const top = document.getElementById('chrome-top');
-    if (top) top.outerHTML = `${G.pulse()}
+    if (top) top.outerHTML = `${G.looksBar()}${G.pulse()}
       <header class="topbar"><div class="wrap">
         <a class="logo-link" href="now.html" aria-label="Gesso home">${G.logo()}</a>
-        <nav class="nav" aria-label="Main">${nav.map(([h, l, k]) => `<a href="${h}" ${k === page ? 'aria-current="page"' : ''}>${l}</a>`).join('')}</nav>
+        <nav class="nav" aria-label="Main">${NAV.map((g) => `<div class="grp"><a href="${g.href}" ${g.keys.includes(page) ? 'aria-current="page"' : ''}>${g.label}${g.sub ? '<span class="car" aria-hidden="true">▾</span>' : ''}</a>${g.sub ? `<div class="drop">${g.sub.map(([h, l, d]) => `<a href="${h}"><b>${l}</b><span>${d}</span></a>`).join('')}</div>` : ''}</div>`).join('')}</nav>
         <div class="tools">
           <a class="wallet-pill" href="collection.html" title="What your chips are worth. Tap to see your collection."><span class="stack" data-wallet-stack></span><span class="num" data-wallet-val></span><span class="label muted">in chips</span></a>
           <a class="icon-btn" href="checkout.html" aria-label="Bag">${I.bag}<span class="badge" data-bag-count></span></a>
@@ -981,7 +1165,7 @@
       <nav class="tabbar" aria-label="Tabs">
         <a href="now.html" ${page === 'now' ? 'aria-current="page"' : ''}>${I.home}Now</a>
         <a href="discover.html" ${page === 'discover' ? 'aria-current="page"' : ''}>${I.wall}Shop</a>
-        <a href="artists.html" ${page === 'artists' ? 'aria-current="page"' : ''}>${I.brush}Artists</a>
+        <a href="book.html" ${page === 'book' ? 'aria-current="page"' : ''}>${I.brush}FAME</a>
         <a href="collection.html" ${page === 'collection' ? 'aria-current="page"' : ''}>${I.coll}Collection</a>
         <a href="checkout.html" ${page === 'checkout' ? 'aria-current="page"' : ''}>${I.bag}Bag<span class="badge" data-bag-count></span></a>
       </nav>
@@ -1023,6 +1207,7 @@
       if (bk) { e.preventDefault(); G.book(bk.dataset.book); }
     });
     G.refreshBadges();
+    if ('serviceWorker' in navigator && /github\.io$|^localhost$|^127\.0\.0\.1$/.test(location.hostname)) navigator.serviceWorker.register('sw.js').catch(() => {});
   };
 
   G.refreshBadges = () => {

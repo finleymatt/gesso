@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Art for Spaces · Gesso</title>
+<meta name="description" content="Rent original art for your restaurant, office or hotel. Every month of rent counts toward buying it.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wdth,wght@12..96,75..100,300..800&family=DM+Mono:wght@400;500&family=Permanent+Marker&family=VT323&family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=Jost:wght@400;500;600&display=swap">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/png" href="icons/favicon-64.png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<link rel="stylesheet" href="gesso.css">
+<style>
+  .hero { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: clamp(28px, 5vw, 64px); align-items: center; padding-block: clamp(32px, 5vw, 72px); }
+  .hero .copy { display: grid; gap: 18px; }
+  .hero .pics { display: grid; grid-template-columns: 1.2fr 1fr; gap: 10px; }
+  .hero .pics img { width: 100%; height: 100%; object-fit: cover; aspect-ratio: 3 / 4; box-shadow: var(--hang); }
+  .steps { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 18px; }
+  .steps div { border-top: 2px solid var(--ink); padding-top: 12px; display: grid; gap: 6px; }
+  .steps p { color: var(--ink-2); font-size: var(--t-s); }
+  .packs { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
+  .pack { background: var(--card); border: 1px solid var(--rule); display: grid; grid-template-rows: auto 1fr; overflow: hidden; }
+  .pack .strip { display: flex; height: 140px; }
+  .pack .strip img { flex: 1 1 0; min-width: 0; object-fit: cover; }
+  .pack .b { padding: 18px; display: grid; gap: 8px; align-content: start; }
+  .pack .price { font: 500 1.8rem var(--mono); }
+  .pack .price small { font-size: var(--t-s); color: var(--ink-2); }
+  .calc { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 24px; padding: clamp(18px, 3vw, 28px); border: 2px solid var(--ink); background: var(--card); align-items: center; }
+  .calc .out { display: grid; gap: 8px; font-size: var(--t-s); }
+  .calc .out .row { display: flex; justify-content: space-between; gap: 10px; }
+  .calc .out .row b { font-family: var(--mono); font-weight: 500; }
+  form.inq { background: var(--card); border: 1px solid var(--rule); padding: clamp(18px, 3vw, 28px); display: grid; gap: 14px; }
+  @media (max-width: 860px) { .hero, .calc { grid-template-columns: minmax(0, 1fr); } .steps, .packs { grid-template-columns: minmax(0, 1fr); } }
+</style>
+</head>
+<body>
+<div id="chrome-top"></div>
+<main class="wrap">
+  <section class="hero">
+    <div class="copy"><p class="eyebrow">Art for spaces</p><h1 class="display" style="font-size:clamp(2.6rem,6.6vw,4.8rem)">Rent the wall. Own it over time.</h1>
+      <p class="lede">Original art for restaurants, offices, studios and hotels. Pay monthly, swap pieces every season, and every month of rent counts toward buying the work you can't let go of.</p>
+      <div class="cta-row"><a class="btn primary" href="#inquire">Get a proposal</a><a class="btn" href="#calc">Price a piece</a></div></div>
+    <div class="pics" id="pics"></div>
+  </section>
+
+  <section class="steps" aria-label="How it works">
+    <div><b>1. We curate</b><p>Tell us about the space. We send a proposal with pieces shown on your actual walls, using a photo you send.</p></div>
+    <div><b>2. You rent</b><p>Monthly rent is 4% of the price. Installation, insurance and a seasonal swap are included.</p></div>
+    <div><b>3. You own</b><p>100% of the rent you've paid counts toward buying the piece, any time. The artist is paid on every month.</p></div>
+  </section>
+
+  <section class="section" aria-labelledby="pk-h" style="padding-bottom:0">
+    <div class="section-head"><div><p class="eyebrow">Starting points</p><h2 id="pk-h">Packages</h2></div></div>
+    <div class="packs" id="packs"></div>
+  </section>
+
+  <section class="section" id="calc" aria-labelledby="cl-h" style="padding-bottom:0">
+    <div class="calc">
+      <div style="display:grid;gap:12px"><h2 id="cl-h" style="font-size:1.8rem">Price a single piece</h2>
+        <div class="field"><label for="pick">Piece</label><select class="input" id="pick"></select></div>
+        <div class="field"><label for="months">Months you'd rent before buying</label><input type="range" id="months" min="3" max="24" value="12"></div></div>
+      <div class="out" id="out" aria-live="polite"></div>
+    </div>
+  </section>
+
+  <section class="section" id="inquire" aria-labelledby="iq-h">
+    <div class="calc" style="border:0;padding:0;background:none;align-items:start">
+      <div style="display:grid;gap:12px"><p class="eyebrow">Get a proposal</p><h2 id="iq-h">Tell us about the space</h2><p class="muted">We reply within two days with a curated set, shown on your walls. Businesses earn chips on rent too, which can go toward the purchase.</p></div>
+      <form class="inq" id="inq" novalidate>
+        <div class="grid-2"><div class="field"><label for="biz">Business</label><input class="input" id="biz" placeholder="Name of the place"></div><div class="field"><label for="kind">Type of space</label><select class="input" id="kind"><option>Restaurant or café</option><option>Office</option><option>Hotel or short-stay</option><option>Retail</option><option>Studio or gym</option></select></div></div>
+        <div class="grid-2"><div class="field"><label for="walls">Walls to fill</label><input class="input" id="walls" type="number" min="1" value="3"></div><div class="field"><label for="em">Email</label><input class="input" id="em" type="email" placeholder="you@business.com"></div></div>
+        <button class="btn primary" type="submit">Request a proposal</button><p class="mono muted" style="font-size:var(--t-xs)">Preview: nothing is sent.</p>
+      </form>
+    </div>
+  </section>
+</main>
+<div id="chrome-bottom"></div>
+<script src="gesso.js"></script>
+<script>
+(function () {
+  G.chrome('spaces');
+  const RATE = 0.04;
+  const W = (id) => G.work(id), img = (id) => G.workArt(W(id), 560);
+  document.getElementById('pics').innerHTML = `<img src="${img('hamel-j22')}" alt="HAMEL, Untitled (Blue Field)"><div style="display:grid;gap:10px"><img src="${img('hamel-j11')}" alt="HAMEL, Untitled (Blue Bird)" style="aspect-ratio:1"><img src="${img('hamel-j20')}" alt="HAMEL, Untitled (Petals)" style="aspect-ratio:1"></div>`;
+  const PACKS = [
+    ['Café wall', 'Three small originals for a counter or banquette.', ['hamel-j16', 'hamel-j12', 'hamel-j19']],
+    ['Office floor', 'Eight pieces for meeting rooms and the hallway between them.', ['hamel-j11', 'hamel-j06', 'hamel-j20', 'hamel-j17', 'hamel-j02', 'hamel-j01', 'hamel-j09', 'hamel-j13']],
+    ['Hotel lobby', 'A statement canvas and six smaller works for the rooms beyond it.', ['hamel-j22', 'hamel-j23', 'hamel-j14', 'hamel-j15', 'hamel-j27', 'hamel-j05', 'hamel-j10']]
+  ];
+  document.getElementById('packs').innerHTML = PACKS.map(([n, d, ids]) => { const total = ids.reduce((s, id) => s + W(id).price, 0); return `<article class="pack"><div class="strip">${ids.slice(0, 4).map((id) => `<img src="${img(id)}" alt="">`).join('')}</div>
+    <div class="b"><h3>${n}</h3><p class="muted" style="font-size:var(--t-s)">${d}</p><span class="price">${G.usd(Math.round(total * RATE))}<small> a month</small></span><span class="muted" style="font-size:var(--t-xs)">${ids.length} pieces worth ${G.usd(total)} · rent counts toward owning them</span><a class="btn small" href="#inquire" style="justify-self:start">Ask about this</a></div></article>`; }).join('');
+  const pick = document.getElementById('pick'), months = document.getElementById('months');
+  pick.innerHTML = G.works.filter((w) => w.edition === 'Original' && !G.isSold(w)).map((w) => `<option value="${w.id}">${G.esc(G.artist(w.artist).name)}: ${G.esc(w.title)} (${G.usd(w.price)})</option>`).join('');
+  pick.value = 'hamel-j22';
+  const calc = () => { const w = W(pick.value), m = +months.value, mo = w.price * RATE, paid = mo * m;
+    document.getElementById('out').innerHTML = `<div class="row"><span>Monthly rent</span><b>${G.usd(Math.round(mo))}</b></div><div class="row"><span>Paid after ${m} months</span><b>${G.usd(Math.round(paid))}</b></div><div class="row"><span>Left to own it</span><b>${G.usd(Math.max(0, Math.round(w.price - paid)))}</b></div><div class="row"><span>Chips earned on rent</span><b style="color:var(--cobalt)">${G.chips(G.chipsFor(paid, G.collectors(w.artist)))} $${G.artist(w.artist).ticker}</b></div>
+      <p class="muted" style="font-size:var(--t-xs)">${paid >= w.price ? 'At this point the rent has paid for the piece in full. It’s yours.' : `Own it outright after ${Math.ceil(w.price / mo)} months of rent.`}</p>`; };
+  pick.addEventListener('change', calc); months.addEventListener('input', calc); calc();
+  document.getElementById('inq').addEventListener('submit', (e) => { e.preventDefault(); e.target.outerHTML = `<div style="padding:22px;background:var(--cobalt-soft);border-left:4px solid var(--cobalt)"><h3>Thanks. We'll send a proposal.</h3><p class="muted">In the live app the curation team replies within two days. Nothing was sent in this preview.</p></div>`; });
+})();
+</script>
+</body>
+</html>
